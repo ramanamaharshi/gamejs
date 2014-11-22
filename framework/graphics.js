@@ -52,7 +52,38 @@
 	
 	
 	
+	Graphics.prototype.vFillCircle = function (iX, iY, iR) {
+		
+		var oG = this;
+		oG.vDrawCircle(iX, iY, iR, iR);
+		oG.o2D.fill();
+		
+	};
+	
+	
+	
+	
+	Graphics.prototype.vDrawCircle = function (iX, iY, iR) {
+		
+		this.vDrawOvalByCenterAndRadius(iX, iY, iR, iR);
+		
+	};
+	
+	
+	
+	
 	Graphics.prototype.vFillOval = function (iX, iY, iW, iH) {
+		
+		var oG = this;
+		oG.vDrawOval(iX, iY, iW, iH);
+		oG.o2D.fill();
+		
+	};
+	
+	
+	
+	
+	Graphics.prototype.vDrawOval = function (iX, iY, iW, iH) {
 		
 		var oG = this;
 		
@@ -83,6 +114,18 @@
 	
 	Graphics.prototype.vFillRect = function (iX, iY, iW, iH) {
 		this.o2D.fillRect(iX, iY, iW, iH);
+	};
+	
+	
+	
+	
+	Graphics.prototype.vDrawLine = function (iXA, iYA, iXB, iYB, iStroke) {
+		var o2D = this.o2D;
+		if (typeof iStroke == 'undefined') iStroke = 1;
+		o2D.beginPath();
+		o2D.moveTo(iXA, iYA);
+		o2D.lineTo(iXB, iYB);
+		o2D.stroke();
 	};
 	
 	

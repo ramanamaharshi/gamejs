@@ -7,20 +7,36 @@
 		
 		var oI = this;
 		
-		oI.aPressedKeys = {};
-		addEventListener("keydown", function(oEvent){oI.aPressedKeys[oEvent.keyCode] = true;}, false);
-		addEventListener("keyup", function(oEvent){delete oI.aPressedKeys[oEvent.keyCode];}, false);
+		oI.bLog = false;
+		
+		oI.oPressedKeys = {};
+		addEventListener("keydown", function(oEvent){
+			if (!(oEvent.keyCode in oI.oPressedKeys)) {
+				oI.oPressedKeys[oEvent.keyCode] = true;
+				if (oI.bLog) {
+					console.log(oEvent.keyCode);
+				}
+			}
+		}, false);
+		addEventListener("keyup", function(oEvent){
+			delete oI.oPressedKeys[oEvent.keyCode];
+		}, false);
 		
 	};
 	
 	
 	
 	
-	Input.prototype.bKeyDown = function (sKeyCode) {
+	Input.prototype.bKey = function (iKey) {
 		
-		var oI = this;
+		var bReturn = false;
 		
-		var bReturn = sKeyCode in oI.aPressedKeys;
+		for (var iA = 0; iA < arguments.length; iA ++) {
+			if (arguments[iA] in this.oPressedKeys) {
+				bReturn = true;
+				break;
+			}
+		}
 		
 		return bReturn;
 		
