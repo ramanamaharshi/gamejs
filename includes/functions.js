@@ -6,22 +6,17 @@ var oMakeWall = function (aWallArray) {
 	
 	var aWallDelta = [aWallArray[2] - aWallArray[0], aWallArray[3] - aWallArray[1]];
 	
-	var mMatrix = oLA.mMatrixFromCenterNormal(aWallArray, aWallDelta, false);
+	var mTransA = oLA.mInverseTranslation(aWallArray);
+	var mRotA = oLA.mInverseRotation(aWallDelta, false);
+	var mMatrixA = oLA.mMultiplyMM(mRotA, mTransA);
 	
-	var pWallA = [aWallArray[0], aWallArray[1]];
-	var pWallB = [aWallArray[2], aWallArray[3]];
-	
-	var mTrans = oLA.mInverseTranslation(pWallA);
-	var mRot = oLA.mInverseRotation(aWallDelta, false);
-	var mBoth = oLA.mMultiplyMM(mRot, mTrans);
-	
-	oLA.vPrintP(oLA.pMultiplyMP(mRot, oLA.pMultiplyMP(mTrans, pWallB)));
-	oLA.vPrintP(oLA.pMultiplyMP(mTrans, oLA.pMultiplyMP(mRot, pWallB)));
-	oLA.vPrintP(oLA.pMultiplyMP(mBoth, pWallB));
+	var mTransB = oLA.mTranslation(aWallArray);
+	var mRotB = oLA.mRotation(aWallDelta, false);
+	var mMatrixB = oLA.mMultiplyMM(mTransB, mRotB);
 	
 	var nLength = oLA.nLength(aWallDelta);
 	
-	var oWall = {aArray: aWallArray, mMatrix: mMatrix, nLength: nLength};
+	var oWall = {aArray: aWallArray, mMatrixA: mMatrixA, mMatrixB: mMatrixB, nLength: nLength};
 	
 	return oWall;
 	

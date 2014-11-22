@@ -10,49 +10,12 @@ var oLA = {
 	
 	
 	
-	nLength: function (pP) {
+	mMatrixFromCenterNormal: function (pC, pN, bScale) {
 		
-		return Math.sqrt(pP[0] * pP[0] + pP[1] * pP[1]);
+		var mTranslate = oLA.mInverseTranslation(pC);
+		var mRotateScale = oLA.mInverseRotation(pN, bScale);
 		
-	},
-	
-	
-	
-	
-	pMultiplyMP: function (mM, pP) {
-		
-		var pReturn = [
-			(mM[0] * pP[0] + mM[2] * pP[1] + mM[4]),
-			(mM[1] * pP[0] + mM[3] * pP[1] + mM[5]),
-		];
-		
-		return pReturn;
-		
-	},
-	
-	
-	
-	
-	mMultiplyMM: function (mA, mB) {
-		
-		//					b0			b2			b4
-		//					b1			b3			b5
-		//					 0			 0			 1
-		//				
-		//	a0 a2 a4	a0b0+a2b1	a0b2+a2b3	a0b4+a2b5+a4
-		//	a1 a3 a5	a1b0+a3b1	a1b2+a3b3	a1b4+a3b5+a5
-		//	 0  0  1	
-		
-		var mReturn = [
-			mA[0] * mB[0] + mA[2] * mB[1],
-			mA[1] * mB[0] + mA[3] * mB[1],
-			mA[0] * mB[2] + mA[2] * mB[3],
-			mA[1] * mB[2] + mA[3] * mB[3],
-			mA[0] * mB[4] + mA[2] * mB[5] + mA[4],
-			mA[1] * mB[4] + mA[3] * mB[5] + mA[5],
-		];
-		
-		return mReturn;
+		return oLA.mMultiplyMM(mRotateScale, mTranslate);
 		
 	},
 	
@@ -105,13 +68,91 @@ var oLA = {
 	
 	
 	
+	mMultiplyMM: function (mA, mB) {
+		
+		//					b0			b2			b4
+		//					b1			b3			b5
+		//					 0			 0			 1
+		//				
+		//	a0 a2 a4	a0b0+a2b1	a0b2+a2b3	a0b4+a2b5+a4
+		//	a1 a3 a5	a1b0+a3b1	a1b2+a3b3	a1b4+a3b5+a5
+		//	 0  0  1	
+		
+		var mReturn = [
+			mA[0] * mB[0] + mA[2] * mB[1],
+			mA[1] * mB[0] + mA[3] * mB[1],
+			mA[0] * mB[2] + mA[2] * mB[3],
+			mA[1] * mB[2] + mA[3] * mB[3],
+			mA[0] * mB[4] + mA[2] * mB[5] + mA[4],
+			mA[1] * mB[4] + mA[3] * mB[5] + mA[5],
+		];
+		
+		return mReturn;
+		
+	},
 	
-	mMatrixFromCenterNormal: function (pC, pN, bScale) {
+	
+	
+	
+	pMultiplyMP: function (mM, pP) {
 		
-		var mTranslate = oLA.mInverseTranslation(pC);
-		var mRotateScale = oLA.mInverseRotation(pN, bScale);
+		var pReturn = [
+			(mM[0] * pP[0] + mM[2] * pP[1] + mM[4]),
+			(mM[1] * pP[0] + mM[3] * pP[1] + mM[5]),
+		];
 		
-		return oLA.mMultiplyMM(mRotateScale, mTranslate);
+		return pReturn;
+		
+	},
+	
+	
+	
+	
+	pMultiplyNP: function (nF, pP) {
+		
+		return [nF * pP[0], nF * pP[1]];
+		
+	},
+	
+	
+	
+	
+	pAdd: function (pA, pB) {
+		
+		return [pA[0] + pB[0], pA[1] + pB[1]];
+		
+	},
+	
+	
+	
+	
+	pSub: function (pA, pB) {
+		
+		return [pA[0] - pB[0], pA[1] - pB[1]];
+		
+	},
+	
+	
+	
+	
+	nLength: function (pP) {
+		
+		return Math.sqrt(pP[0] * pP[0] + pP[1] * pP[1]);
+		
+	},
+	
+	
+	
+	
+	nDir: function (nValue) {
+		
+		if (nValue < 0) {
+			return -1;
+		} else if (nValue > 0) {
+			return 1;
+		} else {
+			return 0;
+		}
 		
 	},
 	

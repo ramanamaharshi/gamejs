@@ -33,7 +33,7 @@ var vInit = function () {
 var vInput = function () {
 	
 	var nTurnSpeed = 0.1;
-	var nWalkSpeed = 0.2;
+	var nWalkSpeed = 0.9;
 	
 	oState.oMe.pV[0] = 0;
 	oState.oMe.pV[1] = 0;
@@ -64,9 +64,27 @@ var vCalc = function () {
 	oState.oMe.pP[1] += oState.oMe.pV[1];
 	
 	oState.oGeometry.aWalls.forEach(function(oWall){
-		var pRel = oLA.pMultiplyMP(oWall.mMatrix, oState.oMe.pP);
-		if (Math.abs(pRel[0]) < oState.oMe.nRadius) {}
-		//console.log(pRel[0]);
+		var pRel = oLA.pMultiplyMP(oWall.mMatrixA, oState.oMe.pP);
+		if (Math.abs(pRel[0]) < oState.oMe.nRadius) {
+			if (0 < pRel[1] + oState.oMe.nRadius && pRel[1] - oState.oMe.nRadius < oWall.nLength) {
+				if (0 < pRel[1] && pRel[1] < oWall.nLength) {
+					if (pRel[0] > 0) {
+						pRel[0] = oState.oMe.nRadius;
+					} else {
+						pRel[0] = -oState.oMe.nRadius;
+					}
+				} else {
+					if (0 < pRel[1]) {
+						pRel[1] -= oWall.nLength;
+						pRel = oLA.pMultiplyNP(oState.oMe.nRadius / oLA.nLength(pRel), pRel);
+						pRel[1] += oWall.nLength;
+					} else {
+						pRel = oLA.pMultiplyNP(oState.oMe.nRadius / oLA.nLength(pRel), pRel);
+					}
+				}
+			}
+			oState.oMe.pP = oLA.pMultiplyMP(oWall.mMatrixB, pRel);
+		}
 	});
 	
 };
