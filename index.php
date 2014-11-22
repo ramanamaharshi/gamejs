@@ -6,7 +6,7 @@
 	<body>
 		<?php
 			$aIncludeFiles = array();
-			$aIncludeFolders = array('framework', 'classes');
+			$aIncludeFolders = array('framework', 'includes');
 			foreach ($aIncludeFolders as $sIncludeFolder) {
 				$aFiles = scandir($sIncludeFolder);
 				foreach ($aFiles as $sFile) {

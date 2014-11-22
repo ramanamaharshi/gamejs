@@ -11,8 +11,8 @@
 		
 		var oGame = this;
 		
-		oGame.oG = new Graphics(iW, iH);
-		oGame.oI = new Input();
+		oGame.oG = new Graphics2D(iW, iH);
+		oGame.oI = new Input(oGame.oG.oGetCanvas());
 		
 	};
 	

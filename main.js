@@ -6,17 +6,24 @@ var oGame = new Game(500, 400);
 var oG = oGame.oG;
 var oI = oGame.oI;
 
-//oI.bLog = true;
 
-var oResources = {};
+
+
 var oState = {};
+var oResources = {};
 
 
 
 
 var vInit = function () {
 	
-	oState.oMe = {nX: 0, nY: 0, nDir: 0};
+	oState.oMe = {pP: [0, 0], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4};
+	oState.oGeometry = {
+		aWalls: [
+			oMakeWall([84, 19, 41, 57]),
+			oMakeWall([24, 29, 31, 37]),
+		]
+	};
 	
 };
 
@@ -28,6 +35,9 @@ var vInput = function () {
 	var nTurnSpeed = 0.1;
 	var nWalkSpeed = 2;
 	
+	oState.oMe.pV[0] = 0;
+	oState.oMe.pV[1] = 0;
+	
 	if (oI.bKey(65, 37)) {
 		oState.oMe.nDir -= nTurnSpeed;
 	}
@@ -35,12 +45,12 @@ var vInput = function () {
 		oState.oMe.nDir += nTurnSpeed;
 	}
 	if (oI.bKey(83, 40)) {
-		oState.oMe.nX -= nWalkSpeed * Math.cos(oState.oMe.nDir);
-		oState.oMe.nY -= nWalkSpeed * Math.sin(oState.oMe.nDir);
+		oState.oMe.pV[0] = -nWalkSpeed * Math.cos(oState.oMe.nDir);
+		oState.oMe.pV[1] = -nWalkSpeed * Math.sin(oState.oMe.nDir);
 	}
 	if (oI.bKey(87, 38)) {
-		oState.oMe.nX += nWalkSpeed * Math.cos(oState.oMe.nDir);
-		oState.oMe.nY += nWalkSpeed * Math.sin(oState.oMe.nDir);
+		oState.oMe.pV[0] = +nWalkSpeed * Math.cos(oState.oMe.nDir);
+		oState.oMe.pV[1] = +nWalkSpeed * Math.sin(oState.oMe.nDir);
 	}
 	
 };
@@ -50,7 +60,14 @@ var vInput = function () {
 
 var vCalc = function () {
 	
+	oState.oMe.pP[0] += oState.oMe.pV[0];
+	oState.oMe.pP[1] += oState.oMe.pV[1];
 	
+	oState.oGeometry.aWalls.forEach(function(oWall){
+		var pRel = oLA.pMultiplyMP(oWall.mMatrix, oState.oMe.pP);
+		//console.log(pRel[0]);
+		if (Math.abs(pRel[0]) < oState.oMe.nRadius) {}
+	});
 	
 };
 
@@ -62,12 +79,18 @@ var vDraw = function () {
 	oG.vSetColor('#FFF');
 	oG.vFillRect(0, 0, oG.iWidth, oG.iHeight);
 	
-	var nPosX = oG.iWidth / 2 + oState.oMe.nX;
-	var nPosY = oG.iHeight / 2 + oState.oMe.nY;
+	var nPosX = oG.iWidth / 2 + oState.oMe.pP[0];
+	var nPosY = oG.iHeight / 2 + oState.oMe.pP[1];
+	
+	oG.vSetColor('#888');
+	oState.oGeometry.aWalls.forEach(function(oWall){
+		var aWall = oWall.aArray;
+		oG.vDrawLine(aWall[0], aWall[1], aWall[2], aWall[3]);
+	});
 	
 	oG.vSetColor('#222');
-	oG.vDrawCircle(nPosX, nPosY, 5);
-	oG.vDrawLine(nPosX, nPosY, nPosX + 10 * Math.cos(oState.oMe.nDir), nPosY + 10 * Math.sin(oState.oMe.nDir));
+	oG.vDrawCircle(nPosX, nPosY, oState.oMe.nRadius);
+	oG.vDrawLine(nPosX, nPosY, nPosX + 6 * Math.cos(oState.oMe.nDir), nPosY + 6 * Math.sin(oState.oMe.nDir));
 	
 };
 
@@ -80,6 +103,22 @@ oGame.vStartLoop(function(iUT, iDeltaUT){
 	vCalc();
 	vDraw();
 });
+
+
+
+
+//var pP = [5, 3];
+//oLA.vPrintP(pP);
+//console.log('----');
+//console.log('mRotation');
+//oLA.vPrintP(oLA.pMultiplyMP(oLA.mRotation(pP, true), [1, 0]))
+//oLA.vPrintP(oLA.pMultiplyMP(oLA.mRotation(pP, true), [0, 1]))
+//console.log('----');
+//console.log('mInverseRotation');
+//var mIR = oLA.mInverseRotation(pP, true);
+//oLA.vPrintM(mIR);
+//oLA.vPrintP(oLA.pMultiplyMP(mIR, pP));
+//console.log('----');
 
 
 

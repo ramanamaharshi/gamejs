@@ -3,11 +3,15 @@
 	
 	
 	
-	var Graphics = function (iW, iH) {
+	var Graphics2D = function (iW, iH) {
 		
 		var oG = this;
 		
 		oG.oCanvas = document.createElement('canvas');
+		oG.oCanvas.style.border = '1px solid #ccc';
+		oG.oCanvas.style.position = 'relative';
+		oG.oCanvas.style.left = '10px';
+		oG.oCanvas.style.top = '10px';
 		document.body.appendChild(oG.oCanvas);
 		oG.o2D = oG.oCanvas.getContext("2d");
 		
@@ -18,7 +22,16 @@
 	
 	
 	
-	Graphics.prototype.vSetBounds = function (iW, iH) {
+	Graphics2D.prototype.oGetCanvas = function () {
+		
+		return this.oCanvas;
+		
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.vSetBounds = function (iW, iH) {
 		
 		var oG = this;
 		
@@ -33,7 +46,7 @@
 	
 	
 	
-	Graphics.prototype.oLoadImage = function (sSrc, vCallback) {
+	Graphics2D.prototype.oLoadImage = function (sSrc, vCallback) {
 		
 		var oG = this;
 		
@@ -52,7 +65,7 @@
 	
 	
 	
-	Graphics.prototype.vFillCircle = function (iX, iY, iR) {
+	Graphics2D.prototype.vFillCircle = function (iX, iY, iR) {
 		
 		var oG = this;
 		oG.vDrawCircle(iX, iY, iR, iR);
@@ -63,7 +76,7 @@
 	
 	
 	
-	Graphics.prototype.vDrawCircle = function (iX, iY, iR) {
+	Graphics2D.prototype.vDrawCircle = function (iX, iY, iR) {
 		
 		this.vDrawOvalByCenterAndRadius(iX, iY, iR, iR);
 		
@@ -72,7 +85,7 @@
 	
 	
 	
-	Graphics.prototype.vFillOval = function (iX, iY, iW, iH) {
+	Graphics2D.prototype.vFillOval = function (iX, iY, iW, iH) {
 		
 		var oG = this;
 		oG.vDrawOval(iX, iY, iW, iH);
@@ -83,7 +96,7 @@
 	
 	
 	
-	Graphics.prototype.vDrawOval = function (iX, iY, iW, iH) {
+	Graphics2D.prototype.vDrawOval = function (iX, iY, iW, iH) {
 		
 		var oG = this;
 		
@@ -94,7 +107,7 @@
 	
 	
 	
-	Graphics.prototype.vDrawOvalByCenterAndRadius = function (iCX, iCY, iRX, iRY) {
+	Graphics2D.prototype.vDrawOvalByCenterAndRadius = function (iCX, iCY, iRX, iRY) {
 		
 		var oG = this;
 		var oC = oG.o2D;
@@ -112,14 +125,14 @@
 	
 	
 	
-	Graphics.prototype.vFillRect = function (iX, iY, iW, iH) {
+	Graphics2D.prototype.vFillRect = function (iX, iY, iW, iH) {
 		this.o2D.fillRect(iX, iY, iW, iH);
 	};
 	
 	
 	
 	
-	Graphics.prototype.vDrawLine = function (iXA, iYA, iXB, iYB, iStroke) {
+	Graphics2D.prototype.vDrawLine = function (iXA, iYA, iXB, iYB, iStroke) {
 		var o2D = this.o2D;
 		if (typeof iStroke == 'undefined') iStroke = 1;
 		o2D.beginPath();
@@ -131,14 +144,14 @@
 	
 	
 	
-	Graphics.prototype.vDrawImage = function (oImage, iX, iY) {
+	Graphics2D.prototype.vDrawImage = function (oImage, iX, iY) {
 		this.o2D.drawImage(oImage, iX, iY);
 	};
 	
 	
 	
 	
-	Graphics.prototype.vSetColor = function (sColor) {
+	Graphics2D.prototype.vSetColor = function (sColor) {
 		this.o2D.drawStyle = sColor;
 		this.o2D.fillStyle = sColor;
 	};
@@ -146,7 +159,7 @@
 	
 	
 	
-	window.Graphics = Graphics;
+	window.Graphics2D = Graphics2D;
 	
 	
 	
