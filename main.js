@@ -17,7 +17,7 @@ var oResources = {};
 
 var vInit = function () {
 	
-	oState.oMe = {pP: [0, 0], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4};
+	oState.oMe = {pP: [99, 99], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4};
 	oState.oGeometry = {
 		aWalls: [
 			oMakeWall([84, 19, 41, 57]),
@@ -33,7 +33,7 @@ var vInit = function () {
 var vInput = function () {
 	
 	var nTurnSpeed = 0.1;
-	var nWalkSpeed = 2;
+	var nWalkSpeed = 0.2;
 	
 	oState.oMe.pV[0] = 0;
 	oState.oMe.pV[1] = 0;
@@ -65,8 +65,8 @@ var vCalc = function () {
 	
 	oState.oGeometry.aWalls.forEach(function(oWall){
 		var pRel = oLA.pMultiplyMP(oWall.mMatrix, oState.oMe.pP);
-		//console.log(pRel[0]);
 		if (Math.abs(pRel[0]) < oState.oMe.nRadius) {}
+		//console.log(pRel[0]);
 	});
 	
 };
@@ -79,8 +79,8 @@ var vDraw = function () {
 	oG.vSetColor('#FFF');
 	oG.vFillRect(0, 0, oG.iWidth, oG.iHeight);
 	
-	var nPosX = oG.iWidth / 2 + oState.oMe.pP[0];
-	var nPosY = oG.iHeight / 2 + oState.oMe.pP[1];
+	var nPosX = oState.oMe.pP[0];
+	var nPosY = oState.oMe.pP[1];
 	
 	oG.vSetColor('#888');
 	oState.oGeometry.aWalls.forEach(function(oWall){

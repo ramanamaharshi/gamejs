@@ -59,18 +59,11 @@ var oLA = {
 	
 	
 	
-	mTranslation: function (pT) {
+	mInverseRotation: function (pR, bScale) {
 		
-		return [1, 0, 0, 1, pT[0], pT[1]];
+		var nLength = oLA.nLength(pR);
 		
-	},
-	
-	
-	
-	
-	mInverseTranslation: function (pT) {
-		
-		return oLA.mTranslation([-pT[0], -pT[1]]);
+		return oLA.mRotation([- pR[0] / nLength / nLength, pR[1] / nLength / nLength], bScale);
 		
 	},
 	
@@ -94,31 +87,21 @@ var oLA = {
 	
 	
 	
-	
-	mInverseRotation: function (pR, bScale) {
+	mInverseTranslation: function (pT) {
 		
-		var nLength = oLA.nLength(pR);
-		
-//oLA.vPrintP(pR);
-//console.log(nLength);
-//pR[0] /= nLength;
-//pR[1] /= nLength;
-//oLA.vPrintP(pR);
-		
-		return oLA.mRotation([- pR[0] / nLength / nLength, pR[1] / nLength / nLength], bScale);
-		
-		//var mReturn = [1 / pR[1], -1 / pR[0], 1 / pR[0], 1 / pR[1], 0, 0];
-		//
-		//if (!bScale) {
-		//	var nLength = oLA.nLength(pR);
-		//	for (var iR = 0; iR < mReturn.length; iR ++) {
-		//		mReturn[iR] *= nLength;
-		//	}
-		//}
-		//
-		//return mReturn;
+		return oLA.mTranslation([-pT[0], -pT[1]]);
 		
 	},
+	
+	
+	
+	
+	mTranslation: function (pT) {
+		
+		return [1, 0, 0, 1, pT[0], pT[1]];
+		
+	},
+	
 	
 	
 	
