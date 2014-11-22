@@ -44,8 +44,8 @@ var oLA = {
 		//	 0  0  1	
 		
 		var mReturn = [
-			mA[0] * mB[0] + mA[2] * mB[0],
-			mA[1] * mB[0] + mA[3] * mB[0],
+			mA[0] * mB[0] + mA[2] * mB[1],
+			mA[1] * mB[0] + mA[3] * mB[1],
 			mA[0] * mB[2] + mA[2] * mB[3],
 			mA[1] * mB[2] + mA[3] * mB[3],
 			mA[0] * mB[4] + mA[2] * mB[5] + mA[4],
@@ -63,7 +63,7 @@ var oLA = {
 		
 		var nLength = oLA.nLength(pR);
 		
-		return oLA.mRotation([- pR[0] / nLength / nLength, pR[1] / nLength / nLength], bScale);
+		return oLA.mRotation([-pR[0] / nLength / nLength, pR[1] / nLength / nLength], bScale);
 		
 	},
 	
