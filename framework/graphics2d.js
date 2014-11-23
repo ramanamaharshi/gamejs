@@ -65,60 +65,47 @@
 	
 	
 	
-	Graphics2D.prototype.vFillCircle = function (iX, iY, iR) {
-		
-		var oG = this;
-		oG.vDrawCircle(iX, iY, iR, iR);
-		oG.o2D.fill();
-		
-	};
-	
-	
-	
-	
 	Graphics2D.prototype.vDrawCircle = function (iX, iY, iR) {
-		
-		this.vDrawOvalByCenterAndRadius(iX, iY, iR, iR);
-		
+		this.vCircle(iX, iY, iR);
+		this.o2D.stroke();
 	};
-	
-	
-	
-	
-	Graphics2D.prototype.vFillOval = function (iX, iY, iW, iH) {
-		
-		var oG = this;
-		oG.vDrawOval(iX, iY, iW, iH);
-		oG.o2D.fill();
-		
+	Graphics2D.prototype.vFillCircle = function (iX, iY, iR) {
+		this.vCircle(iX, iY, iR);
+		this.o2D.fill();
+	};
+	Graphics2D.prototype.vCircle = function (iX, iY, iR) {
+		this.vOvalByCenterAndRadius(iX, iY, iR, iR);
 	};
 	
 	
 	
 	
 	Graphics2D.prototype.vDrawOval = function (iX, iY, iW, iH) {
-		
-		var oG = this;
-		
-		oG.vDrawOvalByCenterAndRadius(iX + iW / 2, iY + iH / 2, iW / 2, iH / 2);
-		
+		this.vOval(iX, iY, iW, iH);
+		this.o2D.stroke();
+	};
+	Graphics2D.prototype.vFillOval = function (iX, iY, iW, iH) {
+		this.vOval(iX, iY, iW, iH);
+		this.o2D.fill();
+	};
+	Graphics2D.prototype.vOval = function (iX, iY, iW, iH) {
+		this.vOvalByCenterAndRadius(iX + iW / 2, iY + iH / 2, iW / 2, iH / 2);
 	};
 	
 	
 	
 	
-	Graphics2D.prototype.vDrawOvalByCenterAndRadius = function (iCX, iCY, iRX, iRY) {
+	Graphics2D.prototype.vOvalByCenterAndRadius = function (iCX, iCY, iRX, iRY) {
 		
 		var oG = this;
-		var oC = oG.o2D;
+		var o2D = oG.o2D;
 		
-		oC.save();
-		oC.beginPath();
-		oC.translate(iCX - iRX, iCY - iRY);
-		oC.scale(iRX, iRY);
-		oC.arc(1, 1, 1, 0, 2 * Math.PI, false);
-		oC.restore();
-		oC.stroke();
+		o2D.save();
+		o2D.beginPath();
+		o2D.translate(iCX - iRX, iCY - iRY);
+		o2D.scale(iRX, iRY);
+		o2D.arc(1, 1, 1, 0, 2 * Math.PI, false);
+		o2D.restore();
 		
 	};
 	
@@ -142,6 +129,35 @@
 		o2D.lineTo(nBX, nBY);
 		o2D.stroke();
 	};
+	
+	
+	
+	
+	Graphics2D.prototype.vFillPolygon = function (aP) {
+		
+		var oG = this;
+		oG.vDrawPolygon(aP);
+		oG.o2D.fill();
+		
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.vDrawPolygon = function (aP) {
+		
+		var o2D = this.o2D;
+		
+		o2D.beginPath();
+		o2D.moveTo(aP[aP.length - 1][0], aP[aP.length - 1][1]);
+		
+		for (var iP = 0; iP < aP.length; iP ++) {
+			o2D.lineTo(aP[iP][0], aP[iP][1]);
+		}
+		
+		o2D.stroke();
+		
+	}
 	
 	
 	
