@@ -167,6 +167,24 @@ var oLA = {
 	
 	
 	
+	nPointToDir: function (pPoint) {
+		
+		return Math.PI / 2 - Math.atan2(pPoint[0], pPoint[1]);
+		
+	},
+	
+	
+	
+	
+	pDirToPoint: function (nDir) {
+		
+		return [Math.cos(nDir), Math.sin(nDir)];
+		
+	},
+	
+	
+	
+	
 	vPrintM: function (mM) {
 		var sD = '  ';
 		console.log(oLA.sPrint(mM[0]) + sD + oLA.sPrint(mM[2]) + sD + oLA.sPrint(mM[4]));
@@ -178,6 +196,13 @@ var oLA = {
 	
 	vPrintP: function (pP) {
 		console.log('(' + oLA.sPrint(pP[0]) + '  ' + oLA.sPrint(pP[1]) + ' )');
+	},
+	
+	
+	
+	
+	vPrintN: function (nN) {
+		console.log(oLA.sPrint(nN));
 	},
 	
 	
