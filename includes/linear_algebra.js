@@ -28,7 +28,7 @@ var oLA = {
 		if (typeof pR == 'number') {
 			pR = [Math.cos(pR), Math.sin(pR)];
 		} else {
-			var nLength = oLA.nLength(pR);
+			nLength = oLA.nLength(pR);
 		}
 		
 		return oLA.mRotation([pR[0] / nLength / nLength, -pR[1] / nLength / nLength], bScale);
@@ -78,13 +78,13 @@ var oLA = {
 	
 	mMultiplyMM: function (mA, mB) {
 		
-		//					b0			b2			b4
-		//					b1			b3			b5
-		//					 0			 0			 1
-		//				
-		//	a0 a2 a4	a0b0+a2b1	a0b2+a2b3	a0b4+a2b5+a4
-		//	a1 a3 a5	a1b0+a3b1	a1b2+a3b3	a1b4+a3b5+a5
-		//	 0  0  1	
+		///						b0			b2			b4
+		///						b1			b3			b5
+		///						 0			 0			 1
+		///					
+		///		a0 a2 a4	a0b0+a2b1	a0b2+a2b3	a0b4+a2b5+a4
+		///		a1 a3 a5	a1b0+a3b1	a1b2+a3b3	a1b4+a3b5+a5
+		///		 0  0  1	
 		
 		var mReturn = [
 			mA[0] * mB[0] + mA[2] * mB[1],

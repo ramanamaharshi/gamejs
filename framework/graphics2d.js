@@ -132,12 +132,14 @@
 	
 	
 	
-	Graphics2D.prototype.vDrawLine = function (iXA, iYA, iXB, iYB, iStroke) {
+	Graphics2D.prototype.vDrawLine = function (nAX, nAY, nBX, nBY) {
+		if (typeof nAX == 'object' && typeof nAY == 'object') {
+			nBY = nAY[1]; nBX = nAY[0]; nAY = nAX[1]; nAX = nAX[0];
+		}
 		var o2D = this.o2D;
-		if (typeof iStroke == 'undefined') iStroke = 1;
 		o2D.beginPath();
-		o2D.moveTo(iXA, iYA);
-		o2D.lineTo(iXB, iYB);
+		o2D.moveTo(nAX, nAY);
+		o2D.lineTo(nBX, nBY);
 		o2D.stroke();
 	};
 	

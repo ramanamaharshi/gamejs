@@ -17,23 +17,22 @@ var oResources = {};
 
 var vInit = function () {
 	
-	oState.oMe = {pP: [250, 200], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4};
+	oState.aPeople = [{pP: [250, 200], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4}];
 	
 	oState.aCars = [
-		{pP: [400, 500], pV: [0, 0], pSize: [20, 40], nDir: - Math.PI / 2},
+		new Car([400, 200], [20, 40]),
 	];
 	
 	oState.oGeometry = {
-		//aPolygons: [
-		//	[[234,123], [256,149], [219,132]],
-		//	[[234,343], [268,310], [248,316], [295,378]],
-		//],
 		aWalls: [
 			oMakeWall([84, 19, 41, 57]),
 			oMakeWall([24, 29, 31, 37]),
 			oMakeWall([134, 156, 176, 134]),
 		],
 	};
+	
+	oState.oMe = oState.aPeople[0];
+	oState.oMyCar = oState.aCars[0];
 	
 };
 
@@ -48,19 +47,33 @@ var vInput = function () {
 	oState.oMe.pV[0] = 0;
 	oState.oMe.pV[1] = 0;
 	
-	if (oI.bKey(65, 37)) {
+	if (oI.bKey(37)) {
 		oState.oMe.nDir -= nTurnSpeed;
 	}
-	if (oI.bKey(68, 39)) {
+	if (oI.bKey(39)) {
 		oState.oMe.nDir += nTurnSpeed;
 	}
-	if (oI.bKey(83, 40)) {
+	if (oI.bKey(40)) {
 		oState.oMe.pV[0] = -nWalkSpeed * Math.cos(oState.oMe.nDir);
 		oState.oMe.pV[1] = -nWalkSpeed * Math.sin(oState.oMe.nDir);
 	}
-	if (oI.bKey(87, 38)) {
+	if (oI.bKey(38)) {
 		oState.oMe.pV[0] = +nWalkSpeed * Math.cos(oState.oMe.nDir);
 		oState.oMe.pV[1] = +nWalkSpeed * Math.sin(oState.oMe.nDir);
+	}
+	
+	oState.oMyCar.vSetTurn(0);
+	if (oI.bKey(65)) {
+		oState.oMyCar.vSetTurn(-0.1);
+	}
+	if (oI.bKey(68)) {
+		oState.oMyCar.vSetTurn(+0.1);
+	}
+	if (oI.bKey(83)) {
+		oState.oMyCar.vAccelerate(-1);
+	}
+	if (oI.bKey(87)) {
+		oState.oMyCar.vAccelerate(+1);
 	}
 	
 };
@@ -74,29 +87,33 @@ var vCalc = function () {
 	oState.oMe.pP[1] += oState.oMe.pV[1];
 	
 	oState.oGeometry.aWalls.forEach(function(oWall){
-		var nR = oState.oMe.nRadius;
-		var pRel = oLA.pMultiplyMP(oWall.mMatrixA, oState.oMe.pP);
-		if (Math.abs(pRel[1]) < oState.oMe.nRadius) {
-			if (0 < pRel[0] + nR && pRel[0] - nR < oWall.nLength) {
-				if (0 < pRel[0] && pRel[0] < oWall.nLength) {
-					if (pRel[1] > 0) {
-						pRel[1] = nR;
+		oState.aPeople.forEach(function(oPerson){
+			var nR = oPerson.nRadius;
+			var pRel = oLA.pMultiplyMP(oWall.mMatrixB, oPerson.pP);
+			if (Math.abs(pRel[1]) < oPerson.nRadius) {
+				if (0 < pRel[0] + nR && pRel[0] - nR < oWall.nLength) {
+					if (0 < pRel[0] && pRel[0] < oWall.nLength) {
+						if (pRel[1] > 0) {
+							pRel[1] = nR;
+						} else {
+							pRel[1] = -nR;
+						}
 					} else {
-						pRel[1] = -nR;
-					}
-				} else {
-					if (0 < pRel[0]) {
-						pRel[0] -= oWall.nLength;
-						pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
-						pRel[0] += oWall.nLength;
-					} else {
-						pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
+						if (0 < pRel[0]) {
+							pRel[0] -= oWall.nLength;
+							pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
+							pRel[0] += oWall.nLength;
+						} else {
+							pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
+						}
 					}
 				}
+				oState.oMe.pP = oLA.pMultiplyMP(oWall.mMatrixA, pRel);
 			}
-			oState.oMe.pP = oLA.pMultiplyMP(oWall.mMatrixB, pRel);
-		}
+		});
 	});
+	
+	Car.vCalcMany(oState.aCars);
 	
 };
 
@@ -108,26 +125,14 @@ var vDraw = function () {
 	oG.vSetColor('#FFF');
 	oG.vFillRect(0, 0, oG.iWidth, oG.iHeight);
 	
-	var nPosX = oState.oMe.pP[0];
-	var nPosY = oState.oMe.pP[1];
+	vDrawWalls(oG, oState.oGeometry.aWalls);
 	
-	//oState.oGeometry.aPolygons.forEach(function(aPolygon){
-	//	var aWall = oWall.aArray;
-	//	oG.vDrawLine(aWall[0], aWall[1], aWall[2], aWall[3]);
-	//});
+	Car.vDrawMany(oG, oState.aCars);
 	
-	oG.vSetColor('#888');
-	oState.oGeometry.aWalls.forEach(function(oWall){
-		var aWall = oWall.aArray;
-		oG.vDrawLine(aWall[0], aWall[1], aWall[2], aWall[3]);
-	});
-	
-	oG.vSetColor('#222');
-	var nR = oState.oMe.nRadius;
-	oG.vDrawCircle(nPosX, nPosY, nR);
-	oG.vDrawLine(nPosX, nPosY, nPosX + 1.33 * nR * Math.cos(oState.oMe.nDir), nPosY + 1.33 * nR * Math.sin(oState.oMe.nDir));
+	vDrawPeople(oG, oState.aPeople);
 	
 };
+
 
 
 
@@ -138,22 +143,6 @@ oGame.vStartLoop(function(iUT, iDeltaUT){
 	vCalc();
 	vDraw();
 });
-
-
-
-
-//var pP = [5, 3];
-//oLA.vPrintP(pP);
-//console.log('----');
-//console.log('mRotation');
-//oLA.vPrintP(oLA.pMultiplyMP(oLA.mRotation(pP, true), [1, 0]))
-//oLA.vPrintP(oLA.pMultiplyMP(oLA.mRotation(pP, true), [0, 1]))
-//console.log('----');
-//console.log('mInverseRotation');
-//var mIR = oLA.mInverseRotation(pP, true);
-//oLA.vPrintM(mIR);
-//oLA.vPrintP(oLA.pMultiplyMP(mIR, pP));
-//console.log('----');
 
 
 
