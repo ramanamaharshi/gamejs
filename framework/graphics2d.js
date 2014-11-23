@@ -118,7 +118,7 @@
 		oC.scale(iRX, iRY);
 		oC.arc(1, 1, 1, 0, 2 * Math.PI, false);
 		oC.restore();
-		oC.fill();
+		oC.stroke();
 		
 	};
 	
@@ -152,7 +152,7 @@
 	
 	
 	Graphics2D.prototype.vSetColor = function (sColor) {
-		this.o2D.drawStyle = sColor;
+		this.o2D.strokeStyle = sColor;
 		this.o2D.fillStyle = sColor;
 	};
 	
