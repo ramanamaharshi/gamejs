@@ -112,8 +112,36 @@
 	
 	
 	
+	Graphics2D.prototype.vFillPolygon = function (aP) {
+		this.vPolygon(aP);
+		this.o2D.fill();
+	}
+	Graphics2D.prototype.vDrawPolygon = function (aP) {
+		this.vPolygon(aP);
+		this.o2D.stroke();
+	}
+	Graphics2D.prototype.vPolygon = function (aP) {
+		var o2D = this.o2D;
+		o2D.beginPath();
+		o2D.moveTo(aP[aP.length - 1][0], aP[aP.length - 1][1]);
+		for (var iP = 0; iP < aP.length; iP ++) {
+			o2D.lineTo(aP[iP][0], aP[iP][1]);
+		}
+	};
+	
+	
+	
+	
 	Graphics2D.prototype.vFillRect = function (iX, iY, iW, iH) {
 		this.o2D.fillRect(iX, iY, iW, iH);
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.vDrawDot = function (nX, nY) {
+		if (typeof nX == 'object') nY = nX[1]; nX = nX[0];
+		this.vFillRect(nX, nY, 1, 1);
 	};
 	
 	
@@ -129,35 +157,6 @@
 		o2D.lineTo(nBX, nBY);
 		o2D.stroke();
 	};
-	
-	
-	
-	
-	Graphics2D.prototype.vFillPolygon = function (aP) {
-		
-		var oG = this;
-		oG.vDrawPolygon(aP);
-		oG.o2D.fill();
-		
-	};
-	
-	
-	
-	
-	Graphics2D.prototype.vDrawPolygon = function (aP) {
-		
-		var o2D = this.o2D;
-		
-		o2D.beginPath();
-		o2D.moveTo(aP[aP.length - 1][0], aP[aP.length - 1][1]);
-		
-		for (var iP = 0; iP < aP.length; iP ++) {
-			o2D.lineTo(aP[iP][0], aP[iP][1]);
-		}
-		
-		o2D.stroke();
-		
-	}
 	
 	
 	
