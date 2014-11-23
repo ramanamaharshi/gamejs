@@ -17,11 +17,9 @@ var oResources = {};
 
 var vInit = function () {
 	
-	oState.aPeople = [{pP: [250, 200], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4, oCar: null}];
+	oState.aPeople = [new Person([250, 200])];
 	
-	oState.aCars = [
-		new Car([300, 200], [20, 40]),
-	];
+	oState.aCars = [new Car([300, 200], [20, 40])];
 	
 	oState.oGeometry = {
 		aWalls: [
@@ -47,33 +45,38 @@ var vInput = function () {
 	oState.oMe.pV[0] = 0;
 	oState.oMe.pV[1] = 0;
 	
-	if (oI.bKey(37)) {
-		oState.oMe.nDir -= nTurnSpeed;
+	if (oState.oMe.oSeat) {
+		oState.oMe.oSeat.oCar.vSetTurn(0);
+		if (oI.bKey(37)) {
+			oState.oMe.vSteer(-1);
+		}
+		if (oI.bKey(39)) {
+			oState.oMe.vSteer(+1);
+		}
+		if (oI.bKey(40)) {
+			oState.oMe.vDrive(-1);
+		}
+		if (oI.bKey(38)) {
+			oState.oMe.vDrive(+1);
+		}
+	} else {
+		if (oI.bKey(37)) {
+			oState.oMe.vTurn(-1);
+		}
+		if (oI.bKey(39)) {
+			oState.oMe.vTurn(+1);
+		}
+		if (oI.bKey(40)) {
+			oState.oMe.vWalk(-1);
+		}
+		if (oI.bKey(38)) {
+			oState.oMe.vWalk(+1);
+		}
 	}
-	if (oI.bKey(39)) {
-		oState.oMe.nDir += nTurnSpeed;
-	}
-//if (oI.bKey(37) || oI.bKey(39)) {
-//	var nDirA = oState.oMe.nDir;
-//	var pV = oLA.pDirToPoint(nDirA);
-//	var nDirB = oLA.nPointToDir(pV);
-//	console.log('----');
-//	oLA.vPrintN(nDirA);
-//	oLA.vPrintP(pV);
-//	oLA.vPrintN(nDirB);
-//	console.log('----');
-//}
-	if (oI.bKey(40)) {
-		oState.oMe.pV[0] = -nWalkSpeed * Math.cos(oState.oMe.nDir);
-		oState.oMe.pV[1] = -nWalkSpeed * Math.sin(oState.oMe.nDir);
-	}
-	if (oI.bKey(38)) {
-		oState.oMe.pV[0] = +nWalkSpeed * Math.cos(oState.oMe.nDir);
-		oState.oMe.pV[1] = +nWalkSpeed * Math.sin(oState.oMe.nDir);
-	}
+	
 	if (oI.iKeyJustPressed(13)) {
-		if (oState.oMe.oCar) {
-			oState.oMe.oCar.bPassengerExit(oState.oMe);
+		if (oState.oMe.oSeat) {
+			oState.oMe.oSeat.oCar.bPassengerExit(oState.oMe.oSeat);
 		} else {
 			for (var iC = 0; iC < oState.aCars.length; iC ++) {
 				var oCar = oState.aCars[iC];
@@ -88,19 +91,18 @@ var vInput = function () {
 		}
 	}
 	
-	oState.oMyCar.vSetTurn(0);
-	if (oI.bKey(65)) {
-		oState.oMyCar.vSetTurn(-0.1);
-	}
-	if (oI.bKey(68)) {
-		oState.oMyCar.vSetTurn(+0.1);
-	}
-	if (oI.bKey(83)) {
-		oState.oMyCar.vAccelerate(-1);
-	}
-	if (oI.bKey(87)) {
-		oState.oMyCar.vAccelerate(+1);
-	}
+	//if (oI.bKey(65)) {
+	//	oState.oMyCar.vSetTurn(-0.1);
+	//}
+	//if (oI.bKey(68)) {
+	//	oState.oMyCar.vSetTurn(+0.1);
+	//}
+	//if (oI.bKey(83)) {
+	//	oState.oMyCar.vAccelerate(-1);
+	//}
+	//if (oI.bKey(87)) {
+	//	oState.oMyCar.vAccelerate(+1);
+	//}
 	
 };
 
@@ -109,8 +111,7 @@ var vInput = function () {
 
 var vCalc = function () {
 	
-	oState.oMe.pP[0] += oState.oMe.pV[0];
-	oState.oMe.pP[1] += oState.oMe.pV[1];
+	Person.vCalcMany(oState.aPeople);
 	
 	oState.oGeometry.aWalls.forEach(function(oWall){
 		oState.aPeople.forEach(function(oPerson){
@@ -155,7 +156,7 @@ var vDraw = function () {
 	
 	Car.vDrawMany(oG, oState.aCars);
 	
-	vDrawPeople(oG, oState.aPeople);
+	Person.vDrawMany(oG, oState.aPeople);
 	
 };
 

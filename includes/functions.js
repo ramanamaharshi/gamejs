@@ -41,26 +41,6 @@ var oMakeWall = function (aWallArray) {
 
 
 
-var vDrawPeople = function (oG, aPeople) {
-	
-	oG.vSetColor('#222');
-	
-	for (var iP = 0; iP < aPeople.length; iP ++) {
-		var oPerson = aPeople[iP];
-		if (oPerson.oCar) continue;
-		var nR = oPerson.nRadius;
-		var nDir = oPerson.nDir;
-		var nPosX = oPerson.pP[0];
-		var nPosY = oPerson.pP[1];
-		oG.vDrawCircle(nPosX, nPosY, nR);
-		oG.vDrawLine(nPosX, nPosY, nPosX + 1.33 * nR * Math.cos(nDir), nPosY + 1.33 * nR * Math.sin(nDir));
-	}
-	
-};
-
-
-
-
 var vDrawWalls = function (oG, aWalls) {
 	
 	oG.vSetColor('#222');

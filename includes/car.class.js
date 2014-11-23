@@ -22,7 +22,8 @@ var Car = function (pP, pSize) {
 	for (var iD = 0; iD < aDirs.length; iD ++) {
 		var pDir = aDirs[iD];
 		var nW4 = oCar.pSize[1] / 4;
-		var oSeat = {oPassenger: null, bSteeringWheel: false, nDir: 0, pP: oLA.pMultiplyNP(nW4, pDir)};
+		var oSeat = {oCar: oCar, oPassenger: null, bSteeringWheel: false, nDir: 0};
+		oSeat.pP = oLA.pMultiplyNP(nW4, pDir);
 		var pAAC = oLA.pAdd(oSeat.pP, [0, 2 * nW4 * pDir[1]]);
 		oSeat.pAccessAreaCenter = pAAC;
 		oSeat.aAccessArea = [];
@@ -31,11 +32,9 @@ var Car = function (pP, pSize) {
 		}
 		oCar.aSeats.push(oSeat);
 	}
-	oCar.aSeats[1].bSteeringWheel = true;
+	oCar.aSeats[3].bSteeringWheel = true;
 	
 	oCar.vMakeMatrices();
-	
-	return oCar;
 	
 };
 
@@ -66,7 +65,8 @@ Car.prototype.bPassengerEnter = function (oSeat, oPassenger) {
 	if (oSeat.oPassenter) return false;
 	
 	oSeat.oPassenger = oPassenger;
-	oPassenger.oCar = oCar;
+	oPassenger.oSeat = oSeat;
+	oPassenger.pP = [0,0];
 	
 	return true;
 	
@@ -75,26 +75,16 @@ Car.prototype.bPassengerEnter = function (oSeat, oPassenger) {
 
 
 
-Car.prototype.bPassengerExit = function (oPassenger) {
+Car.prototype.bPassengerExit = function (oSeat) {
 	
-	var oCar = this;
+	var oCar = oSeat.oCar;
 	
-	var oSeat = null;
-	for (var iS = 0; iS < oCar.aSeats.length; iS ++) {
-		if (oCar.aSeats[iS].oPassenger == oPassenger) {
-			oSeat = oCar.aSeats[iS];
-			break;
-		}
-	}
+	if (!oSeat.oPassenger) return false;
 	
-	if (!oSeat) return false;
+	var oPassenger = oSeat.oPassenger;
 	
 	oSeat.oPassenger = null;
-	oPassenger.oCar = null;
-	
-	//var pSeat = oLA.pMultiplyMP(oCar.mMatrixA, oSeat.pP);
-	var pAreaCenter = 
-	//var pExitDir
+	oPassenger.oSeat = null;
 	
 	oPassenger.pP = oLA.pMultiplyMP(oCar.mMatrixA, oSeat.pAccessAreaCenter);
 	
@@ -116,11 +106,11 @@ Car.prototype.vSetTurn = function (nTurn) {
 
 
 
-Car.prototype.vAccelerate = function (nAccDir) {
+Car.prototype.vAccelerate = function (nDir) {
 	
 	var oCar = this;
 	
-	oCar.nV += 0.25 * nAccDir;
+	oCar.nV += 0.25 * nDir;
 	
 };
 
@@ -168,15 +158,18 @@ Car.prototype.vDraw = function (oG) {
 		var oSeat = oCar.aSeats[iS];
 		var pSeat = oLA.pMultiplyMP(oCar.mMatrixA, oSeat.pP)
 		if (oSeat.oPassenger) {
+			var nR = oSeat.oPassenger.nRadius;
+			var nDir = oCar.nDir + oSeat.nDir;
 			oG.vSetColor('#888');
-			oG.vFillCircle(pSeat[0], pSeat[1], oSeat.oPassenger.nRadius);
+			oG.vDrawCircle(pSeat[0], pSeat[1], nR);
+			oG.vDrawLine(pSeat[0], pSeat[1], pSeat[0] + 1.33 * nR * Math.cos(nDir), pSeat[1] + 1.33 * nR * Math.sin(nDir));
 		} else {
-			oG.vSetColor('#888');
+			oG.vSetColor('#8FF');
 			oG.vDrawDot(pSeat);
 		}
 		var aAARel = aTransformPolygon(oCar.mMatrixA, oSeat.aAccessArea);
-		oG.vSetColor('#8FF');
-		oG.vDrawPolygon(aAARel);
+		oG.vSetColor('#DFF');
+		oG.vFillPolygon(aAARel);
 	}
 	
 	oG.vSetColor('#222');
@@ -199,8 +192,6 @@ Car.vCalcMany = function (aCars) {
 
 
 Car.vDrawMany = function (oG, aCars) {
-	
-	oG.vSetColor('#222');
 	
 	for (var iC = 0; iC < aCars.length; iC ++) {
 		aCars[iC].vDraw(oG);
