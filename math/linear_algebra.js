@@ -143,6 +143,16 @@ var oLA = {
 	
 	
 	
+	pNormalize: function (pP) {
+		
+		var nLength = this.nLength(pP);
+		return [pP[0] / nLength, pP[1] / nLength];
+		
+	},
+	
+	
+	
+	
 	nLength: function (pP) {
 		
 		return Math.sqrt(pP[0] * pP[0] + pP[1] * pP[1]);
