@@ -148,12 +148,6 @@ Car.prototype.vDraw = function (oG) {
 	
 	var oCar = this;
 	
-	var nCX = oCar.pSize[0] / 2;
-	var nCY = oCar.pSize[1] / 2;
-	
-	var aCornersRelative = [[nCX,nCY], [-nCX,nCY], [-nCX,-nCY], [nCX,-nCY]];
-	var aCorners = aTransformPolygon(oCar.mMatrixA, aCornersRelative);
-	
 	for (var iS = 0; iS < oCar.aSeats.length; iS ++) {
 		var oSeat = oCar.aSeats[iS];
 		var pSeat = oLA.pMultiplyMP(oCar.mMatrixA, oSeat.pP)
@@ -169,11 +163,26 @@ Car.prototype.vDraw = function (oG) {
 		}
 		var aAARel = aTransformPolygon(oCar.mMatrixA, oSeat.aAccessArea);
 		oG.vSetColor('#DFF');
-		oG.vFillPolygon(aAARel);
+		//oG.vFillPolygon(aAARel);
 	}
 	
+	var aRelativeCorners = oCar.aGetRelativeCornersPolygon();
+	var aAbsoluteCorners = aTransformPolygon(oCar.mMatrixA, aRelativeCorners);
 	oG.vSetColor('#222');
-	oG.vDrawPolygon(aCorners);
+	oG.vDrawPolygon(aAbsoluteCorners);
+	
+};
+
+
+
+Car.prototype.aGetRelativeCornersPolygon = function () {
+	
+	var oCar = this;
+	
+	var nCX = oCar.pSize[0] / 2;
+	var nCY = oCar.pSize[1] / 2;
+	
+	return [[nCX,nCY], [-nCX,nCY], [-nCX,-nCY], [nCX,-nCY]];
 	
 };
 

@@ -8,6 +8,7 @@ var Person = function (pP) {
 	
 	oP.oSeat = null;
 	oP.nRadius = 4;
+	oP.nIM = 9999; /// inverse mass
 	
 	oP.pP = pP;
 	oP.pV = [0, 0];
@@ -71,8 +72,10 @@ Person.prototype.vDrive = function (nDir) {
 
 Person.prototype.vCalc = function (oG) {
 	
-	oState.oMe.pP[0] += oState.oMe.pV[0];
-	oState.oMe.pP[1] += oState.oMe.pV[1];
+	var oPerson = this;
+	
+	oPerson.pP[0] += oPerson.pV[0];
+	oPerson.pP[1] += oPerson.pV[1];
 	
 };
 

@@ -17,20 +17,25 @@ var oResources = {};
 
 var vInit = function () {
 	
-	oState.aPeople = [new Person([250, 200])];
+	oState.aPeople = [];
+	
+	oState.oMe = new Person([250, 200]);
+	
+	for (var iY = -1; iY <= 1; iY ++) {
+		for (var iX = -1; iX <= 1; iX ++) {
+			oState.aPeople.push(new Person([250 + 10 * iX, 150 + 10 * iY]));
+		}
+	}
+	
+	oState.aPeople.push(oState.oMe);
 	
 	oState.aCars = [new Car([300, 200], [20, 40])];
 	
-	oState.oGeometry = {
-		aWalls: [
-			oMakeWall([84, 19, 41, 57]),
-			oMakeWall([24, 29, 31, 37]),
-			oMakeWall([134, 156, 176, 134]),
-		],
-	};
-	
-	oState.oMe = oState.aPeople[0];
-	oState.oMyCar = oState.aCars[0];
+	oState.aWalls = [
+		oMakeWall([84, 19, 41, 57]),
+		oMakeWall([24, 29, 31, 37]),
+		oMakeWall([134, 156, 276, 134]),
+	];
 	
 };
 
@@ -47,29 +52,29 @@ var vInput = function () {
 	
 	if (oState.oMe.oSeat) {
 		oState.oMe.oSeat.oCar.vSetTurn(0);
-		if (oI.bKey(37)) {
+		if (oI.bKey(37) || oI.bKey(65)) {
 			oState.oMe.vSteer(-1);
 		}
-		if (oI.bKey(39)) {
+		if (oI.bKey(39) || oI.bKey(68)) {
 			oState.oMe.vSteer(+1);
 		}
-		if (oI.bKey(40)) {
+		if (oI.bKey(40) || oI.bKey(83)) {
 			oState.oMe.vDrive(-1);
 		}
-		if (oI.bKey(38)) {
+		if (oI.bKey(38) || oI.bKey(87)) {
 			oState.oMe.vDrive(+1);
 		}
 	} else {
-		if (oI.bKey(37)) {
+		if (oI.bKey(37) || oI.bKey(65)) {
 			oState.oMe.vTurn(-1);
 		}
-		if (oI.bKey(39)) {
+		if (oI.bKey(39) || oI.bKey(68)) {
 			oState.oMe.vTurn(+1);
 		}
-		if (oI.bKey(40)) {
+		if (oI.bKey(40) || oI.bKey(83)) {
 			oState.oMe.vWalk(-1);
 		}
-		if (oI.bKey(38)) {
+		if (oI.bKey(38) || oI.bKey(87)) {
 			oState.oMe.vWalk(+1);
 		}
 	}
@@ -91,19 +96,6 @@ var vInput = function () {
 		}
 	}
 	
-	//if (oI.bKey(65)) {
-	//	oState.oMyCar.vSetTurn(-0.1);
-	//}
-	//if (oI.bKey(68)) {
-	//	oState.oMyCar.vSetTurn(+0.1);
-	//}
-	//if (oI.bKey(83)) {
-	//	oState.oMyCar.vAccelerate(-1);
-	//}
-	//if (oI.bKey(87)) {
-	//	oState.oMyCar.vAccelerate(+1);
-	//}
-	
 };
 
 
@@ -113,34 +105,9 @@ var vCalc = function () {
 	
 	Person.vCalcMany(oState.aPeople);
 	
-	oState.oGeometry.aWalls.forEach(function(oWall){
-		oState.aPeople.forEach(function(oPerson){
-			var nR = oPerson.nRadius;
-			var pRel = oLA.pMultiplyMP(oWall.mMatrixB, oPerson.pP);
-			if (Math.abs(pRel[1]) < oPerson.nRadius) {
-				if (0 < pRel[0] + nR && pRel[0] - nR < oWall.nLength) {
-					if (0 < pRel[0] && pRel[0] < oWall.nLength) {
-						if (pRel[1] > 0) {
-							pRel[1] = nR;
-						} else {
-							pRel[1] = -nR;
-						}
-					} else {
-						if (0 < pRel[0]) {
-							pRel[0] -= oWall.nLength;
-							pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
-							pRel[0] += oWall.nLength;
-						} else {
-							pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
-						}
-					}
-				}
-				oState.oMe.pP = oLA.pMultiplyMP(oWall.mMatrixA, pRel);
-			}
-		});
-	});
-	
 	Car.vCalcMany(oState.aCars);
+	
+	vCalcCollisions(oState);
 	
 };
 
@@ -152,7 +119,7 @@ var vDraw = function () {
 	oG.vSetColor('#FFF');
 	oG.vFillRect(0, 0, oG.iWidth, oG.iHeight);
 	
-	vDrawWalls(oG, oState.oGeometry.aWalls);
+	vDrawWalls(oG, oState.aWalls);
 	
 	Car.vDrawMany(oG, oState.aCars);
 	

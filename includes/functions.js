@@ -2,22 +2,6 @@
 
 
 
-var vHandlePhysics = function (oState) {
-	
-	
-};
-
-
-
-
-var vHandleCollisions = function (oState) {
-	
-	
-};
-
-
-
-
 var oMakeWall = function (aWallArray) {
 	
 	var aWallDelta = [aWallArray[2] - aWallArray[0], aWallArray[3] - aWallArray[1]];
