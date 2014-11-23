@@ -24,9 +24,14 @@ var oLA = {
 	
 	mInverseRotation: function (pR, bScale) {
 		
-		var nLength = oLA.nLength(pR);
+		var nLength = 1;
+		if (typeof pR == 'number') {
+			pR = [Math.cos(pR), Math.sin(pR)];
+		} else {
+			var nLength = oLA.nLength(pR);
+		}
 		
-		return oLA.mRotation([-pR[0] / nLength / nLength, pR[1] / nLength / nLength], bScale);
+		return oLA.mRotation([pR[0] / nLength / nLength, -pR[1] / nLength / nLength], bScale);
 		
 	},
 	
@@ -35,7 +40,9 @@ var oLA = {
 	
 	mRotation: function (pR, bScale) {
 		
-		var mReturn = [pR[1], -pR[0], pR[0], pR[1], 0, 0];
+		if (typeof pR == 'number') pR = [Math.cos(pR), Math.sin(pR)];
+		
+		var mReturn = [pR[0], pR[1], -pR[1], pR[0], 0, 0];
 		
 		if (!bScale) {
 			var nLength = oLA.nLength(pR);
@@ -47,6 +54,7 @@ var oLA = {
 		return mReturn;
 		
 	},
+	
 	
 	
 	
