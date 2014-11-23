@@ -18,15 +18,6 @@ var vHandleCollisions = function (oState) {
 
 
 
-var bInPolygon = function (aPolygon, pPoint) {
-	
-	
-	
-};
-
-
-
-
 var oMakeWall = function (aWallArray) {
 	
 	var aWallDelta = [aWallArray[2] - aWallArray[0], aWallArray[3] - aWallArray[1]];
@@ -56,6 +47,7 @@ var vDrawPeople = function (oG, aPeople) {
 	
 	for (var iP = 0; iP < aPeople.length; iP ++) {
 		var oPerson = aPeople[iP];
+		if (oPerson.oCar) continue;
 		var nR = oPerson.nRadius;
 		var nDir = oPerson.nDir;
 		var nPosX = oPerson.pP[0];

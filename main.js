@@ -17,10 +17,10 @@ var oResources = {};
 
 var vInit = function () {
 	
-	oState.aPeople = [{pP: [250, 200], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4}];
+	oState.aPeople = [{pP: [250, 200], pV: [0, 0], nDir: - Math.PI / 2, nRadius: 4, oCar: null}];
 	
 	oState.aCars = [
-		new Car([400, 200], [20, 40]),
+		new Car([300, 200], [20, 40]),
 	];
 	
 	oState.oGeometry = {
@@ -53,6 +53,16 @@ var vInput = function () {
 	if (oI.bKey(39)) {
 		oState.oMe.nDir += nTurnSpeed;
 	}
+//if (oI.bKey(37) || oI.bKey(39)) {
+//	var nDirA = oState.oMe.nDir;
+//	var pV = oLA.pDirToPoint(nDirA);
+//	var nDirB = oLA.nPointToDir(pV);
+//	console.log('----');
+//	oLA.vPrintN(nDirA);
+//	oLA.vPrintP(pV);
+//	oLA.vPrintN(nDirB);
+//	console.log('----');
+//}
 	if (oI.bKey(40)) {
 		oState.oMe.pV[0] = -nWalkSpeed * Math.cos(oState.oMe.nDir);
 		oState.oMe.pV[1] = -nWalkSpeed * Math.sin(oState.oMe.nDir);
@@ -60,6 +70,22 @@ var vInput = function () {
 	if (oI.bKey(38)) {
 		oState.oMe.pV[0] = +nWalkSpeed * Math.cos(oState.oMe.nDir);
 		oState.oMe.pV[1] = +nWalkSpeed * Math.sin(oState.oMe.nDir);
+	}
+	if (oI.iKeyJustPressed(13)) {
+		if (oState.oMe.oCar) {
+			oState.oMe.oCar.bPassengerExit(oState.oMe);
+		} else {
+			for (var iC = 0; iC < oState.aCars.length; iC ++) {
+				var oCar = oState.aCars[iC];
+				for (var iS = 0; iS < oCar.aSeats.length; iS ++) {
+					var oSeat = oCar.aSeats[iS];
+					var aAccessArea = aTransformPolygon(oCar.mMatrixA, oSeat.aAccessArea);
+					if (bInPolygon(aAccessArea, oState.oMe.pP)) {
+						oCar.bPassengerEnter(oSeat, oState.oMe);
+					}
+				}
+			}
+		}
 	}
 	
 	oState.oMyCar.vSetTurn(0);
