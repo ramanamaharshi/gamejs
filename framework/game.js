@@ -34,6 +34,8 @@
 			oGame.vLoopFunction(iUT, iDeltaUT);
 			iOldUT = iUT;
 			
+			oGame.oI.vStep();
+			
 			window.requestAnimationFrame(oGame.vLoopWrapperFunction);
 			
 		};
