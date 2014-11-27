@@ -7,7 +7,7 @@
 		<?php
 			$aIncludeFiles = array();
 			$aIncludeFolders = array();
-			$aRootIncludeFolder = 'includes';
+			$aRootIncludeFolder = '../../includes';
 			$aPossibleIncludeFolders = scandir($aRootIncludeFolder);
 			foreach ($aPossibleIncludeFolders as $sFolder) {
 				if (!preg_match('/^\./', $sFolder)) {
