@@ -30,6 +30,8 @@ var vInit = function () {
 	}
 	
 	oState.aParticleSticks = [];
+	oState.aMinDistances = [];
+	oState.aMaxDistances = [];
 	
 	for (var iP = 2; iP < oState.aParticles.length; iP += 3) {
 		oState.aParticleSticks.push({oPA: oState.aParticles[iP - 0], oPB: oState.aParticles[iP - 1], nLength: 50});
@@ -74,23 +76,57 @@ var vCalc = function () {
 	
 	/// satisfy constraints
 	
+	var pGameSize = [oGame.oG.iWidth,oGame.oG.iHeight];
+	
 	for (var iI = 0; iI < 9; iI ++) {
 		
 		for (var iP = 0; iP < oState.aParticles.length; iP ++) {
 			var oP = oState.aParticles[iP];
-			oP.pP[0] = Math.max(0, Math.min(oP.pP[0], oGame.oG.iWidth));
-			oP.pP[1] = Math.max(0, Math.min(oP.pP[1], oGame.oG.iHeight));
+			for (var iDA = 0; iDA < 2; iDA ++) {
+				iDB = (iDA + 1) % 2;
+				var nPenetrationDepth = 0;
+				if (oP.pP[iDA] < 0) {
+					var nPenetrationDepth = 0 - oP.pP[iDA];
+					oP.pP[iDA] = 0;
+				}
+				if (oP.pP[iDA] > pGameSize[iDA]) {
+					var nPenetrationDepth = oP.pP[iDA] - pGameSize[iDA];
+					oP.pP[iDA] = pGameSize[iDA];
+				}
+				if (nPenetrationDepth != 0) {
+					var nSpeed = oP.pP[iDB] - oP.pPold[iDB];
+					nSpeed -= 0.1 * nPenetrationDepth * oLA.nDir(nSpeed);
+					oP.pPold[iDB] = oP.pP[iDB] - nSpeed;
+				}
+			}
 		}
 		
 		for (var iPS = 0; iPS < oState.aParticleSticks.length; iPS ++) {
 			var oStick = oState.aParticleSticks[iPS];
 			var nRestLength = oStick.nLength;
-			var pDelta = oLA.pSub(oStick.oPA.pP, oStick.oPB.pP)
-			var pDeltaDir = oLA.pNormalize(pDelta);
+			var pDelta = oLA.pSub(oStick.oPA.pP, oStick.oPB.pP);
 			var nDelta = oLA.nLength(pDelta);
 			var nCorrection = nRestLength - nDelta;
-			oStick.oPA.pP = oLA.pAdd(oStick.oPA.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(0.5, pDeltaDir)));
-			oStick.oPB.pP = oLA.pAdd(oStick.oPB.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(-0.5, pDeltaDir)));
+			if (nCorrection) {
+				nCorrection *= 0.05;
+				var pDeltaDir = oLA.pNormalize(pDelta);
+				pDeltaDir = oLA.pAdd(pDeltaDir, [1 * (Math.random() - 0.5), 1 * (Math.random() - 0.5)]);
+				oStick.oPA.pP = oLA.pAdd(oStick.oPA.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(0.5, pDeltaDir)));
+				oStick.oPB.pP = oLA.pAdd(oStick.oPB.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(-0.5, pDeltaDir)));
+			}
+		}
+		
+		for (var iD = 0; iD < oState.aMinDistances.length; iD ++) {
+			var oConstraint = oState.aMinDistances[iD];
+			var nDistance = oConstraint.nDistance;
+			var pDelta = oLA.pSub(oConstraint.oPA.pP, oConstraint.oPB.pP);
+			var nDelta = oLA.nLength(pDelta);
+			if (nDelta < nDistance) {
+				var pDeltaDir = oLA.pNormalize(pDelta);
+				var nCorrection = nRestLength - nDelta;
+				oConstraint.oPA.pP = oLA.pAdd(oConstraint.oPA.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(0.5, pDeltaDir)));
+				oConstraint.oPB.pP = oLA.pAdd(oConstraint.oPB.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(-0.5, pDeltaDir)));
+			}
 		}
 		
 	}
