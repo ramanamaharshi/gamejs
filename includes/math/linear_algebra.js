@@ -153,6 +153,15 @@ var oLA = {
 	
 	
 	
+	nDistance: function (pA, pB) {
+		
+		return oLA.nLength(oLA.pSub(pA, pB));
+		
+	},
+	
+	
+	
+	
 	nLength: function (pP) {
 		
 		return Math.sqrt(pP[0] * pP[0] + pP[1] * pP[1]);

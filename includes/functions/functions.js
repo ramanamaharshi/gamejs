@@ -39,3 +39,12 @@ var vDrawWalls = function (oG, aWalls) {
 
 
 
+
+var oMakeParticle = function (pPoint) {
+	
+	return {pP: [pPoint[0],pPoint[1]], pPold: [pPoint[0],pPoint[1]], pA: [0,0]};
+	
+};
+
+
+
