@@ -74,6 +74,7 @@
 		this.o2D.fill();
 	};
 	Graphics2D.prototype.vCircle = function (iX, iY, iR) {
+		if (typeof iX == 'object') iR = iY; iY = iX[1]; iX = iX[0];
 		this.vOvalByCenterAndRadius(iX, iY, iR, iR);
 	};
 	

@@ -18,8 +18,8 @@
 			var iKey = oEvent.keyCode;
 			if (!(iKey in oI.oPressedKeys)) {
 				oI.oPressedKeys[iKey] = true;
-				if (oI.bLog) console.log(iKey);
 				oI.aJustPressedKeys.push(iKey);
+				if (oI.bLog) console.log('key', iKey);
 			}
 		}, false);
 		addEventListener("keyup", function(oEvent){
@@ -45,13 +45,14 @@
 			if (!(iButton in oI.oMouse.oPressedButtons)) {
 				oI.oMouse.oPressedButtons[iButton] = true;
 				oI.oMouse.aJustPressedButtons.push(iButton);
+				if (oI.bLog) console.log('button', iButton);
 			}
 		});
 		oCanvas.addEventListener('mouseup', function(oEvent){
+			var iButton = oEvent.button;
 			if (iButton in oI.oMouse.oPressedButtons) {
-				var iButton = oEvent.button;
 				delete oI.oMouse.oPressedButtons[iButton];
-				oI.oMouse.aJustRelasedButtons.push(iButton);
+				oI.oMouse.aJustReleasedButtons.push(iButton);
 			}
 		});
 		
