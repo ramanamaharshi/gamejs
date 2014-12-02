@@ -94,7 +94,7 @@ Person.prototype.vDraw = function (oG) {
 	var nPosY = oPerson.pP[1];
 	
 	oG.vSetColor('#222');
-	oG.vDrawCircle(nPosX, nPosY, nR);
+	oG.vDrawCircle(oPerson.pP, nR);
 	oG.vDrawLine(nPosX, nPosY, nPosX + 1.33 * nR * Math.cos(nDir), nPosY + 1.33 * nR * Math.sin(nDir));
 	
 };

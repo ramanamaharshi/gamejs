@@ -112,7 +112,7 @@ var vCalc = function (iSteps, iRelaxations) {
 			var oP = oState.aParticles[iP];
 			for (var iI = 0; iI < 2; iI ++) {
 				var nTemp = oP.pP[iI];
-				oP.pP[iI] += 0.99 * (oP.pP[iI] - oP.pPold[iI]) + oP.pA[iI] * nTimeStep;
+				oP.pP[iI] += Math.pow(0.99, nTimeStep) * (oP.pP[iI] - oP.pPold[iI]) + oP.pA[iI] * nTimeStep;
 				oP.pPold[iI] = nTemp;
 				oP.pA[iI] = 0;
 				//var nSpeed = oP.pP[iI] - oP.pPold[iI];
@@ -248,7 +248,7 @@ var vCalc = function (iSteps, iRelaxations) {
 				var nDelta = oLA.nLength(pDelta);
 				var nCorrection = nRestLength - nDelta;
 				if (nCorrection) {
-					//nCorrection *= 0.5;
+					//nCorrection *= 0.01;
 					var pDeltaDir = oLA.pNormalize(pDelta);
 					var pNewA = oLA.pAdd(oStick.oPA.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(+0.5, pDeltaDir)));
 					var pNewB = oLA.pAdd(oStick.oPB.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(-0.5, pDeltaDir)));
@@ -352,7 +352,7 @@ vInit();
 
 oGame.vStartLoop(function(iUT, iDeltaUT){
 	vInput();
-	vCalc(3, 3);
+	vCalc(9, 3);
 	vDraw();
 });
 
