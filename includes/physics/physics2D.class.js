@@ -11,78 +11,81 @@
 		
 		var oP = this;
 		
-		oP.aCircles = [];
-		
-		oP.aPolygons = [];
+		oP.aParticles = [];
+		oP.aRectangles = [];
 		
 	};
 	
 	
 	
 	
-	Physics2D.prototype.oNewCircle = function () {
+	Physics2D.prototype.vStep = function () {
+		
+		
+		
+	};
+	
+	
+	
+	
+	Physics2D.prototype.oNewParticle = function (nX, nY) {
 		
 		var oP = this;
 		
-		var oNewCircle = new Physics2D.Circle();
+		var oNewParticle = new Physics2D.Particle();
 		
-		oP.aCircles.push(oNewCircle);
+		oP.aParticles.push(oNewParticle);
 		
-		return oNewCircle;
+		return oNewParticle;
 		
 	};
 	
 	
 	
 	
-	Physics2D.prototype.oNewPolygon = function () {
+	Physics2D.Particle = function () {
 		
 		var oP = this;
 		
-		var oNewPolygon = new Physics2D.Polygon();
-		
-		oP.aPolygons.push(oNewPolygon);
-		
-		return oNewPolygon;
+		oP.aRestraints = [];
+		oP.aP = [nX, nY];
+		oP.nIM = 1;
 		
 	};
 	
 	
 	
 	
-	Physics2D.prototype.oNewLine = function () {
+	Physics2D.prototype.oNewRectangle = function () {
+		
+		var oP = this;
+		
+		var oNewRectangle = new Physics2D.Rectangle();
+		
+		oP.aRectangles.push(oNewRectangle);
+		
+		return oNewRectangle;
+		
 	};
 	
 	
 	
 	
-	Physics2D.Circle = function () {
+	Physics2D.Rectangle = function () {
 		
 		var oC = this;
 		
-		oC.nR = 0;
-		oC.nIM = 0;
-		oC.pP = [0,0];
-		oC.pV = [0,0];
+		oR.pCenter = [0,0];
+		oR.pDirection = [1,0];
+		oR.nW = 10;
+		oR.nH = 10;
 		
-	};
-	
-	
-	
-	
-	Physics2D.Polygon = function () {
-		
-		var oP = this;
-		
-		oP.aCorners = [];
-		
-		oP.pLIM = 0;
-		oP.pLP = [0,0];
-		oP.pLV = [0,0];
-		
-		oP.pLAM = 0;
-		oP.nAP = 0;
-		oP.nAV = 0;
+		oR.oFrame = {
+			aParticles: [
+			],
+			aRestraings: [
+			],
+		}
 		
 	};
 	
