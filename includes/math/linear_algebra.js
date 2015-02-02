@@ -146,6 +146,9 @@ var oLA = {
 	pNormalize: function (pP) {
 		
 		var nLength = this.nLength(pP);
+		
+		if (!nLength) return null;
+		
 		return [pP[0] / nLength, pP[1] / nLength];
 		
 	},

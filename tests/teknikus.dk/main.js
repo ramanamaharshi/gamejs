@@ -29,8 +29,8 @@ var vInit = function () {
 	oState.aDistances = [];
 	
 	for (var i = 0; i < 9; i ++) {
-		var nCX = oG.iWidth / 2 + 32 * (Math.random() - 0.5);
-		var nCY = oG.iHeight - (i + 1) * 40;
+		var nCX = oG.iW / 2 + 32 * (Math.random() - 0.5);
+		var nCY = oG.iH - (i + 1) * 40;
 		var nW = 30 + 4 * i;
 		var nH = 20 + 2 * i;
 		var nDiagonal = oLA.nLength([nW, nH]);
@@ -125,7 +125,7 @@ var vCalc = function (iSteps, iRelaxations) {
 		
 		var bAverage = true;
 		
-		var pGameSize = [oGame.oG.iWidth,oGame.oG.iHeight];
+		var pGameSize = [oGame.oG.iW,oGame.oG.iH];
 		
 		for (var iRelaxation = 0; iRelaxation < iRelaxations; iRelaxation ++) {
 			
@@ -310,7 +310,7 @@ var vCalc = function (iSteps, iRelaxations) {
 var vDraw = function () {
 	
 	oG.vSetColor('#FFF');
-	oG.vFillRect(0, 0, oG.iWidth, oG.iHeight);
+	oG.vFillRect(0, 0, oG.iW, oG.iH);
 	
 	oG.vSetColor('#000');
 	for (var iP = 0; iP < oState.aParticles.length; iP ++) {

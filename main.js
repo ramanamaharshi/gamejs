@@ -124,7 +124,7 @@ var vCalc = function () {
 var vDraw = function () {
 	
 	oG.vSetColor('#FFF');
-	oG.vFillRect(0, 0, oG.iWidth, oG.iHeight);
+	oG.vFillRect(0, 0, oG.iW, oG.iH);
 	
 	vDrawWalls(oG, oState.aWalls);
 	

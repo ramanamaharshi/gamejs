@@ -27,6 +27,13 @@
 		
 		var iOldUT = (new Date()).getTime()
 		
+		oGame.iFrameUTs = 99;
+		oGame.aFrameUTs = [];
+		oGame.iAtFrameUT = 0;
+		for (var iF = 0; iF < oGame.iFrameUTs; iF ++) {
+			oGame.aFrameUTs.push(0);
+		}
+		
 		oGame.vLoopWrapperFunction = function () {
 			
 			var iUT = (new Date()).getTime();
@@ -38,9 +45,30 @@
 			
 			window.requestAnimationFrame(oGame.vLoopWrapperFunction);
 			
+			oGame.iAtFrameUT = (oGame.iAtFrameUT + 1) % oGame.iFrameUTs;
+			oGame.aFrameUTs[oGame.iAtFrameUT] = iUT;
+			
 		};
 		
 		oGame.vLoopWrapperFunction();
+		
+	};
+	
+	
+	
+	
+	Game.prototype.nGetFrameRate = function () {
+		
+		var oGame = this;
+		
+		var iNewestUTat = oGame.iAtFrameUT;
+		var iOldestUTat = (iNewestUTat + 1) % oGame.iFrameUTs;
+		
+		var iTimePassed = oGame.aFrameUTs[iNewestUTat] - oGame.aFrameUTs[iOldestUTat];
+		
+		var nFrameRate = 1000 * (oGame.iFrameUTs / iTimePassed);
+		
+		return nFrameRate;
 		
 	};
 	

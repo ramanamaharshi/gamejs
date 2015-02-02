@@ -35,8 +35,8 @@
 		
 		var oG = this;
 		
-		oG.iWidth = iW;
-		oG.iHeight = iH;
+		oG.iW = iW;
+		oG.iH = iH;
 		
 		oG.oCanvas.width = iW;
 		oG.oCanvas.height = iH;
