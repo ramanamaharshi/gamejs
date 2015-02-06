@@ -11,7 +11,7 @@
 		
 		var oP = this;
 		
-		oP.pGravity = [0,-0.001];
+		oP.pGravity = [0,0];
 		
 		oP.aParticles = [];
 		oP.aRectangles = [];
@@ -72,27 +72,6 @@
 					oR.oPB.aNewTemp.push(pNewB);
 				}
 			});
-			
-			//for (var iPS = 0; iPS < oState.aDistances.length; iPS ++) {
-			//	var oStick = oState.aDistances[iPS];
-			//	var nRestLength = oStick.nLength;
-			//	var pDelta = oLA.pSub(oStick.oPA.pP, oStick.oPB.pP);
-			//	var nDelta = oLA.nLength(pDelta);
-			//	var nCorrection = nRestLength - nDelta;
-			//	if (nCorrection) {
-			//		//nCorrection *= 0.01;
-			//		var pDeltaDir = oLA.pNormalize(pDelta);
-			//		var pNewA = oLA.pAdd(oStick.oPA.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(+0.5, pDeltaDir)));
-			//		var pNewB = oLA.pAdd(oStick.oPB.pP, oLA.pMultiplyNP(nCorrection, oLA.pMultiplyNP(-0.5, pDeltaDir)));
-			//		if (bAverage) {
-			//			oStick.oPA.aNewTemp.push(pNewA);
-			//			oStick.oPB.aNewTemp.push(pNewB);
-			//		} else {
-			//			oStick.oPA.pP = pNewA;
-			//			oStick.oPB.pP = pNewB;
-			//		}
-			//	}
-			//}
 			
 			oPhysics.aParticles.forEach(function(oP){
 				var iTempLength = oP.aNewTemp.length;

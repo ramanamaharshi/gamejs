@@ -65,6 +65,42 @@
 	
 	
 	
+	Graphics2D.prototype.vSetFont = function (sFont) {
+		this.o2D.font = sFont;
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.vDrawString = function (iX, iY, sString, sPosition) {
+		
+		var oG = this;
+		
+		if (typeof sPosition != 'undefined') {
+			var iTextW = oG.o2D.measureText(sString).width;
+			var iTextH = 1.5 * oG.o2D.measureText('o').width;
+			var aPosition = sPosition.split(' ');
+			if (aPosition[0] == 'left') {
+				iX -= iTextW;
+			}
+			if (aPosition[0] == 'center') {
+				iX -= iTextW / 2;
+			}
+			if (aPosition[1] == 'center') {
+				iY += iTextH / 2;
+			}
+			if (aPosition[1] == 'bottom') {
+				iY += iTextH;
+			}
+		}
+		
+		this.o2D.fillText(sString, iX, iY);
+		
+	};
+	
+	
+	
+	
 	Graphics2D.prototype.vDrawCircle = function (iX, iY, iR) {
 		this.vCircle(iX, iY, iR);
 		this.o2D.stroke();
@@ -130,6 +166,13 @@
 		for (var iP = 0; iP < aP.length; iP ++) {
 			o2D.lineTo(aP[iP][0], aP[iP][1]);
 		}
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.vDrawRect = function (iX, iY, iW, iH) {
+		this.vDrawPolygon([[iX,iY],[iX,iY+iH],[iX+iW,iY+iH],[iX+iH,iY]]);
 	};
 	
 	
