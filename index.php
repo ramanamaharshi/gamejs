@@ -5,27 +5,62 @@
 	</head>
 	<body>
 		<?php
-			$aIncludeFiles = array();
-			$aIncludeFolders = array();
-			$aRootIncludeFolder = 'includes';
-			$aPossibleIncludeFolders = scandir($aRootIncludeFolder);
-			foreach ($aPossibleIncludeFolders as $sFolder) {
-				if (!preg_match('/^\./', $sFolder)) {
-					$aIncludeFolders []= $aRootIncludeFolder . '/' . $sFolder;
+			
+			function aListFiles ($sDir) {
+				$aFiles = array();
+				$aScanFiles = scandir($sDir);
+				foreach ($aScanFiles as $sScanFile) {
+					if ($sScanFile == '..' || $sScanFile == '.') continue;
+					$sFile = $sDir . '/' . $sScanFile;
+					if (is_dir($sFile)) {
+						$aDirFiles = aListFiles($sFile);
+						foreach ($aDirFiles as $sDirFile) {
+							$aFiles []= $sDirFile;
+						}
+					} else {
+						$aFiles []= $sFile;
+					}
 				}
+				return $aFiles;
 			}
-			foreach ($aIncludeFolders as $sIncludeFolder) {
-				$aFiles = scandir($sIncludeFolder);
-				foreach ($aFiles as $sFile) {
-					if (preg_match('/\.js$/', $sFile)) {
-						$aIncludeFiles []= '/' . $sIncludeFolder . '/' . $sFile;
+			
+			$aFilesInInclude = aListFiles('includes');
+			
+			$aIncludeFiles = array();
+			$aTestFiles = array();
+			
+			foreach ($aFilesInInclude as $sFileInInclude) {
+				if (preg_match('/\.js$/', $sFileInInclude)) {
+					if (preg_match('/\/test\//', $sFileInInclude)) {
+						$aTestFiles []= $sFileInInclude;
+					} else {
+						$aIncludeFiles []= $sFileInInclude;
 					}
 				}
 			}
-			foreach ($aIncludeFiles as $sIncludeFile) {
-				echo "\n" . '<script type="text/javascript" src="' . $sIncludeFile . '"></script>';
+			
+			$sMainFile = 'main.js';
+			if (isset($_REQUEST['test'])) {
+				$sTest = $_REQUEST['test'];
+				foreach ($aTestFiles as $sTestFile) {
+					if (preg_match('/' . preg_quote($sTest) . '.js$/', $sTestFile)) {
+						$sMainFile = $sTestFile;
+					}
+				}
 			}
+			
+			$aIncludeScripts = array();
+			foreach ($aIncludeFiles as $sIncludeFile) {
+				$aIncludeScripts []= '/' . $sIncludeFile;
+			}
+			$aIncludeScripts []= '/' . $sMainFile;
+			
+			echo "\n";
+			foreach ($aIncludeScripts as $sScript) {
+				echo "\t\t" . '<script type="text/javascript" src="' . $sScript . '"></script>' . "\n";
+			}
+			echo "\n";
+			
 		?>
-		<script type="text/javascript" src="main.js"></script>
 	</body>
 </html>

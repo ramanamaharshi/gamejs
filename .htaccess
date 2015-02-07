@@ -1,0 +1,7 @@
+
+#RewriteEngine On
+#RewriteBase /
+#RewriteRule ^index\.php$ - [L]
+#RewriteCond %{REQUEST_FILENAME} -f
+#RewriteCond %{REQUEST_FILENAME} /test/
+#RewriteRule ^.+$ /index.php?r=$0 [L]

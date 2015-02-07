@@ -25,8 +25,8 @@ var vInit = function () {
 var vInput = function () {
 	
 	if (oI.iButtonJustPressed(0)) {
-		var iLeafX = Math.floor((oI.oMouse.iX - oG.iW / 2) / iSCALE);
-		var iLeafY = Math.floor((oI.oMouse.iY - oG.iH / 2) / iSCALE);
+		var iLeafX = Math.floor((oI.oMouse.iX - 2 - oG.iW / 2) / iSCALE);
+		var iLeafY = Math.floor((oI.oMouse.iY - 2 - oG.iH / 2) / iSCALE);
 console.log(iLeafX, iLeafY);
 		oState.oSelectedLeaf = oState.oEnvironment.oTree.oGetLeaf(iLeafX, iLeafY, true);
 console.log('oLeaf', oState.oSelectedLeaf);
@@ -72,7 +72,7 @@ var vDrawNode = function (oNode) {
 	var iNodeSize = oState.oEnvironment.oTree.aLevelSizes[oNode.iLevel];
 	var iRX = oG.iW / 2 + iSCALE * oNode.iAbsPosX;
 	var iRY = oG.iH / 2 + iSCALE * oNode.iAbsPosY;
-	oG.vDrawRect(iRX, iRY, iSCALE * iNodeSize, iSCALE * iNodeSize);
+	oG.vDrawRect(iRX, iRY, iSCALE * iNodeSize - 1, iSCALE * iNodeSize - 1);
 	
 };
 
