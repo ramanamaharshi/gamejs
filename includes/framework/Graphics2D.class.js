@@ -17,7 +17,7 @@
 		
 		oG.vSetBounds(iW, iH);
 		
-		oG.o2D.lineWidth = 1;
+		oG.iDrawShift = 0;
 		
 	};
 	
@@ -162,12 +162,14 @@
 		this.o2D.stroke();
 	}
 	Graphics2D.prototype.vPolygon = function (aP) {
-		var o2D = this.o2D;
+		var oG = this;
+		var o2D = oG.o2D;
 		o2D.beginPath();
-		o2D.moveTo(aP[aP.length - 1][0] + 0.5, aP[aP.length - 1][1] + 0.5);
+		o2D.moveTo(aP[aP.length - 1][0] + oG.iDrawShift, aP[aP.length - 1][1] + oG.iDrawShift);
 		for (var iP = 0; iP < aP.length; iP ++) {
-			o2D.lineTo(aP[iP][0] + 0.5, aP[iP][1] + 0.5);
+			o2D.lineTo(aP[iP][0] + oG.iDrawShift, aP[iP][1] + oG.iDrawShift);
 		}
+		o2D.lineTo(aP[0][0] + oG.iDrawShift, aP[0][1] + oG.iDrawShift);
 	};
 	
 	
@@ -201,8 +203,8 @@
 		}
 		var o2D = this.o2D;
 		o2D.beginPath();
-		o2D.moveTo(nAX + 0.5, nAY + 0.5);
-		o2D.lineTo(nBX + 0.5, nBY + 0.5);
+		o2D.moveTo(nAX + oG.iDrawShift, nAY + oG.iDrawShift);
+		o2D.lineTo(nBX + oG.iDrawShift, nBY + oG.iDrawShift);
 		o2D.stroke();
 	};
 	

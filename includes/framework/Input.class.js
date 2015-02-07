@@ -30,15 +30,18 @@
 			}
 		}, false);
 		
+		oI.iMouseCorrectionX = 0;
+		oI.iMouseCorrectionY = 0;
+		
 		oI.oMouse = {iX: 0, iY: 0};
 		oI.oMouse.oPressedButtons = {};
 		oI.oMouse.aJustPressedButtons = [];
 		oI.oMouse.aJustReleasedButtons = [];
 		
 		oCanvas.addEventListener('mousemove', function(oEvent){
-			var oRect = oI.oCanvas.getBoundingClientRect();
-			oI.oMouse.iX = oEvent.clientX - oRect.left;
-			oI.oMouse.iY = oEvent.clientY - oRect.top;
+			var oCanvasOffset = oI.oGetCanvasOffset();
+			oI.oMouse.iX = oI.iMouseCorrectionX - oCanvasOffset.iX + oEvent.clientX;
+			oI.oMouse.iY = oI.iMouseCorrectionY - oCanvasOffset.iY + oEvent.clientY;
 		});
 		oCanvas.addEventListener('mousedown', function(oEvent){
 			var iButton = oEvent.button;
@@ -55,6 +58,28 @@
 				oI.oMouse.aJustReleasedButtons.push(iButton);
 			}
 		});
+		
+	};
+	
+	
+	
+	
+	Input.prototype.oGetCanvasOffset = function () {
+		
+		var oI = this;
+		
+		var oOffset = {};
+		
+		var oRect = oI.oCanvas.getBoundingClientRect();
+		var oComputedStyle = window.getComputedStyle(oI.oCanvas, null);
+		
+		var iBorderLeft = parseInt(oComputedStyle.getPropertyValue('border-left-width'), 10);
+		var iBorderTop = parseInt(oComputedStyle.getPropertyValue('border-top-width'), 10);
+		
+		oOffset.iX = oRect.left + iBorderLeft;
+		oOffset.iY = oRect.top + iBorderTop;
+		
+		return oOffset;
 		
 	};
 	

@@ -47,7 +47,7 @@ Environment.Building = function (oEnvironment, pP, pNormal, nBlockSize, iBlocksX
 
 Environment.Building.prototype.oGetBlock = function (iBlockX, iBlockY) {
 	
-	
+	return this.aBlocks[(this.iBlocksX + 1) * iBlockY + iBlockX];
 	
 };
 

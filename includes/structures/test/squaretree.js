@@ -15,6 +15,11 @@ var oState = {};
 
 var vInit = function () {
 	
+	oG.iDrawShift = 0.5;
+	
+	oI.iMouseCorrectionX = -1;
+	oI.iMouseCorrectionY = -2;
+	
 	oState.oEnvironment = new Environment();
 	
 };
@@ -25,11 +30,9 @@ var vInit = function () {
 var vInput = function () {
 	
 	if (oI.iButtonJustPressed(0)) {
-		var iLeafX = Math.floor((oI.oMouse.iX - 2 - oG.iW / 2) / iSCALE);
-		var iLeafY = Math.floor((oI.oMouse.iY - 2 - oG.iH / 2) / iSCALE);
-console.log(iLeafX, iLeafY);
+		var iLeafX = Math.floor((oI.oMouse.iX - oG.iW / 2) / iSCALE);
+		var iLeafY = Math.floor((oI.oMouse.iY - oG.iH / 2) / iSCALE);
 		oState.oSelectedLeaf = oState.oEnvironment.oTree.oGetLeaf(iLeafX, iLeafY, true);
-console.log('oLeaf', oState.oSelectedLeaf);
 	}
 	
 };
@@ -50,6 +53,10 @@ var vDraw = function () {
 	
 	oG.vSetColor('#FFF');
 	oG.vFillRect(0, 0, oG.iW, oG.iH);
+	
+	oG.vSetColor('#CCC');
+	oG.vDrawLine(0, oI.oMouse.iY, oG.iW, oI.oMouse.iY);
+	oG.vDrawLine(oI.oMouse.iX, 0, oI.oMouse.iX, oG.iH);
 	
 	oG.vSetColor('#000');
 	var oTree = oState.oEnvironment.oTree;
@@ -85,7 +92,7 @@ var iFrameNr = 0;
 oGame.vStartLoop(function(){
 	iFrameNr ++;
 	vInput();
-	if (iFrameNr % 2 == 0) return;
+	if (iFrameNr % 2 != 0) return;
 	vCalc();
 	vDraw();
 });

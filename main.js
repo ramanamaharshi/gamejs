@@ -17,6 +17,11 @@ var oResources = {};
 
 var vInit = function () {
 	
+	oG.iDrawShift = 0.5;
+	
+	oI.iMouseCorrectionX = -1;
+	oI.iMouseCorrectionY = -2;
+	
 	oState.aPeople = [];
 	
 	oState.oMe = new Person([250, 200]);
