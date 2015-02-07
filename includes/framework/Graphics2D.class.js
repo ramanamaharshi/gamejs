@@ -17,6 +17,8 @@
 		
 		oG.vSetBounds(iW, iH);
 		
+		oG.o2D.lineWidth = 1;
+		
 	};
 	
 	
@@ -141,7 +143,7 @@
 		
 		o2D.save();
 		o2D.beginPath();
-		o2D.translate(iCX - iRX, iCY - iRY);
+		o2D.translate(iCX + 0.5 - iRX, iCY + 0.5 - iRY);
 		o2D.scale(iRX, iRY);
 		o2D.arc(1, 1, 1, 0, 2 * Math.PI, false);
 		o2D.restore();
@@ -162,9 +164,9 @@
 	Graphics2D.prototype.vPolygon = function (aP) {
 		var o2D = this.o2D;
 		o2D.beginPath();
-		o2D.moveTo(aP[aP.length - 1][0], aP[aP.length - 1][1]);
+		o2D.moveTo(aP[aP.length - 1][0] + 0.5, aP[aP.length - 1][1] + 0.5);
 		for (var iP = 0; iP < aP.length; iP ++) {
-			o2D.lineTo(aP[iP][0], aP[iP][1]);
+			o2D.lineTo(aP[iP][0] + 0.5, aP[iP][1] + 0.5);
 		}
 	};
 	
@@ -199,8 +201,8 @@
 		}
 		var o2D = this.o2D;
 		o2D.beginPath();
-		o2D.moveTo(nAX, nAY);
-		o2D.lineTo(nBX, nBY);
+		o2D.moveTo(nAX + 0.5, nAY + 0.5);
+		o2D.lineTo(nBX + 0.5, nBY + 0.5);
 		o2D.stroke();
 	};
 	
