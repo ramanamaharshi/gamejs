@@ -22,6 +22,18 @@ var oLA = {
 	
 	
 	
+	mInverseMatrixFromCenterNormal: function (pC, pN, bScale) {
+		
+		var mTranslate = oLA.mTranslation(pC);
+		var mRotateScale = oLA.mRotation(pN, bScale);
+		
+		return oLA.mMultiplyMM(mTranslate, mRotateScale);
+		
+	},
+	
+	
+	
+	
 	mInverseRotation: function (pR, bScale) {
 		
 		var nLength = 1;
@@ -70,6 +82,15 @@ var oLA = {
 	mTranslation: function (pT) {
 		
 		return [1, 0, 0, 1, pT[0], pT[1]];
+		
+	},
+	
+	
+	
+	
+	mIdentity: function () {
+		
+		return [1,0,0,1,0,0];
 		
 	},
 	

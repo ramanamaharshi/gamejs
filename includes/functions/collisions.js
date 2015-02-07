@@ -6,37 +6,37 @@ var vCalcCollisions = function (oState) {
 	
 	/// walls <> people
 	
-	for (var iW = 0; iW < oState.aWalls.length; iW ++) {
-		var oWall = oState.aWalls[iW];
-		for (var iP = 0; iP < oState.aPeople.length; iP ++) {
-			var oPerson = oState.aPeople[iP];
-			
-			if (oPerson.oSeat) continue;
-			var nR = oPerson.nRadius;
-			var pRel = oLA.pMultiplyMP(oWall.mMatrixB, oPerson.pP);
-			if (Math.abs(pRel[1]) < oPerson.nRadius) {
-				if (0 < pRel[0] + nR && pRel[0] - nR < oWall.nLength) {
-					if (0 < pRel[0] && pRel[0] < oWall.nLength) {
-						if (pRel[1] > 0) {
-							pRel[1] = nR;
-						} else {
-							pRel[1] = -nR;
-						}
-					} else {
-						if (0 < pRel[0]) {
-							pRel[0] -= oWall.nLength;
-							pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
-							pRel[0] += oWall.nLength;
-						} else {
-							pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
-						}
-					}
-				}
-				oPerson.pP = oLA.pMultiplyMP(oWall.mMatrixA, pRel);
-			}
-			
-		}
-	}
+	//for (var iW = 0; iW < oState.aWalls.length; iW ++) {
+	//	var oWall = oState.aWalls[iW];
+	//	for (var iP = 0; iP < oState.aPeople.length; iP ++) {
+	//		var oPerson = oState.aPeople[iP];
+	//		
+	//		if (oPerson.oSeat) continue;
+	//		var nR = oPerson.nRadius;
+	//		var pRel = oLA.pMultiplyMP(oWall.mMatrixB, oPerson.pP);
+	//		if (Math.abs(pRel[1]) < oPerson.nRadius) {
+	//			if (0 < pRel[0] + nR && pRel[0] - nR < oWall.nLength) {
+	//				if (0 < pRel[0] && pRel[0] < oWall.nLength) {
+	//					if (pRel[1] > 0) {
+	//						pRel[1] = nR;
+	//					} else {
+	//						pRel[1] = -nR;
+	//					}
+	//				} else {
+	//					if (0 < pRel[0]) {
+	//						pRel[0] -= oWall.nLength;
+	//						pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
+	//						pRel[0] += oWall.nLength;
+	//					} else {
+	//						pRel = oLA.pMultiplyNP(nR / oLA.nLength(pRel), pRel);
+	//					}
+	//				}
+	//			}
+	//			oPerson.pP = oLA.pMultiplyMP(oWall.mMatrixA, pRel);
+	//		}
+	//		
+	//	}
+	//}
 	
 	/// cars <> cars
 	
@@ -66,15 +66,15 @@ var vCalcCollisions = function (oState) {
 		}
 	}
 	
-	/// walls <> cars
-	
-	for (var iW = 0; iW < oState.aWalls.length; iW ++) {
-		var oWall = oState.aWalls[iW];
-		for (var iC = 0; iC < oState.aCars.length; iC ++) {
-			var oCar = oState.aCars[iC];
-			/// TODO
-		}
-	}
+	///// walls <> cars
+	//
+	//for (var iW = 0; iW < oState.aWalls.length; iW ++) {
+	//	var oWall = oState.aWalls[iW];
+	//	for (var iC = 0; iC < oState.aCars.length; iC ++) {
+	//		var oCar = oState.aCars[iC];
+	//		/// TODO
+	//	}
+	//}
 	
 	/// cars <> people
 	

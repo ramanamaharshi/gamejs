@@ -33,16 +33,21 @@ var vInit = function () {
 	
 	var oBike = new Car([280, 200], [6, 20]);
 	oBike.aSeats = [
-		{oCar: oBike, oPassenger: null, bSteeringWheel: true, nDir: 0, pP: [0, 0], aAccessArea: [[10,10], [-10,10], [-10,-10], [10,-10]], pAccessAreaCenter: [0, -6]}
+		{
+			oCar: oBike,
+			oPassenger: null,
+			bSteeringWheel: true,
+			aAccessArea: [[10,10], [-10,10], [-10,-10], [10,-10]],
+			pAccessAreaCenter: [0, -6],
+			pP: [0, 0],
+			nDir: 0,
+		}
 	];
 	oState.aCars.push(oBike);
 	
+	oState.oEnvironment = new Environment();
 	
-	oState.aWalls = [
-		oMakeWall([134, 156, 276, 134]),
-		//oMakeWall([24, 29, 31, 37]),
-		//oMakeWall([84, 19, 41, 57]),
-	];
+	new Environment.Building(oState.oEnvironment, [100,100], oLA.pDirToPoint(0), 10, 3, 2);
 	
 };
 
@@ -126,11 +131,15 @@ var vDraw = function () {
 	oG.vSetColor('#FFF');
 	oG.vFillRect(0, 0, oG.iW, oG.iH);
 	
-	vDrawWalls(oG, oState.aWalls);
+	var mGDM = oLA.mIdentity();
 	
 	Car.vDrawMany(oG, oState.aCars);
 	
 	Person.vDrawMany(oG, oState.aPeople);
+	
+	oState.oEnvironment.aBuildings.forEach(function(oBuilding){
+		oBuilding.vDraw(oG, mGDM);
+	});
 	
 };
 
