@@ -11,6 +11,7 @@ var oState = {};
 
 
 var vInit = function () {
+console.log('vInit');
 	
 	var oProgram = oG.oCreateProgram(
 		"\
@@ -26,22 +27,23 @@ var vInit = function () {
 		",
 		'\
 			precision mediump float; \n\
-//			uniform sampler2D s2A; \n\
-//			uniform sampler2D s2B; \n\
-			uniform sampler2D u_image; \n\
+			uniform sampler2D s2A; \n\
+			uniform sampler2D s2B; \n\
 			uniform float v1Opacity; \n\
 			varying vec3 v3FragColor; \n\
 			varying vec2 v2TexCoord; \n\
 			void main() { \n\
+				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
 				gl_FragColor = vec4(v3FragColor ,v1Opacity); \n\
-				gl_FragColor = vec4((vec2(0.5,0.5)+v2TexCoord/vec2(2,2)),0,1); \n\
-				gl_FragColor = texture2D(u_image, v2TexCoord); \n\
+				gl_FragColor *= texture2D(s2A, v2TexC)[0]; \n\
+				gl_FragColor *= texture2D(s2B, v2TexC)[0]; \n\
 			} \n\
 		'
 	);
 	
 	oState.oOpacity = oProgram.oUniforms.v1Opacity;
-	oState.oTexA = oProgram.oUniforms.s2A;
+	oState.oS2A = oProgram.oUniforms.s2A;
+	oState.oS2B = oProgram.oUniforms.s2B;
 	
 	oG.vSetProgram(oProgram);
 	
@@ -68,44 +70,28 @@ var vInit = function () {
 	
 	oState.oPackageB = oG.oCreateVertexPackage('dynamic', 'triangles', {
 		v2Position: {aChunks: [
-			[-0.45, -0.45],
-			[ 0.45, -0.45],
-			[-0.45,  0.45],
-			[-0.45,  0.45],
-			[ 0.45, -0.45],
-			[ 0.45,  0.45],
+			[-0.7, -0.7],
+			[ 0.7, -0.7],
+			[-0.7,  0.7],
+			[-0.7,  0.7],
+			[ 0.7, -0.7],
+			[ 0.7,  0.7],
 		]},
 		v3Color: {aChunks: [
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
+			[0.5, 0.5, 0.5],
+			[0.5, 0.5, 0.5],
+			[0.5, 0.5, 0.5],
+			[0.5, 0.5, 0.5],
+			[0.5, 0.5, 0.5],
+			[0.5, 0.5, 0.5],
 		]},
 	});
 	
 	//oState.oTextureA = oG.oCreateTexture('res/images/paper02.jpg');
 	
-	function loadImage(url, callback) {
-	  var image = new Image();
-	  image.src = url;
-	  image.onload = callback.call(image);
-	  return image;
-	}
-	
-	loadImage('res/images/leaves.jpg', function(image){
-		// Create a texture.
-		var texture = oG.o3D.createTexture();
-		oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, texture);
-		// Set the parameters so we can render any size image.
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_S, oG.o3D.CLAMP_TO_EDGE);
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_T, oG.o3D.CLAMP_TO_EDGE);
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MIN_FILTER, oG.o3D.NEAREST);
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MAG_FILTER, oG.o3D.NEAREST);
-		// Upload the image into the texture.
-		oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, image);
-	});
+	oState.oTextureA = oG.oCreateTexture('res/images/paper05.jpg');
+	oState.oTextureB = oG.oCreateTexture('res/images/leaves.jpg');
+console.log('textures created');
 	
 };
 
@@ -141,11 +127,26 @@ var vDraw = function () {
 	oG.o3D.clearColor(1,1,1,1);
 	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
 	
-	var nOpacity = 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI)));
-	oState.oOpacity.vSet(nOpacity);
-	//oState.oTexA.vSet(oState.oTextureA);
+	//var nOpacity = 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI)));
+	//oState.oOpacity.vSet(nOpacity);
+	oState.oOpacity.vSet(1);
 	
+	
+//console.log(oState.oTexture);
+	//oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oState.oTexture);
+	
+	var gl = oG.o3D;
+	
+	//oState.oTexA.vSet(oState.oTextureA);
+	gl.activeTexture(gl.TEXTURE1);
+	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextureA.gTexture);
+	gl.uniform1i(oState.oS2A.gUniform, 1);
 	oState.oPackageA.vDraw();
+	
+	//oState.oTexA.vSet(oState.oTextureB);
+	gl.activeTexture(gl.TEXTURE2);
+	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextureB.gTexture);
+	gl.uniform1i(oState.oS2A.gUniform, 2);
 	oState.oPackageB.vDraw();
 	
 };
@@ -159,7 +160,8 @@ var iFrameNr = 0;
 oGame.vStartLoop(function(){
 	iFrameNr ++;
 	vInput();
-	//if (iFrameNr % 2 != 0) return;
+	if (iFrameNr % 22 != 0) return;
+	//if (iFrameNr != 0) return;
 	vCalc();
 	vDraw();
 });

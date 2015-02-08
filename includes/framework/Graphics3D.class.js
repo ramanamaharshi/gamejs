@@ -19,7 +19,7 @@
 		
 		oG.vSetBounds(iW, iH);
 		
-		oG.oTextureState = {aBoundTextures: []};
+		oG.oTextureState = {iAtTexture: 0, aBoundTextures: []};
 		for (var iT = 0; iT < 30; iT ++) {
 			oG.oTextureState.aBoundTextures.push(null);
 		}
@@ -113,27 +113,56 @@
 	
 	
 	
+	Graphics3D.prototype.oCreateTextures = function (oTextures, fOnLoad) {
+		
+		var iRemaining = 0;
+		
+		var vOnReady = function () {
+			iRemaining --;
+			if (!iRemaining) fOnLoad();
+		};
+		
+		for (var sKey in oTextures) {
+			iRemaining ++;
+			oTextures[sKey] = oCreateTexture(oTextures[sKey], vOnReady);
+		}
+		
+	};
+	
+	
+	
+	
 	Graphics3D.prototype.oCreateTexture = function (sSrc, fOnLoad) {
 		
 		var oG = this;
 		
+		oG.oTextureState.iAtTexture ++;
+		
 		var oTexture = {
 			sSrc: sSrc,
 			dImage: new Image(),
-			gTexture: oG.o3D.createTexture(),
-			iBoundOn: -1,
+			gTexture: null,
+			iBoundOn: oG.oTextureState.iAtTexture,
 		}
 		oTexture.dImage.onload = function () {
+			
+			oTexture.gTexture = oG.o3D.createTexture();
+			//oG.o3D.activeTexture(oG.o3D['TEXTURE' + oTexture.iBoundOn]);
 			oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
-			oG.o3D.pixelStorei(oG.o3D.UNPACK_FLIP_Y_WEBGL, true);
 			oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, oTexture.dImage);
-			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MAG_FILTER, oG.o3D.LINEAR);
-			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MIN_FILTER, oG.o3D.LINEAR);
-			oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, null);
-			oG.vActivateTexture(oTexture);
+			
+			oG.o3D.pixelStorei(oG.o3D.UNPACK_FLIP_Y_WEBGL, true);
+			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MIN_FILTER, oG.o3D.NEAREST);
+			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MAG_FILTER, oG.o3D.NEAREST);
+			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_S, oG.o3D.CLAMP_TO_EDGE);
+			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_T, oG.o3D.CLAMP_TO_EDGE);
+			
+			//oG.vActivateTexture(oTexture);
+			
 			if (typeof fOnLoad === 'function') {
 				fOnLoad(oTexture);
 			}
+			
 		};
 		oTexture.dImage.src = oTexture.sSrc;
 		
@@ -160,7 +189,7 @@
 		
 		oG.o3D.activeTexture(oG.o3D['TEXTURE' + iT]);
 		oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
-console.log('activateTexture( TEXTURE' + iT + ' );');
+console.log('activeTexture( TEXTURE' + iT + ' );');
 console.log('bindTexture( TEXTURE_2D , ' + oTexture.sSrc + ' );');
 		
 		oG.oTextureState.aBoundTextures[iT] = oTexture;
@@ -228,6 +257,8 @@ console.log('bindTexture( TEXTURE_2D , ' + oTexture.sSrc + ' );');
 			o3D.uniform3f(gLocation, mValue[0], mValue[1], mValue[2]);
 		} else if (sType == 'vec4') {
 			o3D.uniform4f(gLocation, mValue[0], mValue[1], mValue[2], mValue[3]);
+		} else if (sType == 'int') {
+			o3D.uniform1i(gLocation, mValue.iBoundOn);
 		} else if (sType == 'sampler2D') {
 console.log('o3D.uniform1i( ' + oUniform.sName + ' , ' + mValue.iBoundOn + ' );');
 			o3D.uniform1i(gLocation, mValue.iBoundOn);
@@ -261,9 +292,9 @@ console.log('o3D.uniform1i( ' + oUniform.sName + ' , ' + mValue.iBoundOn + ' );'
 		
 		oProgram.oUniforms = {};
 		var aMatchU;
-		var rxUniformFinder = /[\;\s]uniform\s+(\S+)\s+(\S+)\s*\;/g;
+		var rxUniformFinder = /(^|\n)[\;\s]*uniform\s+(\S+)\s+(\S+)\s*\;/g;
 		while (aMatchU = rxUniformFinder.exec(sShaders)) {
-			var oUniform = {sType: aMatchU[1], sName: aMatchU[2]};
+			var oUniform = {sType: aMatchU[2], sName: aMatchU[3]};
 			oUniform.gLocation = oG.o3D.getUniformLocation(oProgram.gProgram, oUniform.sName);
 			oUniform.vSet = function (mValue) {
 				oG.vSetUniform(this, mValue);
@@ -273,9 +304,9 @@ console.log('o3D.uniform1i( ' + oUniform.sName + ' , ' + mValue.iBoundOn + ' );'
 		
 		oProgram.oAttributes = {};
 		var aMatchA;
-		var rxAttributeFinder = /[\;\s]attribute\s+(\S+)\s+(\S+)\s*\;/g;
+		var rxAttributeFinder = /(^|\n)[\;\s]*attribute\s+(\S+)\s+(\S+)\s*\;/g;
 		while (aMatchA = rxAttributeFinder.exec(sShaders)) {
-			var oAttribute = {sType: aMatchA[1], sName: aMatchA[2]};
+			var oAttribute = {sType: aMatchA[2], sName: aMatchA[3]};
 			oAttribute.gLocation = oG.o3D.getAttribLocation(oProgram.gProgram, oAttribute.sName);
 			oG.o3D.enableVertexAttribArray(oAttribute.gLocation);
 			oAttribute.vSet = function (oAttributeFiller) {
