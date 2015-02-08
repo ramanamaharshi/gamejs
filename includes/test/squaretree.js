@@ -58,16 +58,16 @@ var vDraw = function () {
 	oG.vDrawLine(0, oI.oMouse.iY, oG.iW, oI.oMouse.iY);
 	oG.vDrawLine(oI.oMouse.iX, 0, oI.oMouse.iX, oG.iH);
 	
-	oG.vSetColor('#000');
-	var oTree = oState.oEnvironment.oTree;
-	vDrawNode(oTree.oRoot);
-	
-	oG.vSetColor('#F00');
+	oG.vSetColor('#F44');
 	var oDrawNode = oState.oSelectedLeaf;
 	while (oDrawNode) {
 		vDrawNode(oDrawNode);
 		oDrawNode = oDrawNode.oParent;
 	}
+	
+	oG.vSetColor('#C00');
+	var oTree = oState.oEnvironment.oTree;
+	vDrawNode(oTree.oRoot);
 	
 };
 

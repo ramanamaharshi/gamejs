@@ -7,11 +7,11 @@
 	
 	
 	
-	var Game = function (iW, iH) {
+	var Game = function (iW, iH, sGraphicsType) {
 		
 		var oGame = this;
 		
-		oGame.oG = new Graphics2D(iW, iH);
+		oGame.oG = sGraphicsType == '3D' ? new Graphics3D(iW, iH) : new Graphics2D(iW, iH);
 		oGame.oI = new Input(oGame.oG.oGetCanvas());
 		
 	};

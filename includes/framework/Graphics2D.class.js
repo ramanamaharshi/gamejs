@@ -3,7 +3,7 @@
 	
 	
 	
-	var Graphics2D = function (iW, iH) {
+	window.Graphics2D = function (iW, iH) {
 		
 		var oG = this;
 		
@@ -222,11 +222,6 @@
 		this.o2D.strokeStyle = sColor;
 		this.o2D.fillStyle = sColor;
 	};
-	
-	
-	
-	
-	window.Graphics2D = Graphics2D;
 	
 	
 	
