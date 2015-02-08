@@ -12,7 +12,7 @@ var oState = {};
 
 var vInit = function () {
 	
-	oState.oProgram = oG.oCreateProgram(
+	var oProgram = oG.oCreateProgram(
 		"\
 			attribute vec3 v3Color; \n\
 			attribute vec2 v2Position; \n\
@@ -29,9 +29,12 @@ var vInit = function () {
 			void main() { \n\
 				gl_FragColor = vec4(v3FragColor ,v1Opacity); \n\
 			} \n\
-		',
-		'[auto]', '[auto]', true
+		'
 	);
+	
+	oState.oOpacity = oProgram.oUniforms.v1Opacity;
+	
+	oG.vSetProgram(oProgram);
 	
 	var rnd = Math.random;
 	
@@ -107,10 +110,11 @@ var vDraw = function () {
 	oG.o3D.clearColor(1,1,1,1);
 	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
 	
-	oG.o3D.uniform1f(oG.oCurrentProgram.oUniforms.v1Opacity, 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI))));
+	var nOpacity = 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI)));
+	oState.oOpacity.vSet(nOpacity);
 	
-	oG.vDrawVertexPackage(oState.oPackageA);
-	oG.vDrawVertexPackage(oState.oPackageB);
+	oState.oPackageA.vDraw();
+	oState.oPackageB.vDraw();
 	
 };
 

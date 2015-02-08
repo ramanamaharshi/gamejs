@@ -24,22 +24,23 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateVertexPackage = function (sUsage, sMode, oAttributesData) {
+	Graphics3D.prototype.oCreateVertexPackage = function (sUsage, sMode, oAttributeData) {
 		
 		var oG = this;
 		
-		var iUsageConstant = oG.o3D[sUsage.toUpperCase() + '_DRAW'];
+		var oVertexPackage = {};
 		
-		var oVertexPackage = {oAttributes: {}};
-		
+		oVertexPackage.iUsageConstant = oG.o3D[sUsage.toUpperCase() + '_DRAW'];
 		oVertexPackage.iModeConstant = oG.o3D[sMode.toUpperCase()];
 		
-		for (var sAttribute in oAttributesData) {
+		oVertexPackage.oAttributeFillers = {};
+		
+		for (var sAttribute in oAttributeData) {
 			
 			var gBuffer = oG.o3D.createBuffer();
 			oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, gBuffer);
 			
-			var oAttrData = oAttributesData[sAttribute]
+			var oAttrData = oAttributeData[sAttribute]
 			if (typeof oAttrData.sType == 'undefined') {
 				oAttrData.sType = 'float';
 			}
@@ -56,9 +57,9 @@
 					});
 				});
 			}
-			oG.o3D.bufferData(oG.o3D.ARRAY_BUFFER, new Float32Array(aBufferData), iUsageConstant);
+			oG.o3D.bufferData(oG.o3D.ARRAY_BUFFER, new Float32Array(aBufferData), oVertexPackage.iUsageConstant);
 			
-			oVertexPackage.oAttributes[sAttribute] = {
+			oVertexPackage.oAttributeFillers[sAttribute] = {
 				sAttribute: sAttribute,
 				gBuffer: gBuffer,
 				iTypeConstant: oG.o3D[sType.toUpperCase()],
@@ -69,9 +70,15 @@
 				iChunkSize: iChunkSize,
 			};
 			
+			oVertexPackage.iVertices = iChunks;
+			
 		}
 		
 		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
+		
+		oVertexPackage.vDraw = function () {
+			oG.vDrawVertexPackage(oVertexPackage);
+		};
 		
 		return oVertexPackage;
 		
@@ -84,26 +91,14 @@
 		
 		var oG = this;
 		
-		for (var sAttribute in oVertexPackage.oAttributes) {
+		for (var sAttribute in oVertexPackage.oAttributeFillers) {
 			
-			var oAttribute = oVertexPackage.oAttributes[sAttribute];
-			
-			oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, oAttribute.gBuffer);
-			
-			var oProgramAttribute = oG.oCurrentProgram.oAttributes[oAttribute.sAttribute];
-			oG.o3D.enableVertexAttribArray(oProgramAttribute);
-			oG.o3D.vertexAttribPointer(
-				oProgramAttribute,
-				oAttribute.iChunkSize,
-				oAttribute.iTypeConstant,
-				oAttribute.iNormalizedConstant,
-				oAttribute.iStride,
-				oAttribute.iOffset
-			);
+			var oAttributeFiller = oVertexPackage.oAttributeFillers[sAttribute];
+			oG.oCurrentProgram.oAttributes[sAttribute].vSet(oAttributeFiller);
 			
 		}
 		
-		oG.o3D.drawArrays(oVertexPackage.iModeConstant, 0, oAttribute.iChunks);
+		oG.o3D.drawArrays(oVertexPackage.iModeConstant, 0, oVertexPackage.iVertices);
 		
 		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
 		
@@ -112,83 +107,100 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateProgram = function (sVertexShader, sFragmentShader, oUniforms, oAttributes, bUse) {
+	Graphics3D.prototype.vSetAttribute = function (oAttribute, oAttributeFiller) {
 		
 		var oG = this;
 		
-		var oShaderProgram = {};
+		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, oAttributeFiller.gBuffer);
 		
-		if (typeof sVertexShader != 'string') sVertexShader = sVertexShader.text;
-		if (typeof sFragmentShader != 'string') sFragmentShader = sFragmentShader.text;
+		oG.o3D.enableVertexAttribArray(oAttribute.gLocation);
+		oG.o3D.vertexAttribPointer(
+			oAttribute.gLocation,
+			oAttributeFiller.iChunkSize,
+			oAttributeFiller.iTypeConstant,
+			oAttributeFiller.iNormalizedConstant,
+			oAttributeFiller.iStride,
+			oAttributeFiller.iOffset
+		);
 		
-		if (typeof oUniforms == 'undefined') oUniforms = {};
-		if (oUniforms === '[auto]') {
-			var aUniforms = [];
-			oG.vFindUniformsAndAttributes(sVertexShader, aUniforms, []);
-			oG.vFindUniformsAndAttributes(sFragmentShader, aUniforms, []);
-			oUniforms = aUniforms;
-		}
-		if (oUniforms instanceof Array) {
-			var aUniforms = oUniforms;
-			oUniforms = {};
-			aUniforms.forEach(function(sUniform){
-				oUniforms[sUniform] = sUniform;
-			});
-		}
-		if (typeof oAttributes == 'undefined') oAttributes = {};
-		if (oAttributes === '[auto]') {
-			var aAttributes = [];
-			oG.vFindUniformsAndAttributes(sVertexShader, [], aAttributes);
-			oG.vFindUniformsAndAttributes(sFragmentShader, [], aAttributes);
-			oAttributes = aAttributes;
-		}
-		if (oAttributes instanceof Array) {
-			var aAttributes = oAttributes;
-			oAttributes = {};
-			aAttributes.forEach(function(sAttribut){
-				oAttributes[sAttribut] = sAttribut;
-			});
-		}
-		
-		if (typeof bUse == 'undefined') bUse = true;
-		
-		var gVertexShader = oG.gCreateShader('vertex', sVertexShader);
-		var gFragmentShader = oG.gCreateShader('fragment', sFragmentShader);
-		
-		oShaderProgram.gProgram = oG.o3D.createProgram();
-		oG.o3D.attachShader(oShaderProgram.gProgram, gVertexShader);
-		oG.o3D.attachShader(oShaderProgram.gProgram, gFragmentShader);
-		oG.o3D.linkProgram(oShaderProgram.gProgram);
-		
-		oShaderProgram.oUniforms = {}
-		for (var sKey in oUniforms) {
-			oShaderProgram.oUniforms[sKey] = oG.o3D.getUniformLocation(oShaderProgram.gProgram, oUniforms[sKey]);
-		}
-		oShaderProgram.oAttributes = {}
-		for (var sKey in oAttributes) {
-			oShaderProgram.oAttributes[sKey] = oG.o3D.getAttribLocation(oShaderProgram.gProgram, oAttributes[sKey]);
-		}
-		
-		if (bUse) oG.vSetProgram(oShaderProgram);
-		
-		return oShaderProgram;
+		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
 		
 	};
 	
 	
 	
 	
-	Graphics3D.prototype.vFindUniformsAndAttributes = function (sShader, aUniforms, aAttributes) {
+	Graphics3D.prototype.vSetUniform = function (oUniform, mValue) {
 		
-		var aMatches;
-		var rxUniformFinder = /[\;\s]uniform\s+\S+\s+(\S+)\s*\;/g;
-		var rxAttributeFinder = /[\;\s]attribute\s+\S+\s+(\S+)\s*\;/g;
-		while (aMatches = rxUniformFinder.exec(sShader)) {
-			aUniforms.push(aMatches[1]);
+		var oG = this;
+		
+		var o3D = oG.o3D;
+		var sType = oUniform.sType;
+		var gLocation = oUniform.gLocation;
+		
+		if (sType == 'float') {
+			o3D.uniform1f(gLocation, mValue);
+		} else if (sType == 'vec2') {
+			o3D.uniform2f(gLocation, mValue[0], mValue[1]);
+		} else if (sType == 'vec3') {
+			o3D.uniform3f(gLocation, mValue[0], mValue[1], mValue[2]);
+		} else if (sType == 'vec4') {
+			o3D.uniform4f(gLocation, mValue[0], mValue[1], mValue[2], mValue[3]);
 		}
-		while (aMatches = rxAttributeFinder.exec(sShader)) {
-			aAttributes.push(aMatches[1]);
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.oCreateProgram = function (sVertexShader, sFragmentShader, bUse) {
+		
+		var oG = this;
+		
+		var oProgram = {};
+		
+		if (typeof sVertexShader != 'string') sVertexShader = sVertexShader.text;
+		if (typeof sFragmentShader != 'string') sFragmentShader = sFragmentShader.text;
+		
+		if (typeof bUse == 'undefined') bUse = false;
+		
+		var gVertexShader = oG.gCreateShader('vertex', sVertexShader);
+		var gFragmentShader = oG.gCreateShader('fragment', sFragmentShader);
+		
+		oProgram.gProgram = oG.o3D.createProgram();
+		oG.o3D.attachShader(oProgram.gProgram, gVertexShader);
+		oG.o3D.attachShader(oProgram.gProgram, gFragmentShader);
+		oG.o3D.linkProgram(oProgram.gProgram);
+		
+		var sShaders = sVertexShader + '\n' + sFragmentShader;
+		
+		oProgram.oUniforms = {};
+		var aMatchU;
+		var rxUniformFinder = /[\;\s]uniform\s+(\S+)\s+(\S+)\s*\;/g;
+		while (aMatchU = rxUniformFinder.exec(sShaders)) {
+			var oUniform = {sType: aMatchU[1], sName: aMatchU[2]};
+			oUniform.gLocation = oG.o3D.getUniformLocation(oProgram.gProgram, oUniform.sName);
+			oUniform.vSet = function (mValue) {
+				oG.vSetUniform(this, mValue);
+			};
+			oProgram.oUniforms[oUniform.sName] = oUniform;
 		}
+		
+		oProgram.oAttributes = {};
+		var aMatchA;
+		var rxAttributeFinder = /[\;\s]attribute\s+(\S+)\s+(\S+)\s*\;/g;
+		while (aMatchA = rxAttributeFinder.exec(sShaders)) {
+			var oAttribute = {sType: aMatchA[1], sName: aMatchA[2]};
+			oAttribute.gLocation = oG.o3D.getAttribLocation(oProgram.gProgram, oAttribute.sName);
+			oAttribute.vSet = function (oAttributeFiller) {
+				oG.vSetAttribute(this, oAttributeFiller);
+			};
+			oProgram.oAttributes[oAttribute.sName] = oAttribute;
+		}
+		
+		if (bUse) oG.vSetProgram(oProgram);
+		
+		return oProgram;
 		
 	};
 	
@@ -220,13 +232,13 @@
 	
 	
 	
-	Graphics3D.prototype.vSetProgram = function (oShaderProgram) {
+	Graphics3D.prototype.vSetProgram = function (oProgram) {
 		
 		var oG = this;
 		
-		oG.oCurrentProgram = oShaderProgram;
+		oG.oCurrentProgram = oProgram;
 		
-		oG.o3D.useProgram(oShaderProgram.gProgram);
+		oG.o3D.useProgram(oProgram.gProgram);
 		
 	};
 	
