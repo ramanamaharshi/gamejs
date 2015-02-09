@@ -34,7 +34,7 @@ console.log('vInit');
 			varying vec2 v2TexCoord; \n\
 			void main() { \n\
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
-				v2TexC += 0.04 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
+				v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
 				gl_FragColor = vec4(v3FragColor, 1); \n\
 				gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
 				if (bSamplerA) { \n\
