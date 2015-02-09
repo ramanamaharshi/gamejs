@@ -126,8 +126,10 @@
 		}
 		
 		oTexture.gTexture = oG.o3D.createTexture();
-		//oG.o3D.activeTexture(oG.o3D['TEXTURE' + oTexture.iBoundOn]);
+		
+		oG.o3D.activeTexture(oG.o3D['TEXTURE' + oTexture.iBoundOn]);
 		oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
+		
 		oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, oTexture.dImage);
 		
 		oG.o3D.pixelStorei(oG.o3D.UNPACK_FLIP_Y_WEBGL, true);
@@ -135,8 +137,6 @@
 		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MAG_FILTER, oG.o3D.NEAREST);
 		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_S, oG.o3D.CLAMP_TO_EDGE);
 		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_T, oG.o3D.CLAMP_TO_EDGE);
-		
-		//oG.vActivateTexture(oTexture);
 		
 		return oTexture;
 		
@@ -164,45 +164,6 @@
 			oImage.onload = vOnImageLoad;
 			oImage.src = sSrc;
 		}
-		
-	};
-	
-	
-	
-	
-	Graphics3D.prototype.vActivateTexture = function (oTexture) {
-		
-		var oG = this;
-		
-		if (oTexture.iBoundOn != -1) return;
-		
-		var iFreeBuffer = 0;
-		for (var iT = 0; iT < oG.oTextureState.aBoundTextures.length; iT ++) {
-			if (oG.oTextureState.aBoundTextures[iT] == null) {
-				iFreeBuffer = iT;
-				break;
-			}
-		}
-		
-		oG.o3D.activeTexture(oG.o3D['TEXTURE' + iT]);
-		oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
-console.log('activeTexture( TEXTURE' + iT + ' );');
-console.log('bindTexture( TEXTURE_2D , ' + oTexture.sSrc + ' );');
-		
-		oG.oTextureState.aBoundTextures[iT] = oTexture;
-		oTexture.iBoundOn = iT;
-		
-	};
-	
-	
-	
-	
-	Graphics3D.prototype.vDeactivateTexture = function (oTexture) {
-		
-		var oG = this;
-		
-		oG.oTextureState.aTextures[oTexture.iBoundOn] = null;
-		oTexture.iBoundOn = -1;
 		
 	};
 	
@@ -257,7 +218,6 @@ console.log('bindTexture( TEXTURE_2D , ' + oTexture.sSrc + ' );');
 		} else if (sType == 'int') {
 			o3D.uniform1i(gLocation, mValue.iBoundOn);
 		} else if (sType == 'sampler2D') {
-console.log('o3D.uniform1i( ' + oUniform.sName + ' , ' + mValue.iBoundOn + ' );');
 			o3D.uniform1i(gLocation, mValue.iBoundOn);
 		}
 		

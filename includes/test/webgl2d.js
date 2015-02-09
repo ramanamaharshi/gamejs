@@ -86,56 +86,10 @@ console.log('vInit');
 		]},
 	});
 	
-	//oState.oTextureA = oG.oCreateTexture('res/images/paper02.jpg');
-	
 	oState.oImages = {oA: 'res/images/star.jpg', oB: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
-		
 		oState.oTextures = {oA: oG.oCreateTexture(oState.oImages.oA), oB: oG.oCreateTexture(oState.oImages.oB)};
-		
-		/// greggman begin
-		
-		var gl = oG.o3D;
-		var images = [oState.oImages.oA, oState.oImages.oB];
-		var program = oG.oCurrentProgram.gProgram;
-		
-		var textures = [];
-		for (var ii = 0; ii < 2; ++ii) {
-			var texture = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			// Set the parameters so we can render any size image.
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-			// Upload the image into the texture.
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[ii]);
-			// add the texture to the array of textures.
-			textures.push(texture);
-		}
-		
-		var u_image0Location = gl.getUniformLocation(program, "u_image0");
-		var u_image1Location = gl.getUniformLocation(program, "u_image1");
-		
-		gl.uniform1i(u_image0Location, 0);
-		gl.uniform1i(u_image1Location, 1);
-		
-		gl.activeTexture(gl.TEXTURE1);
-		//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image1.gUniform, 0);
-		gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oB.gTexture);
-		
-		oState.oPackageA.vDraw();
-		
-		gl.activeTexture(gl.TEXTURE1);
-		//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image1.gUniform, 0);
-		gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oA.gTexture);
-		
-		oState.oPackageB.vDraw();
-		
-		/// greggman end
-		
-		//fOnReady();
-		
+		fOnReady();
 	});
 	
 };
@@ -169,23 +123,6 @@ var vCalc = function () {
 
 var vDraw = function () {
 	
-	//var gl = oG.o3D;
-	//
-	//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image0.gUniform, 0);
-	//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image1.gUniform, 1);
-	//
-	//gl.activeTexture(gl.TEXTURE1);
-	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oB.gTexture);
-	//
-	//oState.oPackageA.vDraw();
-	//
-	//gl.activeTexture(gl.TEXTURE1);
-	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oA.gTexture);
-	//
-	//oState.oPackageB.vDraw();
-	
-	return;
-	
 	oG.o3D.clearColor(1,1,1,1);
 	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
 	
@@ -193,22 +130,10 @@ var vDraw = function () {
 	//oState.oOpacity.vSet(nOpacity);
 	oState.oOpacity.vSet(1);
 	
-	
-//console.log(oState.oTexture);
-	//oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oState.oTexture);
-	
-	var gl = oG.o3D;
-	
-	//oState.oTexA.vSet(oState.oTextures.oA);
-	gl.activeTexture(gl.TEXTURE0);
-	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oA.gTexture);
-	gl.uniform1i(oState.oS2A.gUniform, 0);
+	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oB);
 	oState.oPackageA.vDraw();
 	
-	//oState.oTexA.vSet(oState.oTextures.oB);
-	gl.activeTexture(gl.TEXTURE0);
-	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oB.gTexture);
-	gl.uniform1i(oState.oS2A.gUniform, 0);
+	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oA);
 	oState.oPackageB.vDraw();
 	
 };
