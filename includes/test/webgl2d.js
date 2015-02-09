@@ -27,17 +27,19 @@ console.log('vInit');
 		',
 		'\
 			precision mediump float; \n\
-			uniform sampler2D u_image0; \n\
-			uniform sampler2D u_image1; \n\
-			uniform float v1Opacity; \n\
+			uniform sampler2D sSamplerA; \n\
+			uniform sampler2D sSamplerB; \n\
+			uniform bool bSamplerA; \n\
 			varying vec3 v3FragColor; \n\
 			varying vec2 v2TexCoord; \n\
 			void main() { \n\
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
-				v2TexC += 0.04 * vec2(texture2D(u_image0, v2TexC)[0], texture2D(u_image1, v2TexC)[0]); \n\
+				v2TexC += 0.04 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
 				gl_FragColor = vec4(v3FragColor, 1); \n\
-//				gl_FragColor *= texture2D(u_image0, v2TexC)[0]; \n\
-				gl_FragColor *= texture2D(u_image1, v2TexC)[0]; \n\
+				gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
+				if (bSamplerA) { \n\
+					gl_FragColor *= texture2D(sSamplerA, v2TexC); \n\
+				} \n\
 			} \n\
 		'
 	);
@@ -72,9 +74,12 @@ console.log('vInit');
 	oState.oPackageA = oFigureA(0.9, function(){return [rnd(),rnd(),rnd()];});
 	oState.oPackageB = oFigureA(0.7, function(){return [0.5,0.5,0.5];});
 	
-	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg'};
+	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
-		oState.oTextures = {oA: oG.oCreateTexture(oState.oImages.oA), oB: oG.oCreateTexture(oState.oImages.oB)};
+		oState.oTextures = {};
+		for (var sKey in oState.oImages) {
+			oState.oTextures[sKey] = oG.oCreateTexture(oState.oImages[sKey]);
+		}
 		fOnReady();
 	});
 	
@@ -114,12 +119,17 @@ var vDraw = function () {
 	
 	//var nOpacity = 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI)));
 	//oState.oOpacity.vSet(nOpacity);
-	oState.oOpacity.vSet(1);
+	//oState.oOpacity.vSet(1);
 	
-	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oA);
+	var oUniforms = oG.oCurrentProgram.oUniforms;
+	
+	oUniforms.sSamplerB.vSet(oState.oTextures.oA);
+	oUniforms.bSamplerA.vSet(false);
 	oState.oPackageA.vDraw();
 	
-	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oB);
+	oUniforms.sSamplerB.vSet(oState.oTextures.oB);
+	oUniforms.sSamplerA.vSet(oState.oTextures.oC);
+	oUniforms.bSamplerA.vSet(true);
 	oState.oPackageB.vDraw();
 	
 };

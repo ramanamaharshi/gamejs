@@ -207,7 +207,10 @@
 		var sType = oUniform.sType;
 		var gLocation = oUniform.gLocation;
 		
-		if (sType == 'float') {
+		if (sType == 'bool') {
+console.log(mValue);
+			o3D.uniform1i(gLocation, mValue);
+		} else if (sType == 'float') {
 			o3D.uniform1f(gLocation, mValue);
 		} else if (sType == 'vec2') {
 			o3D.uniform2f(gLocation, mValue[0], mValue[1]);
@@ -218,7 +221,9 @@
 		} else if (sType == 'int') {
 			o3D.uniform1i(gLocation, mValue.iBoundOn);
 		} else if (sType == 'sampler2D') {
-			o3D.uniform1i(gLocation, mValue.iBoundOn);
+			var iValue = 0;
+			if (mValue) iValue = mValue.iBoundOn;
+			o3D.uniform1i(gLocation, iValue);
 		}
 		
 	};
