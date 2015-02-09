@@ -48,45 +48,31 @@ console.log('vInit');
 	
 	var rnd = Math.random;
 	
-	oState.oPackageA = oG.oCreateVertexPackage('dynamic', 'triangles', {
-		v2Position: {aChunks: [
-			[-0.9, -0.9],
-			[ 0.9, -0.9],
-			[-0.9,  0.9],
-			[-0.9,  0.9],
-			[ 0.9, -0.9],
-			[ 0.9,  0.9],
-		]},
-		v3Color: {aChunks: [
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-		]},
-	});
+	var oFigureA = function (iSize, fColorGen) {
+		var aColors = [];
+		var aPositions = [];
+		var aCorners = [[+1,+1],[+1,-1],[-1,-1],[-1,+1]];
+		var iPrevC = aCorners.length - 1;
+		for (var iC = 0; iC < aCorners.length; iC ++) {
+			aColors.push(fColorGen());
+			aColors.push(fColorGen());
+			aColors.push(fColorGen());
+			aPositions.push([0,0]);
+			aPositions.push([iSize * aCorners[iC][0], iSize * aCorners[iC][1]]);
+			aPositions.push([iSize * aCorners[iPrevC][0], iSize * aCorners[iPrevC][1]]);
+			iPrevC = iC;
+		}
+		var oFigure = oG.oCreateVertexPackage('dynamic', 'triangles', {
+			v2Position: {aChunks: aPositions},
+			v3Color: {aChunks: aColors},
+		});
+		return oFigure;
+	};
 	
-	oState.oPackageB = oG.oCreateVertexPackage('dynamic', 'triangles', {
-		v2Position: {aChunks: [
-			[-0.7, -0.7],
-			[ 0.7, -0.7],
-			[-0.7,  0.7],
-			[-0.7,  0.7],
-			[ 0.7, -0.7],
-			[ 0.7,  0.7],
-		]},
-		v3Color: {aChunks: [
-			[0.5, 0.5, 0.5],
-			[0.5, 0.5, 0.5],
-			[0.5, 0.5, 0.5],
-			[0.5, 0.5, 0.5],
-			[0.5, 0.5, 0.5],
-			[0.5, 0.5, 0.5],
-		]},
-	});
+	oState.oPackageA = oFigureA(0.9, function(){return [rnd(),rnd(),rnd()];});
+	oState.oPackageB = oFigureA(0.7, function(){return [0.5,0.5,0.5];});
 	
-	oState.oImages = {oA: 'res/images/star.jpg', oB: 'res/images/leaves.jpg'};
+	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
 		oState.oTextures = {oA: oG.oCreateTexture(oState.oImages.oA), oB: oG.oCreateTexture(oState.oImages.oB)};
 		fOnReady();
@@ -130,10 +116,10 @@ var vDraw = function () {
 	//oState.oOpacity.vSet(nOpacity);
 	oState.oOpacity.vSet(1);
 	
-	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oB);
+	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oA);
 	oState.oPackageA.vDraw();
 	
-	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oA);
+	oG.oCurrentProgram.oUniforms.u_image1.vSet(oState.oTextures.oB);
 	oState.oPackageB.vDraw();
 	
 };
