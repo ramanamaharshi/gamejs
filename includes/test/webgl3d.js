@@ -10,67 +10,78 @@ var oState = {};
 
 
 
-var vInit = function () {
+
+var vInit = function (fOnReady) {
 	
-	oState.oProgram = oG.oCreateProgram(
-		"\
+	var oProgram = oG.oCreateProgram(
+		'\
 			attribute vec3 v3Color; \n\
 			attribute vec2 v2Position; \n\
 			varying vec3 v3FragColor; \n\
+			varying vec2 v2TexCoord; \n\
 			void main() { \n\
 				v3FragColor = v3Color; \n\
 				gl_Position = vec4(v2Position, 0, 1); \n\
-			} \n\
-		",
-		'\
-			precision mediump float; \n\
-			uniform float v1Opacity; \n\
-			varying vec3 v3FragColor; \n\
-			void main() { \n\
-				gl_FragColor = vec4(v3FragColor ,v1Opacity); \n\
+				v2TexCoord = v2Position; \n\
 			} \n\
 		',
-		'[auto]', '[auto]', true
+		'\
+			precision mediump float; \n\
+			uniform sampler2D sSamplerA; \n\
+			uniform sampler2D sSamplerB; \n\
+			uniform bool bSamplerA; \n\
+			varying vec3 v3FragColor; \n\
+			varying vec2 v2TexCoord; \n\
+			void main() { \n\
+				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
+				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
+				gl_FragColor = vec4(v3FragColor, 1); \n\
+				//gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
+				gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
+				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) { \n\
+					gl_FragColor *= texture2D(sSamplerA, v2TexC); \n\
+				} \n\
+			} \n\
+		'
 	);
+	
+	oState.oOpacity = oProgram.oUniforms.v1Opacity;
+	
+	oG.vSetProgram(oProgram);
 	
 	var rnd = Math.random;
 	
-	oState.oPackageA = oG.oCreateVertexPackage('dynamic', 'triangles', {
-		v2Position: {aChunks: [
-			[-0.9, -0.9],
-			[ 0.9, -0.9],
-			[-0.9,  0.9],
-			[-0.9,  0.9],
-			[ 0.9, -0.9],
-			[ 0.9,  0.9],
-		]},
-		v3Color: {aChunks: [
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-		]},
-	});
+	var oFigureA = function (iSize, fColorGen) {
+		var aColors = [];
+		var aPositions = [];
+		var aCorners = [[+1,+1],[+1,-1],[-1,-1],[-1,+1]];
+		var iPrevC = aCorners.length - 1;
+		for (var iC = 0; iC < aCorners.length; iC ++) {
+			aColors.push(fColorGen());
+			aColors.push(fColorGen());
+			aColors.push(fColorGen());
+			aPositions.push([0,0]);
+			aPositions.push([iSize * aCorners[iC][0], iSize * aCorners[iC][1]]);
+			aPositions.push([iSize * aCorners[iPrevC][0], iSize * aCorners[iPrevC][1]]);
+			iPrevC = iC;
+		}
+		var oFigure = oG.oCreateVertexPackage('dynamic', 'triangles', {
+			v2Position: {aChunks: aPositions},
+			v3Color: {aChunks: aColors},
+		});
+		return oFigure;
+	};
 	
-	oState.oPackageB = oG.oCreateVertexPackage('dynamic', 'triangles', {
-		v2Position: {aChunks: [
-			[-0.45, -0.45],
-			[ 0.45, -0.45],
-			[-0.45,  0.45],
-			[-0.45,  0.45],
-			[ 0.45, -0.45],
-			[ 0.45,  0.45],
-		]},
-		v3Color: {aChunks: [
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-			[rnd(), rnd(), rnd()],
-		]},
+	oState.oPackageA = oFigureA(0.9, function(){return [rnd(),rnd(),rnd()];});
+	oState.oPackageB = oFigureA(0.7, function(){return [1,1,1];});
+	
+	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
+	oG.vLoadImages(oState.oImages, function(){
+		oState.oTextures = {};
+		for (var sKey in oState.oImages) {
+			oState.oTextures[sKey] = oG.oCreateTexture(oState.oImages[sKey]);
+		}
+		fOnReady();
 	});
 	
 };
@@ -107,9 +118,20 @@ var vDraw = function () {
 	oG.o3D.clearColor(1,1,1,1);
 	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
 	
-	oG.o3D.uniform1f(oG.oCurrentProgram.oUniforms.v1Opacity, 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI))));
+	//var nOpacity = 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI)));
+	//oState.oOpacity.vSet(nOpacity);
+	//oState.oOpacity.vSet(1);
 	
+	var oUniforms = oG.oCurrentProgram.oUniforms;
+	
+	oUniforms.sSamplerB.vSet(oState.oTextures.oA);
+	oUniforms.sSamplerA.vSet(null);
+	oUniforms.bSamplerA.vSet(false);
 	oState.oPackageA.vDraw();
+	
+	oUniforms.sSamplerB.vSet(oState.oTextures.oB);
+	oUniforms.sSamplerA.vSet(oState.oTextures.oC);
+	oUniforms.bSamplerA.vSet(true);
 	oState.oPackageB.vDraw();
 	
 };
@@ -117,15 +139,16 @@ var vDraw = function () {
 
 
 
-vInit();
-
-var iFrameNr = 0;
-oGame.vStartLoop(function(){
-	iFrameNr ++;
-	vInput();
-	//if (iFrameNr % 2 != 0) return;
-	vCalc();
-	vDraw();
+vInit(function(){
+	var iFrameNr = 0;
+	oGame.vStartLoop(function(){
+		iFrameNr ++;
+		vInput();
+		if (iFrameNr % 22 != 0) return;
+		//if (iFrameNr != 0) return;
+		vCalc();
+		vDraw();
+	});
 });
 
 

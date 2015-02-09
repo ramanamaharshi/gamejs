@@ -10,8 +10,8 @@ var oState = {};
 
 
 
+
 var vInit = function (fOnReady) {
-console.log('vInit');
 	
 	var oProgram = oG.oCreateProgram(
 		'\
@@ -34,10 +34,11 @@ console.log('vInit');
 			varying vec2 v2TexCoord; \n\
 			void main() { \n\
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
-				v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
+				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
 				gl_FragColor = vec4(v3FragColor, 1); \n\
+				//gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
 				gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
-				if (bSamplerA) { \n\
+				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) { \n\
 					gl_FragColor *= texture2D(sSamplerA, v2TexC); \n\
 				} \n\
 			} \n\
@@ -72,7 +73,7 @@ console.log('vInit');
 	};
 	
 	oState.oPackageA = oFigureA(0.9, function(){return [rnd(),rnd(),rnd()];});
-	oState.oPackageB = oFigureA(0.7, function(){return [0.5,0.5,0.5];});
+	oState.oPackageB = oFigureA(0.7, function(){return [1,1,1];});
 	
 	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
@@ -124,6 +125,7 @@ var vDraw = function () {
 	var oUniforms = oG.oCurrentProgram.oUniforms;
 	
 	oUniforms.sSamplerB.vSet(oState.oTextures.oA);
+	oUniforms.sSamplerA.vSet(null);
 	oUniforms.bSamplerA.vSet(false);
 	oState.oPackageA.vDraw();
 	

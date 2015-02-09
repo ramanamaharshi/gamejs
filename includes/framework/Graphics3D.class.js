@@ -208,7 +208,6 @@
 		var gLocation = oUniform.gLocation;
 		
 		if (sType == 'bool') {
-console.log(mValue);
 			o3D.uniform1i(gLocation, mValue);
 		} else if (sType == 'float') {
 			o3D.uniform1f(gLocation, mValue);
