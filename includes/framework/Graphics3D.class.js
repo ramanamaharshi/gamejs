@@ -113,60 +113,57 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateTextures = function (oTextures, fOnLoad) {
-		
-		var iRemaining = 0;
-		
-		var vOnReady = function () {
-			iRemaining --;
-			if (!iRemaining) fOnLoad();
-		};
-		
-		for (var sKey in oTextures) {
-			iRemaining ++;
-			oTextures[sKey] = oCreateTexture(oTextures[sKey], vOnReady);
-		}
-		
-	};
-	
-	
-	
-	
-	Graphics3D.prototype.oCreateTexture = function (sSrc, fOnLoad) {
+	Graphics3D.prototype.oCreateTexture = function (dImage) {
 		
 		var oG = this;
 		
 		oG.oTextureState.iAtTexture ++;
 		
 		var oTexture = {
-			sSrc: sSrc,
-			dImage: new Image(),
+			dImage: dImage,
 			gTexture: null,
 			iBoundOn: oG.oTextureState.iAtTexture,
 		}
-		oTexture.dImage.onload = function () {
-			
-			oTexture.gTexture = oG.o3D.createTexture();
-			//oG.o3D.activeTexture(oG.o3D['TEXTURE' + oTexture.iBoundOn]);
-			oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
-			oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, oTexture.dImage);
-			
-			oG.o3D.pixelStorei(oG.o3D.UNPACK_FLIP_Y_WEBGL, true);
-			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MIN_FILTER, oG.o3D.NEAREST);
-			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MAG_FILTER, oG.o3D.NEAREST);
-			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_S, oG.o3D.CLAMP_TO_EDGE);
-			oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_T, oG.o3D.CLAMP_TO_EDGE);
-			
-			//oG.vActivateTexture(oTexture);
-			
-			if (typeof fOnLoad === 'function') {
-				fOnLoad(oTexture);
-			}
-			
-		};
-		oTexture.dImage.src = oTexture.sSrc;
+		
+		oTexture.gTexture = oG.o3D.createTexture();
+		//oG.o3D.activeTexture(oG.o3D['TEXTURE' + oTexture.iBoundOn]);
+		oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
+		oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, oTexture.dImage);
+		
+		oG.o3D.pixelStorei(oG.o3D.UNPACK_FLIP_Y_WEBGL, true);
+		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MIN_FILTER, oG.o3D.NEAREST);
+		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MAG_FILTER, oG.o3D.NEAREST);
+		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_S, oG.o3D.CLAMP_TO_EDGE);
+		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_T, oG.o3D.CLAMP_TO_EDGE);
+		
+		//oG.vActivateTexture(oTexture);
 		
 		return oTexture;
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.vLoadImages = function (oImages, fOnReady) {
+		
+		var oG = this;
+		
+		var iRemaining = 0;
+		
+		var vOnImageLoad = function () {
+			iRemaining --;
+			if (!iRemaining) fOnReady();
+		};
+		
+		for (var sKey in oImages) {
+			iRemaining ++;
+			var sSrc = oImages[sKey];
+			var oImage = new Image();
+			oImages[sKey] = oImage;
+			oImage.onload = vOnImageLoad;
+			oImage.src = sSrc;
+		}
 		
 	};
 	

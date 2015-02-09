@@ -10,11 +10,11 @@ var oState = {};
 
 
 
-var vInit = function () {
+var vInit = function (fOnReady) {
 console.log('vInit');
 	
 	var oProgram = oG.oCreateProgram(
-		"\
+		'\
 			attribute vec3 v3Color; \n\
 			attribute vec2 v2Position; \n\
 			varying vec3 v3FragColor; \n\
@@ -24,19 +24,19 @@ console.log('vInit');
 				gl_Position = vec4(v2Position, 0, 1); \n\
 				v2TexCoord = v2Position; \n\
 			} \n\
-		",
+		',
 		'\
 			precision mediump float; \n\
-			uniform sampler2D s2A; \n\
-			uniform sampler2D s2B; \n\
+			uniform sampler2D u_image0; \n\
+			uniform sampler2D u_image1; \n\
 			uniform float v1Opacity; \n\
 			varying vec3 v3FragColor; \n\
 			varying vec2 v2TexCoord; \n\
 			void main() { \n\
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
-				gl_FragColor = vec4(v3FragColor ,v1Opacity); \n\
-				gl_FragColor *= texture2D(s2A, v2TexC)[0]; \n\
-				gl_FragColor *= texture2D(s2B, v2TexC)[0]; \n\
+				gl_FragColor = vec4(v3FragColor, 1); \n\
+				gl_FragColor *= texture2D(u_image0, v2TexC)[0]; \n\
+				//gl_FragColor *= texture2D(u_image1, v2TexC)[0]; \n\
 			} \n\
 		'
 	);
@@ -89,9 +89,53 @@ console.log('vInit');
 	
 	//oState.oTextureA = oG.oCreateTexture('res/images/paper02.jpg');
 	
-	oState.oTextureA = oG.oCreateTexture('res/images/paper05.jpg');
-	oState.oTextureB = oG.oCreateTexture('res/images/leaves.jpg');
-console.log('textures created');
+	oState.oImages = {oA: 'res/images/star.jpg', oB: 'res/images/leaves.jpg'};
+	oG.vLoadImages(oState.oImages, function(){
+		
+		oState.oTextures = {oA: oG.oCreateTexture(oState.oImages.oA), oB: oG.oCreateTexture(oState.oImages.oB)};
+		
+		/// greggman begin
+		
+		var gl = oG.o3D;
+		var images = [oState.oImages.oA, oState.oImages.oB];
+		var program = oG.oCurrentProgram.gProgram;
+		
+		var textures = [];
+		for (var ii = 0; ii < 2; ++ii) {
+			var texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			// Set the parameters so we can render any size image.
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+			// Upload the image into the texture.
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[ii]);
+			// add the texture to the array of textures.
+			textures.push(texture);
+		}
+		
+		var u_image0Location = gl.getUniformLocation(program, "u_image0");
+		var u_image1Location = gl.getUniformLocation(program, "u_image1");
+		
+		gl.uniform1i(u_image0Location, 0);
+		gl.uniform1i(u_image1Location, 1);
+		
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, textures[1]);
+		
+		oState.oPackageA.vDraw();
+		
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, textures[0]);
+		
+		oState.oPackageB.vDraw();
+		
+		/// greggman end
+			
+		fOnReady();
+		
+	});
 	
 };
 
@@ -124,6 +168,8 @@ var vCalc = function () {
 
 var vDraw = function () {
 	
+	return;
+	
 	oG.o3D.clearColor(1,1,1,1);
 	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
 	
@@ -137,16 +183,16 @@ var vDraw = function () {
 	
 	var gl = oG.o3D;
 	
-	//oState.oTexA.vSet(oState.oTextureA);
-	gl.activeTexture(gl.TEXTURE1);
-	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextureA.gTexture);
-	gl.uniform1i(oState.oS2A.gUniform, 1);
+	//oState.oTexA.vSet(oState.oTextures.oA);
+	gl.activeTexture(gl.TEXTURE0);
+	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oA.gTexture);
+	gl.uniform1i(oState.oS2A.gUniform, 0);
 	oState.oPackageA.vDraw();
 	
-	//oState.oTexA.vSet(oState.oTextureB);
-	gl.activeTexture(gl.TEXTURE2);
-	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextureB.gTexture);
-	gl.uniform1i(oState.oS2A.gUniform, 2);
+	//oState.oTexA.vSet(oState.oTextures.oB);
+	gl.activeTexture(gl.TEXTURE0);
+	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oB.gTexture);
+	gl.uniform1i(oState.oS2A.gUniform, 0);
 	oState.oPackageB.vDraw();
 	
 };
@@ -154,16 +200,16 @@ var vDraw = function () {
 
 
 
-vInit();
-
-var iFrameNr = 0;
-oGame.vStartLoop(function(){
-	iFrameNr ++;
-	vInput();
-	if (iFrameNr % 22 != 0) return;
-	//if (iFrameNr != 0) return;
-	vCalc();
-	vDraw();
+vInit(function(){
+	var iFrameNr = 0;
+	oGame.vStartLoop(function(){
+		iFrameNr ++;
+		vInput();
+		if (iFrameNr % 22 != 0) return;
+		//if (iFrameNr != 0) return;
+		vCalc();
+		vDraw();
+	});
 });
 
 
