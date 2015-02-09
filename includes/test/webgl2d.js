@@ -34,16 +34,15 @@ console.log('vInit');
 			varying vec2 v2TexCoord; \n\
 			void main() { \n\
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
+				v2TexC += 0.04 * vec2(texture2D(u_image0, v2TexC)[0], texture2D(u_image1, v2TexC)[0]); \n\
 				gl_FragColor = vec4(v3FragColor, 1); \n\
-				gl_FragColor *= texture2D(u_image0, v2TexC)[0]; \n\
-				//gl_FragColor *= texture2D(u_image1, v2TexC)[0]; \n\
+//				gl_FragColor *= texture2D(u_image0, v2TexC)[0]; \n\
+				gl_FragColor *= texture2D(u_image1, v2TexC)[0]; \n\
 			} \n\
 		'
 	);
 	
 	oState.oOpacity = oProgram.oUniforms.v1Opacity;
-	oState.oS2A = oProgram.oUniforms.s2A;
-	oState.oS2B = oProgram.oUniforms.s2B;
 	
 	oG.vSetProgram(oProgram);
 	
@@ -121,19 +120,21 @@ console.log('vInit');
 		gl.uniform1i(u_image0Location, 0);
 		gl.uniform1i(u_image1Location, 1);
 		
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textures[1]);
+		gl.activeTexture(gl.TEXTURE1);
+		//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image1.gUniform, 0);
+		gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oB.gTexture);
 		
 		oState.oPackageA.vDraw();
 		
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textures[0]);
+		gl.activeTexture(gl.TEXTURE1);
+		//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image1.gUniform, 0);
+		gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oA.gTexture);
 		
 		oState.oPackageB.vDraw();
 		
 		/// greggman end
-			
-		fOnReady();
+		
+		//fOnReady();
 		
 	});
 	
@@ -167,6 +168,21 @@ var vCalc = function () {
 
 
 var vDraw = function () {
+	
+	//var gl = oG.o3D;
+	//
+	//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image0.gUniform, 0);
+	//gl.uniform1i(oG.oCurrentProgram.oUniforms.u_image1.gUniform, 1);
+	//
+	//gl.activeTexture(gl.TEXTURE1);
+	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oB.gTexture);
+	//
+	//oState.oPackageA.vDraw();
+	//
+	//gl.activeTexture(gl.TEXTURE1);
+	//gl.bindTexture(gl.TEXTURE_2D, oState.oTextures.oA.gTexture);
+	//
+	//oState.oPackageB.vDraw();
 	
 	return;
 	
