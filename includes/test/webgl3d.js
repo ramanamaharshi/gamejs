@@ -15,14 +15,19 @@ var vInit = function (fOnReady) {
 	
 	var oProgram = oG.oCreateProgram(
 		'\
+			\n\
+			uniform mat4 mProjection; \n\
+			\n\
+			attribute vec4 v4Position; \n\
 			attribute vec3 v3Color; \n\
-			attribute vec2 v2Position; \n\
+			\n\
 			varying vec3 v3FragColor; \n\
 			varying vec2 v2TexCoord; \n\
+			\n\
 			void main() { \n\
 				v3FragColor = v3Color; \n\
-				gl_Position = vec4(v2Position, 0, 1); \n\
-				v2TexCoord = v2Position; \n\
+				gl_Position = mProjection * v4Position; \n\
+				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
 			} \n\
 		',
 		'\
@@ -49,6 +54,8 @@ var vInit = function (fOnReady) {
 	
 	oG.vSetProgram(oProgram);
 	
+	oState.mProjection = oG.mMakeProjection(60, 1, -2, -1, 1);
+	
 	var rnd = Math.random;
 	
 	var oFigureA = function (iSize, fColorGen) {
@@ -60,13 +67,14 @@ var vInit = function (fOnReady) {
 			aColors.push(fColorGen());
 			aColors.push(fColorGen());
 			aColors.push(fColorGen());
-			aPositions.push([0,0]);
-			aPositions.push([iSize * aCorners[iC][0], iSize * aCorners[iC][1]]);
-			aPositions.push([iSize * aCorners[iPrevC][0], iSize * aCorners[iPrevC][1]]);
+			var iZ = 1;
+			aPositions.push([0 , 0 , iZ]);
+			aPositions.push([iSize * aCorners[iC][0] , iSize * aCorners[iC][1] , iZ]);
+			aPositions.push([iSize * aCorners[iPrevC][0] , iSize * aCorners[iPrevC][1] , iZ]);
 			iPrevC = iC;
 		}
 		var oFigure = oG.oCreateVertexPackage('dynamic', 'triangles', {
-			v2Position: {aChunks: aPositions},
+			v4Position: {aChunks: aPositions},
 			v3Color: {aChunks: aColors},
 		});
 		return oFigure;
@@ -123,6 +131,8 @@ var vDraw = function () {
 	//oState.oOpacity.vSet(1);
 	
 	var oUniforms = oG.oCurrentProgram.oUniforms;
+	
+	oUniforms.mProjection.vSet(oState.mProjection);
 	
 	oUniforms.sSamplerB.vSet(oState.oTextures.oA);
 	oUniforms.sSamplerA.vSet(null);

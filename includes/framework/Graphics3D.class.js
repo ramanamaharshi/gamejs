@@ -209,6 +209,8 @@
 		
 		if (sType == 'bool') {
 			o3D.uniform1i(gLocation, mValue);
+		} else if (sType == 'int') {
+			o3D.uniform1i(gLocation, mValue.iBoundOn);
 		} else if (sType == 'float') {
 			o3D.uniform1f(gLocation, mValue);
 		} else if (sType == 'vec2') {
@@ -217,8 +219,8 @@
 			o3D.uniform3f(gLocation, mValue[0], mValue[1], mValue[2]);
 		} else if (sType == 'vec4') {
 			o3D.uniform4f(gLocation, mValue[0], mValue[1], mValue[2], mValue[3]);
-		} else if (sType == 'int') {
-			o3D.uniform1i(gLocation, mValue.iBoundOn);
+		} else if (sType == 'mat4') {
+			o3D.uniformMatrix4fv(gLocation, 0, mValue);
 		} else if (sType == 'sampler2D') {
 			var iValue = 0;
 			if (mValue) iValue = mValue.iBoundOn;
@@ -304,6 +306,45 @@
 		}
 		
 		return gShader;
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.mMakeProjection = function (nHorzFieldOfViewInRadians, nAspectRatioWpH, nCameraZ, nNearZ, nFarZ) {
+		
+		var nHFOVT = Math.abs(Math.tan(nHorzFieldOfViewInRadians)); // nHorzFieldOfViewTangent
+		var nVFOVT = nHFOVT / nAspectRatioWpH; // nVertFieldOfViewTangent
+console.log(nHFOVT, nVFOVT);
+		
+		var mProjection = [
+			1 / nHFOVT, 0, 0, 0,
+			0, 1 / nVFOVT, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1,
+		];
+		
+		var nRange = nFarZ - nNearZ;
+		var mProjection = [
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 0, 1,
+			0, 0, 0, 0,
+			//0, 0, (nNearZ + nFarZ) / nRange, 0,
+			//0, 0, (nNearZ * nFarZ) / nRange, 1,
+		];
+		
+		//var mProjection = [
+		//	1, 0, 0, 0,
+		//	0, 1, 0, 0,
+		//	0, 0, 1, 0,
+		//	0, 0, 0, 1,
+		//];
+		
+		mProjection = new Float32Array(mProjection);
+		
+		return mProjection;
 		
 	};
 	
