@@ -58,22 +58,21 @@ var vInit = function (fOnReady) {
 	
 	oG.vSetProgram(oProgram);
 	
-	oState.mProjection = oG.mMakeProjection(60, oG.iW / oG.iH, 0.5, 2);
+	oG.o3D.enable(oG.o3D.DEPTH_TEST);
+	
+	oState.mProjection = oG.mProjection(90, oG.iW / oG.iH, 0.5, 2);
 	
 	var rnd = Math.random;
 	
-	var oFigureA = function (iSize, fColorGen) {
+	var oFigureA = function (iZ, iSize, fColorGen) {
 		var aColors = [];
 		var aPositions = [];
 		var aCorners = [[+1,+1],[+1,-1],[-1,-1],[-1,+1]];
 		var iPrevC = aCorners.length - 1;
-//var aZMap = [9, 11, 19, 21];
 		for (var iC = 0; iC < aCorners.length; iC ++) {
 			aColors.push(fColorGen());
 			aColors.push(fColorGen());
 			aColors.push(fColorGen());
-			var iZ = 1;
-//iZ = aZMap[iC];
 			aPositions.push([0 , 0 , iZ]);
 			aPositions.push([iSize * aCorners[iC][0] , iSize * aCorners[iC][1] , iZ]);
 			aPositions.push([iSize * aCorners[iPrevC][0] , iSize * aCorners[iPrevC][1] , iZ]);
@@ -86,8 +85,8 @@ var vInit = function (fOnReady) {
 		return oFigure;
 	};
 	
-	oState.oPackageA = oFigureA(0.9, function(){return [rnd(),rnd(),rnd()];});
-	oState.oPackageB = oFigureA(0.7, function(){return [1,1,1];});
+	oState.oPackageA = oFigureA(1.00002, 0.9, function(){return [rnd(),rnd(),rnd()];});
+	oState.oPackageB = oFigureA(1.00001, 0.7, function(){return [1,1,1];});
 	
 	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){

@@ -312,18 +312,29 @@
 	
 	
 	
-	Graphics3D.prototype.mMakeProjection = function (nHFOVinDegrees, nAspectRatioWpH, nNearZ, nFarZ) {
+	Graphics3D.prototype.vSetProgram = function (oProgram) {
+		
+		var oG = this;
+		
+		oG.oCurrentProgram = oProgram;
+		
+		oG.o3D.useProgram(oProgram.gProgram);
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.mProjection = function (nHFOVinDegrees, nAspectRatioWpH, nNearZ, nFarZ) {
 		
 		var nHFOVinRadians = nHFOVinDegrees * (2 * Math.PI / 360);
-		var nHFOVT = Math.abs(Math.tan(nHFOVinRadians));
+		var nHFOVT = Math.abs(Math.tan(0.5 * nHFOVinRadians));
 		var nVFOVT = nHFOVT / nAspectRatioWpH;
 		
-		var nRangeZ = nFarZ - nNearZ;
-		
-		var a = nNearZ;
-		var b = nFarZ;
-		var nAddend = (-1 - 2 * (1/b) / ((1/a) - (1/b)));
-		var nFactor = (2 / ((1/a) - (1/b)));
+		var nA = 1 / nNearZ;
+		var nB = 1 / nFarZ;
+		var nAddend = (1 + 2 * nB / (nA + nB));
+		var nFactor = (2 / (nB - nA));
 		
 		var mProjection = [
 			1 / nHFOVT, 0, 0, 0,
@@ -341,13 +352,22 @@
 	
 	
 	
-	Graphics3D.prototype.vSetProgram = function (oProgram) {
+	Graphics3D.prototype.mRotation = function (vAxis) {
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.mTranslation = function (nX, nY, nZ) {
 		
-		var oG = this;
+		var mTranslation = [
+			1,0,0,0,
+			0,1,0,0,
+			0,0,1,0,
+			nX,nY,nZ,1,
+		];
 		
-		oG.oCurrentProgram = oProgram;
-		
-		oG.o3D.useProgram(oProgram.gProgram);
+		return mTranslation;
 		
 	};
 	
