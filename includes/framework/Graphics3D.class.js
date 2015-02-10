@@ -312,35 +312,25 @@
 	
 	
 	
-	Graphics3D.prototype.mMakeProjection = function (nHorzFieldOfViewInRadians, nAspectRatioWpH, nCameraZ, nNearZ, nFarZ) {
+	Graphics3D.prototype.mMakeProjection = function (nHFOVinDegrees, nAspectRatioWpH, nNearZ, nFarZ) {
 		
-		var nHFOVT = Math.abs(Math.tan(nHorzFieldOfViewInRadians)); // nHorzFieldOfViewTangent
-		var nVFOVT = nHFOVT / nAspectRatioWpH; // nVertFieldOfViewTangent
-console.log(nHFOVT, nVFOVT);
+		var nHFOVinRadians = nHFOVinDegrees * (2 * Math.PI / 360);
+		var nHFOVT = Math.abs(Math.tan(nHFOVinRadians));
+		var nVFOVT = nHFOVT / nAspectRatioWpH;
+		
+		var nRangeZ = nFarZ - nNearZ;
+		
+		var a = nNearZ;
+		var b = nFarZ;
+		var nAddend = (-1 - 2 * (1/b) / ((1/a) - (1/b)));
+		var nFactor = (2 / ((1/a) - (1/b)));
 		
 		var mProjection = [
 			1 / nHFOVT, 0, 0, 0,
 			0, 1 / nVFOVT, 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1,
+			0, 0, nAddend, 1,
+			0, 0, nFactor, 0,
 		];
-		
-		var nRange = nFarZ - nNearZ;
-		var mProjection = [
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 0, 1,
-			0, 0, 0, 0,
-			//0, 0, (nNearZ + nFarZ) / nRange, 0,
-			//0, 0, (nNearZ * nFarZ) / nRange, 1,
-		];
-		
-		//var mProjection = [
-		//	1, 0, 0, 0,
-		//	0, 1, 0, 0,
-		//	0, 0, 1, 0,
-		//	0, 0, 0, 1,
-		//];
 		
 		mProjection = new Float32Array(mProjection);
 		

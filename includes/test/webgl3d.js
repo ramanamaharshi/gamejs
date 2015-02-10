@@ -28,6 +28,10 @@ var vInit = function (fOnReady) {
 				v3FragColor = v3Color; \n\
 				gl_Position = mProjection * v4Position; \n\
 				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
+				float nNearZ = 11.0; \n\
+				float nRangeZ = 8.0; \n\
+				//gl_Position.z = (gl_Position.z * (2.0 / nRangeZ)) + ( - 1.0 - nNearZ * (2.0 / nRangeZ)); \n\
+				//gl_Position.z = ((gl_Position.z - nNearZ) * (2.0 / nRangeZ)) - 1.0; \n\
 			} \n\
 		',
 		'\
@@ -54,7 +58,7 @@ var vInit = function (fOnReady) {
 	
 	oG.vSetProgram(oProgram);
 	
-	oState.mProjection = oG.mMakeProjection(60, 1, -2, -1, 1);
+	oState.mProjection = oG.mMakeProjection(60, oG.iW / oG.iH, 0.5, 2);
 	
 	var rnd = Math.random;
 	
@@ -63,11 +67,13 @@ var vInit = function (fOnReady) {
 		var aPositions = [];
 		var aCorners = [[+1,+1],[+1,-1],[-1,-1],[-1,+1]];
 		var iPrevC = aCorners.length - 1;
+//var aZMap = [9, 11, 19, 21];
 		for (var iC = 0; iC < aCorners.length; iC ++) {
 			aColors.push(fColorGen());
 			aColors.push(fColorGen());
 			aColors.push(fColorGen());
 			var iZ = 1;
+//iZ = aZMap[iC];
 			aPositions.push([0 , 0 , iZ]);
 			aPositions.push([iSize * aCorners[iC][0] , iSize * aCorners[iC][1] , iZ]);
 			aPositions.push([iSize * aCorners[iPrevC][0] , iSize * aCorners[iPrevC][1] , iZ]);
