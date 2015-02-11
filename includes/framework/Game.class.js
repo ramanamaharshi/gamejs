@@ -25,7 +25,9 @@
 		
 		oGame.vLoopFunction = vLoopFunction;
 		
-		var iOldUT = (new Date()).getTime()
+		var iStartUT = (new Date()).getTime();
+		
+		var iOldMillis = 0;
 		
 		oGame.iFrameUTs = 99;
 		oGame.aFrameUTs = [];
@@ -36,17 +38,17 @@
 		
 		oGame.vLoopWrapperFunction = function () {
 			
-			var iUT = (new Date()).getTime();
-			var iDeltaUT = iUT - iOldUT;
-			oGame.vLoopFunction(iUT, iDeltaUT);
-			iOldUT = iUT;
+			var iMillis = (new Date()).getTime() - iStartUT;
+			var iDeltaMillis = iMillis - iOldMillis;
+			oGame.vLoopFunction(iMillis, iDeltaMillis);
+			iOldMillis = iMillis;
 			
 			oGame.oI.vStep();
 			
 			window.requestAnimationFrame(oGame.vLoopWrapperFunction);
 			
 			oGame.iAtFrameUT = (oGame.iAtFrameUT + 1) % oGame.iFrameUTs;
-			oGame.aFrameUTs[oGame.iAtFrameUT] = iUT;
+			oGame.aFrameUTs[oGame.iAtFrameUT] = iMillis;
 			
 		};
 		

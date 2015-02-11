@@ -17,6 +17,8 @@ var vInit = function (fOnReady) {
 		'\
 			\n\
 			uniform mat4 mProjection; \n\
+			uniform mat4 mView; \n\
+			uniform mat4 mObject; \n\
 			\n\
 			attribute vec4 v4Position; \n\
 			attribute vec3 v3Color; \n\
@@ -26,7 +28,7 @@ var vInit = function (fOnReady) {
 			\n\
 			void main() { \n\
 				v3FragColor = v3Color; \n\
-				gl_Position = mProjection * v4Position; \n\
+				gl_Position = mProjection * mView * mObject * v4Position; \n\
 				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
 				float nNearZ = 11.0; \n\
 				float nRangeZ = 8.0; \n\
@@ -60,7 +62,11 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(90, oG.iW / oG.iH, 0.5, 2);
+	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 1, 10);
+	oState.mView = Math3D.mIdentity();
+	oState.mObject = Math3D.mIdentity();
+	
+	oState.nRotation = 0;
 	
 	var rnd = Math.random;
 	
@@ -85,8 +91,8 @@ var vInit = function (fOnReady) {
 		return oFigure;
 	};
 	
-	oState.oPackageA = oFigureA(1.00002, 0.9, function(){return [rnd(),rnd(),rnd()];});
-	oState.oPackageB = oFigureA(1.00001, 0.7, function(){return [1,1,1];});
+	oState.oPackageA = oFigureA( 0.1, 0.9, function(){return [rnd(),rnd(),rnd()];});
+	oState.oPackageB = oFigureA(-0.1, 0.7, function(){return [1,1,1];});
 	
 	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
@@ -110,7 +116,9 @@ var vInput = function () {
 
 
 
-var vCalc = function () {
+var vCalc = function (iMillis) {
+	
+	oState.nRotation = ((2 * Math.PI) * iMillis / 1000);
 	
 	//if (Math.random() < 0.01) {
 	//	var iW = oG.iW;
@@ -131,19 +139,23 @@ var vDraw = function () {
 	oG.o3D.clearColor(1,1,1,1);
 	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
 	
-	//var nOpacity = 0.5 + 0.5 * (0.5 + 0.5 * Math.cos(iFrameNr / (4 * Math.PI)));
-	//oState.oOpacity.vSet(nOpacity);
-	//oState.oOpacity.vSet(1);
-	
 	var oUniforms = oG.oCurrentProgram.oUniforms;
 	
-	oUniforms.mProjection.vSet(oState.mProjection);
+	oState.mView = Math3D.mTranslation([0,0,4]);
 	
+	oUniforms.mProjection.vSet(oState.mProjection);
+	oUniforms.mView.vSet(oState.mView);
+	
+	oState.mObject = Math3D.mTranslation([1,1,1]);
+	oState.mObject = Math3D.mRotationX(+0.1 * oState.nRotation);
+	
+	oUniforms.mObject.vSet(oState.mObject);
 	oUniforms.sSamplerB.vSet(oState.oTextures.oA);
 	oUniforms.sSamplerA.vSet(null);
 	oUniforms.bSamplerA.vSet(false);
 	oState.oPackageA.vDraw();
 	
+	oUniforms.mObject.vSet(oState.mObject);
 	oUniforms.sSamplerB.vSet(oState.oTextures.oB);
 	oUniforms.sSamplerA.vSet(oState.oTextures.oC);
 	oUniforms.bSamplerA.vSet(true);
@@ -156,12 +168,12 @@ var vDraw = function () {
 
 vInit(function(){
 	var iFrameNr = 0;
-	oGame.vStartLoop(function(){
+	oGame.vStartLoop(function(iMillis, iDeltaMillis){
 		iFrameNr ++;
 		vInput();
-		if (iFrameNr % 22 != 0) return;
+		if (iFrameNr % 2 != 0) return;
 		//if (iFrameNr != 0) return;
-		vCalc();
+		vCalc(iMillis);
 		vDraw();
 	});
 });
