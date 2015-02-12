@@ -1,7 +1,6 @@
 
 
 
-
 var oGame = new Game(400, 400, '3D');
 var oG = oGame.oG;
 var oI = oGame.oI;
@@ -94,6 +93,10 @@ var vInit = function (fOnReady) {
 	oState.oPackageA = oFigureA( 0.1, 0.9, function(){return [rnd(),rnd(),rnd()];});
 	oState.oPackageB = oFigureA(-0.1, 0.7, function(){return [1,1,1];});
 	
+	oI.vActivateMouseCapturing(function(bCaptured){
+		console.log(bCaptured ? 'in' : 'out');
+	});
+	
 	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
 		oState.oTextures = {};
@@ -108,10 +111,7 @@ var vInit = function (fOnReady) {
 
 
 
-var vInput = function () {
-	
-	
-};
+var vInput = function () {};
 
 
 

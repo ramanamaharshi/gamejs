@@ -31,7 +31,7 @@ Math3D.mRotation = function (vAxis, nR, sHandedness) {
 		nS *= -1;
 	}
 	
-	return Float32Array([
+	return new Float32Array([
 		nT * nX * nX + nC , nT * nX * nY - nS * nZ , nT * nX * nZ + nS * nY , 0 ,
 		nT * nX * nY + nS * nZ , nT * nY * nY + nC , nT * nY * nZ - nS * nX , 0 ,
 		nT * nX * nZ - nS * nY , nT * nY * nZ + nS * nX , nT * nZ * nZ + nC , 0 ,
@@ -43,7 +43,7 @@ Math3D.mRotation = function (vAxis, nR, sHandedness) {
 
 Math3D.mScalation = function (vS) {
 	
-	return Float32Array([
+	return new Float32Array([
 		vS[0],0,0,0,
 		0,vS[1],0,0,
 		0,0,vS[2],0,
@@ -55,7 +55,7 @@ Math3D.mScalation = function (vS) {
 
 Math3D.mTranslation = function (vT) {
 	
-	return Float32Array([
+	return new Float32Array([
 		1,0,0,0,
 		0,1,0,0,
 		0,0,1,0,
@@ -67,7 +67,7 @@ Math3D.mTranslation = function (vT) {
 
 Math3D.mIdentity = function () {
 	
-	return Float32Array([
+	return new Float32Array([
 		1,0,0,0,
 		0,1,0,0,
 		0,0,1,0,
@@ -79,7 +79,7 @@ Math3D.mIdentity = function () {
 
 Math3D.vNull = function () {
 	
-	return Float32Array([0,0,0,1]);
+	return new Float32Array([0,0,0,1]);
 	
 };
 

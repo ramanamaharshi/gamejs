@@ -352,28 +352,6 @@
 	
 	
 	
-	Graphics3D.prototype.mRotation = function (vAxis) {
-	};
-	
-	
-	
-	
-	Graphics3D.prototype.mTranslation = function (nX, nY, nZ) {
-		
-		var mTranslation = [
-			1,0,0,0,
-			0,1,0,0,
-			0,0,1,0,
-			nX,nY,nZ,1,
-		];
-		
-		return mTranslation;
-		
-	};
-	
-	
-	
-	
 	Graphics3D.prototype.vSetBounds = function (iW, iH) {
 		
 		var oG = this;

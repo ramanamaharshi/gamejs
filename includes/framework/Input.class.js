@@ -64,6 +64,51 @@
 	
 	
 	
+	Input.prototype.bMouseCapturingActivated = false;
+	Input.prototype.vActivateMouseCapturing = function (fOnChange) {
+		
+		var oI = this;
+		
+		if (oI.bMouseCapturingActivated) return;
+		oI.bMouseCapturingActivated = true;
+		
+		var oE = oI.oCanvas;
+		
+		var sEnvironment = false;
+		var sPrependEnvironment = function (sEnv, sString) {
+			var sString = sEnv + sString;
+			sString = sString.charAt(0).toLowerCase() + sString.slice(1);
+			return sString;
+		};
+		['', 'moz', 'webkit'].forEach(function(sEnv){
+			if (typeof oE[sPrependEnvironment(sEnv, 'RequestPointerLock')] === 'function') {
+				sEnvironment = sEnv;
+			}
+		});
+		
+		var sFunction = sPrependEnvironment(sEnvironment, 'RequestPointerLock');
+		var sElement = sPrependEnvironment(sEnvironment, 'PointerLockElement');
+		var sEvent = sPrependEnvironment(sEnvironment, 'pointerlockchange');
+		
+		var bCaptured = false;
+		document.addEventListener(sEvent, function(oEvent){
+			var bCapturedNew = document[sElement] == oE;
+			if (bCapturedNew != bCaptured) {
+				fOnChange(bCapturedNew, oE);
+			}
+			bCaptured = bCapturedNew;
+		}, false);
+		
+		oE.addEventListener('click', function(oEvent){
+			oE.vPointerLock = oE[sFunction];
+			oE.vPointerLock();
+		});
+		
+	};
+	
+	
+	
+	
 	Input.prototype.oGetCanvasOffset = function () {
 		
 		var oI = this;
