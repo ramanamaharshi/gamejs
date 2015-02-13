@@ -3,16 +3,12 @@
 	
 	
 	
-	window.Graphics2D = function (iW, iH) {
+	window.Graphics2D = function (oCanvas, iW, iH) {
 		
 		var oG = this;
 		
-		oG.oCanvas = document.createElement('canvas');
-		oG.oCanvas.style.border = '1px solid #ccc';
-		oG.oCanvas.style.position = 'relative';
-		oG.oCanvas.style.left = '10px';
-		oG.oCanvas.style.top = '10px';
-		document.body.appendChild(oG.oCanvas);
+		oG.oCanvas = oCanvas
+		
 		oG.o2D = oG.oCanvas.getContext("2d");
 		
 		oG.vSetBounds(iW, iH);

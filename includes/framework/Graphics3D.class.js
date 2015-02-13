@@ -3,17 +3,11 @@
 	
 	
 	
-	window.Graphics3D = function (iW, iH) {
+	window.Graphics3D = function (oCanvas, iW, iH) {
 		
 		var oG = this;
 		
-		oG.oCanvas = document.createElement('canvas');
-		oG.oCanvas.style.border = '1px solid #ccc';
-		oG.oCanvas.style.position = 'relative';
-		oG.oCanvas.style.left = '10px';
-		oG.oCanvas.style.top = '10px';
-		
-		document.body.appendChild(oG.oCanvas);
+		oG.oCanvas = oCanvas;
 		
 		oG.o3D = oG.oCanvas.getContext("webgl");
 		

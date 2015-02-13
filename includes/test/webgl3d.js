@@ -61,11 +61,24 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 1, 10);
+	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 0.01, 100);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
-	oState.nRotation = 0;
+	oState.oView = {};
+	oState.oView.nRH = 0;
+	oState.oView.nRV = 0;
+	oState.oView.vPosition = [0,0,-2];
+	oState.oView.mMakeMatrix = function(){
+		var oView = this;
+		var mTranslation = Math3D.mTranslation(Math3D.mMultiplyNV(-1, oView.vPosition));
+		var mRH = Math3D.mRotationY(-oView.nRH);
+		var mRV = Math3D.mRotationX(-oView.nRV);
+		var mReturn = Math3D.mMultiplyMM(Math3D.mMultiplyMM(mRV, mRH), mTranslation);
+		return mReturn;
+	};
+	
+	oState.nObjectRotation = 0;
 	
 	var rnd = Math.random;
 	
@@ -111,7 +124,46 @@ var vInit = function (fOnReady) {
 
 
 
-var vInput = function () {};
+var vInput = function () {
+	
+	if (oI.bMouseCaptured) {
+		var nLookSpeed = 0.003;
+		oState.oView.nRH -= nLookSpeed * oI.oMouseMoved.iX;
+		oState.oView.nRV -= nLookSpeed * oI.oMouseMoved.iY;
+		if (oState.oView.nRV < -(Math.PI / 2)) oState.oView.nRV = -(Math.PI / 2);
+		if (oState.oView.nRV > +(Math.PI / 2)) oState.oView.nRV = +(Math.PI / 2);
+	}
+	
+	var nMoveSpeed = 0.05;
+	var nR = -oState.oView.nRH;
+	var vMoveDir = [Math.sin(nR),0,Math.cos(nR)];
+	nR -= Math.PI / 2;
+	var vStrafeDir = [Math.sin(nR),0,Math.cos(nR)];
+	
+	if (oI.bKey(65)) { /// a
+		oState.oView.vPosition[0] += nMoveSpeed * vStrafeDir[0];
+		oState.oView.vPosition[1] += nMoveSpeed * vStrafeDir[1];
+		oState.oView.vPosition[2] += nMoveSpeed * vStrafeDir[2];
+	}
+	if (oI.bKey(68)) { /// d
+		oState.oView.vPosition[0] -= nMoveSpeed * vStrafeDir[0];
+		oState.oView.vPosition[1] -= nMoveSpeed * vStrafeDir[1];
+		oState.oView.vPosition[2] -= nMoveSpeed * vStrafeDir[2];
+	}
+	if (oI.bKey(87)) { /// w
+		oState.oView.vPosition[0] += nMoveSpeed * vMoveDir[0];
+		oState.oView.vPosition[1] += nMoveSpeed * vMoveDir[1];
+		oState.oView.vPosition[2] += nMoveSpeed * vMoveDir[2];
+	}
+	if (oI.bKey(83)) { /// s
+		oState.oView.vPosition[0] -= nMoveSpeed * vMoveDir[0];
+		oState.oView.vPosition[1] -= nMoveSpeed * vMoveDir[1];
+		oState.oView.vPosition[2] -= nMoveSpeed * vMoveDir[2];
+	}
+	
+	oI.vStep();
+	
+};
 
 
 
@@ -136,7 +188,7 @@ var vCalc = function (iMillis) {
 
 var vDraw = function () {
 	
-	oG.o3D.clearColor(1,1,1,1);
+	oG.o3D.clearColor(0,0,0,1);
 	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
 	
 	var oUniforms = oG.oCurrentProgram.oUniforms;
@@ -144,7 +196,7 @@ var vDraw = function () {
 	oState.mView = Math3D.mTranslation([0,0,4]);
 	
 	oUniforms.mProjection.vSet(oState.mProjection);
-	oUniforms.mView.vSet(oState.mView);
+	oUniforms.mView.vSet(oState.oView.mMakeMatrix());
 	
 	oState.mObject = Math3D.mTranslation([1,1,1]);
 	oState.mObject = Math3D.mRotationX(+0.1 * oState.nRotation);
@@ -170,9 +222,8 @@ vInit(function(){
 	var iFrameNr = 0;
 	oGame.vStartLoop(function(iMillis, iDeltaMillis){
 		iFrameNr ++;
+		if (iFrameNr % 1 != 0) return;
 		vInput();
-		if (iFrameNr % 2 != 0) return;
-		//if (iFrameNr != 0) return;
 		vCalc(iMillis);
 		vDraw();
 	});

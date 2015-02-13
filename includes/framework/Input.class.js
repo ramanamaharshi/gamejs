@@ -10,6 +10,71 @@
 		oI.bLog = false;
 		oI.oCanvas = oCanvas;
 		
+		oI.bMouseCaptured = false;
+		oI.bMouseCapturingActivated = false;
+		
+		oI.vInitKeyListeners();
+		oI.vInitMouseListeners();
+		
+	};
+	
+	
+	
+	
+	Input.prototype.vActivateMouseCapturing = function (fOnChange) {
+		
+		var oI = this;
+		
+		if (oI.bMouseCapturingActivated) return;
+		oI.bMouseCapturingActivated = true;
+		
+		var oE = oI.oCanvas;
+		
+		oI.sPointerLockEnvironment = false;
+		var sPrependEnv = function (sString, sEnvironment) {
+			if (typeof sEnvironment == 'undefined') {
+				sEnvironment = oI.sPointerLockEnvironment;
+			}
+			var sString = sEnvironment + sString;
+			sString = sString.charAt(0).toLowerCase() + sString.slice(1);
+			return sString;
+		};
+		['', 'moz', 'webkit'].forEach(function(sEnv){
+			if (typeof oE[sPrependEnv('RequestPointerLock', sEnv)] === 'function') {
+				oI.sPointerLockEnvironment = sEnv;
+			}
+		});
+		
+		oI.oPointerLock = {};
+		
+		oI.oPointerLock.sRequest = sPrependEnv('RequestPointerLock');
+		oI.oPointerLock.sElement = sPrependEnv('PointerLockElement');
+		oI.oPointerLock.sOnChange = sPrependEnv('pointerlockchange');
+		oI.oPointerLock.sMovementX = sPrependEnv('MovementX');
+		oI.oPointerLock.sMovementY = sPrependEnv('MovementY');
+		
+		document.addEventListener(oI.oPointerLock.sOnChange, function(oEvent){
+			var bCaptured = document[oI.oPointerLock.sElement] == oE;
+			if (bCaptured != oI.bMouseCaptured) {
+				oI.bMouseCaptured = bCaptured;
+				fOnChange(bCaptured, oE);
+			}
+		}, false);
+		
+		oE.addEventListener('click', function(oEvent){
+			oE.vPointerLock = oE[oI.oPointerLock.sRequest];
+			oE.vPointerLock();
+		});
+		
+	};
+	
+	
+	
+	
+	Input.prototype.vInitKeyListeners = function () {
+		
+		var oI = this;
+		
 		oI.oPressedKeys = {};
 		oI.aJustPressedKeys = [];
 		oI.aJustReleasedKeys = [];
@@ -30,20 +95,39 @@
 			}
 		}, false);
 		
+	};
+	
+	
+	
+	
+	Input.prototype.vInitMouseListeners = function () {
+		
+		var oI = this;
+		
 		oI.iMouseCorrectionX = 0;
 		oI.iMouseCorrectionY = 0;
 		
 		oI.oMouse = {iX: 0, iY: 0};
+		oI.oMouseMoved = {iX: 0, iY: 0};
 		oI.oMouse.oPressedButtons = {};
 		oI.oMouse.aJustPressedButtons = [];
 		oI.oMouse.aJustReleasedButtons = [];
 		
-		oCanvas.addEventListener('mousemove', function(oEvent){
+		oI.oCanvas.addEventListener('mousemove', function(oEvent){
 			var oCanvasOffset = oI.oGetCanvasOffset();
-			oI.oMouse.iX = oI.iMouseCorrectionX - oCanvasOffset.iX + oEvent.clientX;
-			oI.oMouse.iY = oI.iMouseCorrectionY - oCanvasOffset.iY + oEvent.clientY;
+			var iNewMouseX = oI.iMouseCorrectionX - oCanvasOffset.iX + oEvent.clientX;
+			var iNewMouseY = oI.iMouseCorrectionY - oCanvasOffset.iY + oEvent.clientY;
+			if (oI.bMouseCaptured) {
+				oI.oMouseMoved.iX += oEvent[oI.oPointerLock.sMovementX];
+				oI.oMouseMoved.iY += oEvent[oI.oPointerLock.sMovementY];
+			} else {
+				oI.oMouseMoved.iX += iNewMouseX - oI.oMouse.iX;
+				oI.oMouseMoved.iY += iNewMouseY - oI.oMouse.iY;
+			}
+			oI.oMouse.iX = iNewMouseX;
+			oI.oMouse.iY = iNewMouseY;
 		});
-		oCanvas.addEventListener('mousedown', function(oEvent){
+		oI.oCanvas.addEventListener('mousedown', function(oEvent){
 			var iButton = oEvent.button;
 			if (!(iButton in oI.oMouse.oPressedButtons)) {
 				oI.oMouse.oPressedButtons[iButton] = true;
@@ -51,57 +135,12 @@
 				if (oI.bLog) console.log('button', iButton);
 			}
 		});
-		oCanvas.addEventListener('mouseup', function(oEvent){
+		oI.oCanvas.addEventListener('mouseup', function(oEvent){
 			var iButton = oEvent.button;
 			if (iButton in oI.oMouse.oPressedButtons) {
 				delete oI.oMouse.oPressedButtons[iButton];
 				oI.oMouse.aJustReleasedButtons.push(iButton);
 			}
-		});
-		
-	};
-	
-	
-	
-	
-	Input.prototype.bMouseCapturingActivated = false;
-	Input.prototype.vActivateMouseCapturing = function (fOnChange) {
-		
-		var oI = this;
-		
-		if (oI.bMouseCapturingActivated) return;
-		oI.bMouseCapturingActivated = true;
-		
-		var oE = oI.oCanvas;
-		
-		var sEnvironment = false;
-		var sPrependEnvironment = function (sEnv, sString) {
-			var sString = sEnv + sString;
-			sString = sString.charAt(0).toLowerCase() + sString.slice(1);
-			return sString;
-		};
-		['', 'moz', 'webkit'].forEach(function(sEnv){
-			if (typeof oE[sPrependEnvironment(sEnv, 'RequestPointerLock')] === 'function') {
-				sEnvironment = sEnv;
-			}
-		});
-		
-		var sFunction = sPrependEnvironment(sEnvironment, 'RequestPointerLock');
-		var sElement = sPrependEnvironment(sEnvironment, 'PointerLockElement');
-		var sEvent = sPrependEnvironment(sEnvironment, 'pointerlockchange');
-		
-		var bCaptured = false;
-		document.addEventListener(sEvent, function(oEvent){
-			var bCapturedNew = document[sElement] == oE;
-			if (bCapturedNew != bCaptured) {
-				fOnChange(bCapturedNew, oE);
-			}
-			bCaptured = bCapturedNew;
-		}, false);
-		
-		oE.addEventListener('click', function(oEvent){
-			oE.vPointerLock = oE[sFunction];
-			oE.vPointerLock();
 		});
 		
 	};
@@ -203,8 +242,13 @@
 	Input.prototype.vStep = function () {
 		
 		var oI = this;
+		
+		oI.oMouseMoved.iX = 0;
+		oI.oMouseMoved.iY = 0;
+		
 		oI.aJustPressedKeys = [];
 		oI.aJustReleasedKeys = [];
+		
 		oI.oMouse.aJustPressedButtons = [];
 		oI.oMouse.aJustReleasedButtons = [];
 		

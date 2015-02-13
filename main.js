@@ -113,6 +113,8 @@ var vInput = function () {
 		}
 	}
 	
+	oI.vStep();
+	
 };
 
 

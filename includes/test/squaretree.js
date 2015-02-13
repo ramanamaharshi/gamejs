@@ -35,6 +35,8 @@ var vInput = function () {
 		oState.oSelectedLeaf = oState.oEnvironment.oTree.oGetLeaf(iLeafX, iLeafY, true);
 	}
 	
+	oI.vStep();
+	
 };
 
 

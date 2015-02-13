@@ -11,8 +11,17 @@
 		
 		var oGame = this;
 		
-		oGame.oG = sGraphicsType == '3D' ? new Graphics3D(iW, iH) : new Graphics2D(iW, iH);
-		oGame.oI = new Input(oGame.oG.oGetCanvas());
+		oGame.oCanvas = document.createElement('canvas');
+		oGame.oCanvas.style.border = '1px solid #ccc';
+		oGame.oCanvas.style.position = 'relative';
+		oGame.oCanvas.style.left = '10px';
+		oGame.oCanvas.style.top = '10px';
+		
+		document.body.appendChild(oGame.oCanvas);
+		
+		var sGraphicsClass = (sGraphicsType == '3D' ? 'Graphics3D' : 'Graphics2D');
+		oGame.oG = new window[sGraphicsClass](oGame.oCanvas, iW, iH);
+		oGame.oI = new Input(oGame.oCanvas);
 		
 	};
 	
@@ -42,8 +51,6 @@
 			var iDeltaMillis = iMillis - iOldMillis;
 			oGame.vLoopFunction(iMillis, iDeltaMillis);
 			iOldMillis = iMillis;
-			
-			oGame.oI.vStep();
 			
 			window.requestAnimationFrame(oGame.vLoopWrapperFunction);
 			

@@ -91,6 +91,7 @@ var vInit = function (fOnReady) {
 
 var vInput = function () {
 	
+	oI.vStep();
 	
 };
 
