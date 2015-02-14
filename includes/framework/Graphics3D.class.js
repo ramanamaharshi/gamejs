@@ -23,24 +23,24 @@
 	
 	
 	
-	Graphics3D.prototype.oMakeTestVertexPackage = function () {
+	Graphics3D.prototype.oMakeTestPackage = function () {
 		
 		var oG = this;
 		
 		var aColors = [];
 		var aPositions = [];
-		var aDirColors = [[0,0,1],[0,1,0],[1,0,0]];
+		//var aDirColors = [[0,0,1],[0,1,0],[1,0,0]];
 		for (var iDir = 0; iDir < 3; iDir ++) {
 			for (var iCorner = 0; iCorner < 3; iCorner ++) {
 				var aPosition = [0,0,0];
-				var aColor = aDirColors[iDir];
+				//var aColor = aDirColors[iDir];
 				if (iCorner == iDir) {
 					aPosition[iCorner] = 1;
 				} else {
 					aPosition[iCorner] = 0.1;
 				}
 				aPositions.push(aPosition);
-				aColors.push(aColor);
+				aColors.push([aPosition[2], aPosition[1], aPosition[0]]);
 			}
 		}
 		

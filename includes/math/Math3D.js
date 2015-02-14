@@ -3,67 +3,81 @@
 var Math3D = {};
 
 
-Math3D.mMultiplyMM = function (mB, mA) {
+Math3D.mMultiplyMM = function (mA, mB) {
 	
 	var mReturn = new Float32Array(16);
 	
-	var nA00 = mA[0*4+0];
-	var nA01 = mA[0*4+1];
-	var nA02 = mA[0*4+2];
-	var nA03 = mA[0*4+3];
-	var nA10 = mA[1*4+0];
-	var nA11 = mA[1*4+1];
-	var nA12 = mA[1*4+2];
-	var nA13 = mA[1*4+3];
-	var nA20 = mA[2*4+0];
-	var nA21 = mA[2*4+1];
-	var nA22 = mA[2*4+2];
-	var nA23 = mA[2*4+3];
-	var nA30 = mA[3*4+0];
-	var nA31 = mA[3*4+1];
-	var nA32 = mA[3*4+2];
-	var nA33 = mA[3*4+3];
-	var nB00 = mB[0*4+0];
-	var nB01 = mB[0*4+1];
-	var nB02 = mB[0*4+2];
-	var nB03 = mB[0*4+3];
-	var nB10 = mB[1*4+0];
-	var nB11 = mB[1*4+1];
-	var nB12 = mB[1*4+2];
-	var nB13 = mB[1*4+3];
-	var nB20 = mB[2*4+0];
-	var nB21 = mB[2*4+1];
-	var nB22 = mB[2*4+2];
-	var nB23 = mB[2*4+3];
-	var nB30 = mB[3*4+0];
-	var nB31 = mB[3*4+1];
-	var nB32 = mB[3*4+2];
-	var nB33 = mB[3*4+3];
+	var nA00 = mA[ 0];
+	var nA01 = mA[ 1];
+	var nA02 = mA[ 2];
+	var nA03 = mA[ 3];
+	var nA10 = mA[ 4];
+	var nA11 = mA[ 5];
+	var nA12 = mA[ 6];
+	var nA13 = mA[ 7];
+	var nA20 = mA[ 8];
+	var nA21 = mA[ 9];
+	var nA22 = mA[10];
+	var nA23 = mA[11];
+	var nA30 = mA[12];
+	var nA31 = mA[13];
+	var nA32 = mA[14];
+	var nA33 = mA[15];
 	
-	mReturn[ 0] = nA00 * nB00 + nA01 * nB10 + nA02 * nB20 + nA03 * nB30;
-	mReturn[ 1] = nA00 * nB01 + nA01 * nB11 + nA02 * nB21 + nA03 * nB31;
-	mReturn[ 2] = nA00 * nB02 + nA01 * nB12 + nA02 * nB22 + nA03 * nB32;
-	mReturn[ 3] = nA00 * nB03 + nA01 * nB13 + nA02 * nB23 + nA03 * nB33;
-	mReturn[ 4] = nA10 * nB00 + nA11 * nB10 + nA12 * nB20 + nA13 * nB30;
-	mReturn[ 5] = nA10 * nB01 + nA11 * nB11 + nA12 * nB21 + nA13 * nB31;
-	mReturn[ 6] = nA10 * nB02 + nA11 * nB12 + nA12 * nB22 + nA13 * nB32;
-	mReturn[ 7] = nA10 * nB03 + nA11 * nB13 + nA12 * nB23 + nA13 * nB33;
-	mReturn[ 8] = nA20 * nB00 + nA21 * nB10 + nA22 * nB20 + nA23 * nB30;
-	mReturn[ 9] = nA20 * nB01 + nA21 * nB11 + nA22 * nB21 + nA23 * nB31;
-	mReturn[10] = nA20 * nB02 + nA21 * nB12 + nA22 * nB22 + nA23 * nB32;
-	mReturn[11] = nA20 * nB03 + nA21 * nB13 + nA22 * nB23 + nA23 * nB33;
-	mReturn[12] = nA30 * nB00 + nA31 * nB10 + nA32 * nB20 + nA33 * nB30;
-	mReturn[13] = nA30 * nB01 + nA31 * nB11 + nA32 * nB21 + nA33 * nB31;
-	mReturn[14] = nA30 * nB02 + nA31 * nB12 + nA32 * nB22 + nA33 * nB32;
-	mReturn[15] = nA30 * nB03 + nA31 * nB13 + nA32 * nB23 + nA33 * nB33;
+	var nB00 = mB[ 0];
+	var nB01 = mB[ 1];
+	var nB02 = mB[ 2];
+	var nB03 = mB[ 3];
+	var nB10 = mB[ 4];
+	var nB11 = mB[ 5];
+	var nB12 = mB[ 6];
+	var nB13 = mB[ 7];
+	var nB20 = mB[ 8];
+	var nB21 = mB[ 9];
+	var nB22 = mB[10];
+	var nB23 = mB[11];
+	var nB30 = mB[12];
+	var nB31 = mB[13];
+	var nB32 = mB[14];
+	var nB33 = mB[15];
+	
+	mReturn[ 0] = nB00 * nA00 + nB01 * nA10 + nB02 * nA20 + nB03 * nA30;
+	mReturn[ 1] = nB00 * nA01 + nB01 * nA11 + nB02 * nA21 + nB03 * nA31;
+	mReturn[ 2] = nB00 * nA02 + nB01 * nA12 + nB02 * nA22 + nB03 * nA32;
+	mReturn[ 3] = nB00 * nA03 + nB01 * nA13 + nB02 * nA23 + nB03 * nA33;
+	mReturn[ 4] = nB10 * nA00 + nB11 * nA10 + nB12 * nA20 + nB13 * nA30;
+	mReturn[ 5] = nB10 * nA01 + nB11 * nA11 + nB12 * nA21 + nB13 * nA31;
+	mReturn[ 6] = nB10 * nA02 + nB11 * nA12 + nB12 * nA22 + nB13 * nA32;
+	mReturn[ 7] = nB10 * nA03 + nB11 * nA13 + nB12 * nA23 + nB13 * nA33;
+	mReturn[ 8] = nB20 * nA00 + nB21 * nA10 + nB22 * nA20 + nB23 * nA30;
+	mReturn[ 9] = nB20 * nA01 + nB21 * nA11 + nB22 * nA21 + nB23 * nA31;
+	mReturn[10] = nB20 * nA02 + nB21 * nA12 + nB22 * nA22 + nB23 * nA32;
+	mReturn[11] = nB20 * nA03 + nB21 * nA13 + nB22 * nA23 + nB23 * nA33;
+	mReturn[12] = nB30 * nA00 + nB31 * nA10 + nB32 * nA20 + nB33 * nA30;
+	mReturn[13] = nB30 * nA01 + nB31 * nA11 + nB32 * nA21 + nB33 * nA31;
+	mReturn[14] = nB30 * nA02 + nB31 * nA12 + nB32 * nA22 + nB33 * nA32;
+	mReturn[15] = nB30 * nA03 + nB31 * nA13 + nB32 * nA23 + nB33 * nA33;
 	
 	return mReturn;
 	
 };
 
 
+Math3D.mMultiplyMV = function (mM, vV) {
+	
+	var vReturn = Float32Array(3);
+	
+	vReturn[0] = mM[ 0] * vV[0] + mM[ 1] * vV[1] + mM[ 2] * vV[2] + mM[ 3];
+	vReturn[1] = mM[ 4] * vV[0] + mM[ 5] * vV[1] + mM[ 6] * vV[2] + mM[ 7];
+	vReturn[2] = mM[ 8] * vV[0] + mM[ 9] * vV[1] + mM[10] * vV[2] + mM[11];
+	
+	return vReturn;
+	
+};
+
+
 Math3D.mMultiplyNV = function (nN, vV) {
-	return [nN * vV[0], nN * vV[1], nN * vV[2]];
+	return new Float32Array([nN * vV[0], nN * vV[1], nN * vV[2]]);
 };
 
 
