@@ -12,6 +12,8 @@ var oState = {};
 
 var vInit = function (fOnReady) {
 	
+	oGame.oCanvas.style.float = 'right';
+	
 	var oProgram = oG.oCreateProgram(
 		'\
 			\n\
@@ -46,10 +48,11 @@ var vInit = function (fOnReady) {
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
 				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
 				gl_FragColor = vec4(v3FragColor, 1); \n\
-				//gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
-				gl_FragColor *= texture2D(sSamplerB, v2TexC)[0]; \n\
 				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) { \n\
-					gl_FragColor *= texture2D(sSamplerA, v2TexC); \n\
+					gl_FragColor *= texture2D(sSamplerA, v2TexC)[0]; \n\
+				} \n\
+				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) { \n\
+					gl_FragColor *= texture2D(sSamplerB, v2TexC); \n\
 				} \n\
 			} \n\
 		'
@@ -61,14 +64,14 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 0.01, 100);
+	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 0.1, 100);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
 	oState.oView = {};
-	oState.oView.nRH = 0;
 	oState.oView.nRV = 0;
-	oState.oView.vPosition = [0,0,-2];
+	oState.oView.nRH = 0;
+	oState.oView.vPosition = [0,0,3];
 	oState.oView.mMakeMatrix = function(){
 		var oView = this;
 		var mTranslation = Math3D.mTranslation(Math3D.mMultiplyNV(-1, oView.vPosition));
@@ -96,19 +99,38 @@ var vInit = function (fOnReady) {
 			aPositions.push([iSize * aCorners[iPrevC][0] , iSize * aCorners[iPrevC][1] , iZ]);
 			iPrevC = iC;
 		}
-		var oFigure = oG.oCreateVertexPackage('dynamic', 'triangles', {
+		var oFigure = oG.oCreateVertexPackage({
 			v4Position: {aChunks: aPositions},
 			v3Color: {aChunks: aColors},
 		});
 		return oFigure;
 	};
 	
-	oState.oPackageA = oFigureA( 0.1, 0.9, function(){return [rnd(),rnd(),rnd()];});
-	oState.oPackageB = oFigureA(-0.1, 0.7, function(){return [1,1,1];});
+	oState.oPackageA = oFigureA(-0.1, 0.9, function(){return [rnd(),rnd(),rnd()];});
+	oState.oPackageB = oFigureA(+0.1, 0.7, function(){return [1,1,1];});
 	
-	oI.vActivateMouseCapturing(function(bCaptured){
-		console.log(bCaptured ? 'in' : 'out');
-	});
+	var aColors = [];
+	var aPositions = [];
+	var aDirColors = [[0,1,0],[0,0,1],[1,0,0]];
+	for (var iDir = 0; iDir < 3; iDir ++) {
+		for (var iCorner = 0; iCorner < 3; iCorner ++) {
+			var aPosition = [0,0,0];
+			var aColor = aDirColors[iDir];
+			if (iCorner == iDir) {
+				aPosition[iCorner] = 1;
+			} else {
+				aPosition[iCorner] = 0.1;
+			}
+			aPositions.push(aPosition);
+			aColors.push(aColor);
+		}
+	}
+	oState.oPackageC = oG.oCreateVertexPackage({
+		v4Position: {aChunks: aPositions},
+		v3Color: {aChunks: aColors},
+	})
+	
+	oI.vActivateMouseCapturing();
 	
 	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
@@ -128,17 +150,17 @@ var vInput = function () {
 	
 	if (oI.bMouseCaptured) {
 		var nLookSpeed = 0.003;
-		oState.oView.nRH -= nLookSpeed * oI.oMouseMoved.iX;
-		oState.oView.nRV -= nLookSpeed * oI.oMouseMoved.iY;
+		oState.oView.nRH += nLookSpeed * oI.oMouseMoved.iX;
+		oState.oView.nRV += nLookSpeed * oI.oMouseMoved.iY;
 		if (oState.oView.nRV < -(Math.PI / 2)) oState.oView.nRV = -(Math.PI / 2);
 		if (oState.oView.nRV > +(Math.PI / 2)) oState.oView.nRV = +(Math.PI / 2);
 	}
 	
 	var nMoveSpeed = 0.05;
-	var nR = -oState.oView.nRH;
-	var vMoveDir = [Math.sin(nR),0,Math.cos(nR)];
+	var nR = oState.oView.nRH;
+	var vMoveDir = [Math.sin(nR),0,-Math.cos(nR)];
 	nR -= Math.PI / 2;
-	var vStrafeDir = [Math.sin(nR),0,Math.cos(nR)];
+	var vStrafeDir = [Math.sin(nR),0,-Math.cos(nR)];
 	
 	if (oI.bKey(65)) { /// a
 		oState.oView.vPosition[0] += nMoveSpeed * vStrafeDir[0];
@@ -193,25 +215,28 @@ var vDraw = function () {
 	
 	var oUniforms = oG.oCurrentProgram.oUniforms;
 	
-	oState.mView = Math3D.mTranslation([0,0,4]);
-	
 	oUniforms.mProjection.vSet(oState.mProjection);
 	oUniforms.mView.vSet(oState.oView.mMakeMatrix());
 	
-	oState.mObject = Math3D.mTranslation([1,1,1]);
-	oState.mObject = Math3D.mRotationX(+0.1 * oState.nRotation);
+//oUniforms.mProjection.vSet(Math3D.mIdentity());
+//oUniforms.mView.vSet(Math3D.mIdentity());
 	
-	oUniforms.mObject.vSet(oState.mObject);
-	oUniforms.sSamplerB.vSet(oState.oTextures.oA);
-	oUniforms.sSamplerA.vSet(null);
-	oUniforms.bSamplerA.vSet(false);
-	oState.oPackageA.vDraw();
+	//oState.mObject = Math3D.mIdentity();
+	//oState.mObject = Math3D.mTranslation([1,1,1]);
+	//oState.mObject = Math3D.mRotationX(+0.1 * oState.nRotation);
 	
-	oUniforms.mObject.vSet(oState.mObject);
-	oUniforms.sSamplerB.vSet(oState.oTextures.oB);
-	oUniforms.sSamplerA.vSet(oState.oTextures.oC);
-	oUniforms.bSamplerA.vSet(true);
-	oState.oPackageB.vDraw();
+	//oUniforms.mObject.vSet(oState.mObject);
+	//oUniforms.sSamplerB.vSet(oState.oTextures.oA);
+	//oUniforms.sSamplerA.vSet(null);
+	//oState.oPackageA.vDraw();
+	//
+	//oUniforms.mObject.vSet(oState.mObject);
+	//oUniforms.sSamplerB.vSet(oState.oTextures.oB);
+	//oUniforms.sSamplerA.vSet(oState.oTextures.oC);
+	//oState.oPackageB.vDraw();
+	
+	oUniforms.mObject.vSet(Math3D.mIdentity());
+	oState.oPackageC.vDraw();
 	
 };
 

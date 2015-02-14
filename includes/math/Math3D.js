@@ -147,3 +147,23 @@ Math3D.vNull = function () {
 	
 };
 
+
+Math3D.vPrintMatrix = function (mM) {
+	
+	var sD = '  ';
+	console.log(Math3D.sPrint(mM[ 0]) + sD + Math3D.sPrint(mM[ 1]) + sD + Math3D.sPrint(mM[ 2]) + sD + Math3D.sPrint(mM[ 3]));
+	console.log(Math3D.sPrint(mM[ 4]) + sD + Math3D.sPrint(mM[ 5]) + sD + Math3D.sPrint(mM[ 6]) + sD + Math3D.sPrint(mM[ 7]));
+	console.log(Math3D.sPrint(mM[ 8]) + sD + Math3D.sPrint(mM[ 9]) + sD + Math3D.sPrint(mM[10]) + sD + Math3D.sPrint(mM[11]));
+	console.log(Math3D.sPrint(mM[12]) + sD + Math3D.sPrint(mM[13]) + sD + Math3D.sPrint(mM[14]) + sD + Math3D.sPrint(mM[15]));
+	
+};
+
+
+Math3D.sPrint = function (nValue) {
+	var sReturn = nValue.toFixed(4);
+	if (nValue >= 0) {
+		sReturn = ' ' + sReturn;
+	}
+	return sReturn;
+};
+

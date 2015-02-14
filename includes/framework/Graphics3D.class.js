@@ -27,6 +27,12 @@
 		
 		var oG = this;
 		
+		if (typeof sUsage == 'object' && typeof sMode == 'undefined' && typeof oAttributeData == 'undefined') {
+			oAttributeData = sUsage;
+			sMode = 'triangles';
+			sUsage = 'dynamic';
+		}
+		
 		var oVertexPackage = {};
 		
 		oVertexPackage.iUsageConstant = oG.o3D[sUsage.toUpperCase() + '_DRAW'];
@@ -319,21 +325,21 @@
 	
 	
 	
-	Graphics3D.prototype.mProjection = function (nHFOVinDegrees, nAspectRatioWpH, nNearZ, nFarZ) {
+	Graphics3D.prototype.mProjection = function (nHFOVinDegrees, nAspectRatioWpH, nNearViewDistance, nFarViewDistance) {
 		
 		var nHFOVinRadians = nHFOVinDegrees * (2 * Math.PI / 360);
 		var nHFOVT = Math.abs(Math.tan(0.5 * nHFOVinRadians));
 		var nVFOVT = nHFOVT / nAspectRatioWpH;
 		
-		var nA = 1 / nNearZ;
-		var nB = 1 / nFarZ;
-		var nAddend = (1 + 2 * nB / (nA + nB));
+		var nA = 1 / nNearViewDistance;
+		var nB = 1 / nFarViewDistance;
+		var nAddend = (1 - 2 * nB / (nA + nB));
 		var nFactor = (2 / (nB - nA));
 		
 		var mProjection = [
 			1 / nHFOVT, 0, 0, 0,
 			0, 1 / nVFOVT, 0, 0,
-			0, 0, nAddend, 1,
+			0, 0, -nAddend, -1,
 			0, 0, nFactor, 0,
 		];
 		

@@ -25,6 +25,8 @@
 		
 		var oI = this;
 		
+		if (typeof fOnChange != 'function') fOnChange = function(){};
+		
 		if (oI.bMouseCapturingActivated) return;
 		oI.bMouseCapturingActivated = true;
 		

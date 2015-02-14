@@ -12,10 +12,9 @@
 		var oGame = this;
 		
 		oGame.oCanvas = document.createElement('canvas');
-		oGame.oCanvas.style.border = '1px solid #ccc';
 		oGame.oCanvas.style.position = 'relative';
-		oGame.oCanvas.style.left = '10px';
-		oGame.oCanvas.style.top = '10px';
+		oGame.oCanvas.style.margin = '10px';
+		oGame.oCanvas.style.border = '1px solid #ccc';
 		
 		document.body.appendChild(oGame.oCanvas);
 		
