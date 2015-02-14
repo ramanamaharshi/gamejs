@@ -64,7 +64,7 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 0.1, 100);
+	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 0.01, 4);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	

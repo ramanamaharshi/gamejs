@@ -333,7 +333,7 @@
 		
 		var nA = 1 / nNearViewDistance;
 		var nB = 1 / nFarViewDistance;
-		var nAddend = (1 - 2 * nB / (nA + nB));
+		var nAddend = (1 + 2 * nB / (nA + nB));
 		var nFactor = (2 / (nB - nA));
 		
 		var mProjection = [
