@@ -33,17 +33,19 @@ var vInit = function (fOnReady) {
 				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
 				float nNearZ = 11.0; \n\
 				float nRangeZ = 8.0; \n\
-				//gl_Position.z = (gl_Position.z * (2.0 / nRangeZ)) + ( - 1.0 - nNearZ * (2.0 / nRangeZ)); \n\
-				//gl_Position.z = ((gl_Position.z - nNearZ) * (2.0 / nRangeZ)) - 1.0; \n\
 			} \n\
+			\n\
 		',
 		'\
+			\n\
 			precision mediump float; \n\
+			\n\
 			uniform sampler2D sSamplerA; \n\
 			uniform sampler2D sSamplerB; \n\
-			uniform bool bSamplerA; \n\
+			\n\
 			varying vec3 v3FragColor; \n\
 			varying vec2 v2TexCoord; \n\
+			\n\
 			void main() { \n\
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
 				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
@@ -55,6 +57,7 @@ var vInit = function (fOnReady) {
 					gl_FragColor *= texture2D(sSamplerB, v2TexC); \n\
 				} \n\
 			} \n\
+			\n\
 		'
 	);
 	
@@ -64,7 +67,7 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(60, oG.iW / oG.iH, 0.01, 4);
+	oState.mProjection = oG.mProjection(77, oG.iW / oG.iH, 0.01, 9);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
@@ -109,26 +112,7 @@ var vInit = function (fOnReady) {
 	oState.oPackageA = oFigureA(-0.1, 0.9, function(){return [rnd(),rnd(),rnd()];});
 	oState.oPackageB = oFigureA(+0.1, 0.7, function(){return [1,1,1];});
 	
-	var aColors = [];
-	var aPositions = [];
-	var aDirColors = [[0,1,0],[0,0,1],[1,0,0]];
-	for (var iDir = 0; iDir < 3; iDir ++) {
-		for (var iCorner = 0; iCorner < 3; iCorner ++) {
-			var aPosition = [0,0,0];
-			var aColor = aDirColors[iDir];
-			if (iCorner == iDir) {
-				aPosition[iCorner] = 1;
-			} else {
-				aPosition[iCorner] = 0.1;
-			}
-			aPositions.push(aPosition);
-			aColors.push(aColor);
-		}
-	}
-	oState.oPackageC = oG.oCreateVertexPackage({
-		v4Position: {aChunks: aPositions},
-		v3Color: {aChunks: aColors},
-	})
+	oState.oPackageC = oG.oMakeTestVertexPackage();
 	
 	oI.vActivateMouseCapturing();
 	

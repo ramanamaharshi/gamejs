@@ -23,6 +23,39 @@
 	
 	
 	
+	Graphics3D.prototype.oMakeTestVertexPackage = function () {
+		
+		var oG = this;
+		
+		var aColors = [];
+		var aPositions = [];
+		var aDirColors = [[0,0,1],[0,1,0],[1,0,0]];
+		for (var iDir = 0; iDir < 3; iDir ++) {
+			for (var iCorner = 0; iCorner < 3; iCorner ++) {
+				var aPosition = [0,0,0];
+				var aColor = aDirColors[iDir];
+				if (iCorner == iDir) {
+					aPosition[iCorner] = 1;
+				} else {
+					aPosition[iCorner] = 0.1;
+				}
+				aPositions.push(aPosition);
+				aColors.push(aColor);
+			}
+		}
+		
+		var oReturn = oG.oCreateVertexPackage({
+			v4Position: {aChunks: aPositions},
+			v3Color: {aChunks: aColors},
+		});
+		
+		return oReturn;
+		
+	}
+	
+	
+	
+	
 	Graphics3D.prototype.oCreateVertexPackage = function (sUsage, sMode, oAttributeData) {
 		
 		var oG = this;
