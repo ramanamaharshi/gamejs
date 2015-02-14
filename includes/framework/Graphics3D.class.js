@@ -23,9 +23,12 @@
 	
 	
 	
-	Graphics3D.prototype.oMakeTestPackage = function () {
+	Graphics3D.prototype.oMakeTestPackage = function (oParams) {
 		
 		var oG = this;
+		
+		if (typeof oParams == 'undefined') oParams = {};
+		if (typeof oParams.nSize == 'undefined') oParams.nSize = 1;
 		
 		var aColors = [];
 		var aPositions = [];
@@ -35,7 +38,7 @@
 				var aPosition = [0,0,0];
 				//var aColor = aDirColors[iDir];
 				if (iCorner == iDir) {
-					aPosition[iCorner] = 1;
+					aPosition[iCorner] = oParams.nSize;
 				} else {
 					aPosition[iCorner] = 0.1;
 				}
@@ -44,10 +47,14 @@
 			}
 		}
 		
-		var oReturn = oG.oCreateVertexPackage({
+		var oReturn = {
 			v4Position: {aChunks: aPositions},
 			v3Color: {aChunks: aColors},
-		});
+		};
+		
+		if (!oParams.bDataOnly) {
+			oReturn = oG.oCreateVertexPackage(oReturn);
+		}
 		
 		return oReturn;
 		

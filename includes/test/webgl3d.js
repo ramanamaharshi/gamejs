@@ -62,8 +62,6 @@ var vInit = function (fOnReady) {
 		'
 	);
 	
-	oState.oOpacity = oProgram.oUniforms.v1Opacity;
-	
 	oG.vSetProgram(oProgram);
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
@@ -75,13 +73,13 @@ var vInit = function (fOnReady) {
 	oState.oView = {};
 	oState.oView.nRV = 0;
 	oState.oView.nRH = 0;
-	oState.oView.vPosition = [0,0,3];
+	oState.oView.pPosition = [0,0,3];
 	oState.oView.mMakeMatrix = function(){
 		var oView = this;
-		var mTranslation = Math3D.mTranslation(Math3D.mMultiplyNV(-1, oView.vPosition));
+		var mTranslation = Math3D.mTranslation(Math3D.pNxP(-1, oView.pPosition));
 		var mRH = Math3D.mRotationY(-oView.nRH);
 		var mRV = Math3D.mRotationX(-oView.nRV);
-		var mReturn = Math3D.mMultiplyMM(Math3D.mMultiplyMM(mRV, mRH), mTranslation);
+		var mReturn = Math3D.mMxM(Math3D.mMxM(mRV, mRH), mTranslation);
 		return mReturn;
 	};
 	
@@ -143,29 +141,29 @@ var vInput = function () {
 	
 	var nMoveSpeed = 0.05;
 	var nR = oState.oView.nRH;
-	var vMoveDir = [Math.sin(nR),0,-Math.cos(nR)];
+	var pMoveDir = [Math.sin(nR),0,-Math.cos(nR)];
 	nR -= Math.PI / 2;
-	var vStrafeDir = [Math.sin(nR),0,-Math.cos(nR)];
+	var pStrafeDir = [Math.sin(nR),0,-Math.cos(nR)];
 	
 	if (oI.bKey(65)) { /// a
-		oState.oView.vPosition[0] += nMoveSpeed * vStrafeDir[0];
-		oState.oView.vPosition[1] += nMoveSpeed * vStrafeDir[1];
-		oState.oView.vPosition[2] += nMoveSpeed * vStrafeDir[2];
+		oState.oView.pPosition[0] += nMoveSpeed * pStrafeDir[0];
+		oState.oView.pPosition[1] += nMoveSpeed * pStrafeDir[1];
+		oState.oView.pPosition[2] += nMoveSpeed * pStrafeDir[2];
 	}
 	if (oI.bKey(68)) { /// d
-		oState.oView.vPosition[0] -= nMoveSpeed * vStrafeDir[0];
-		oState.oView.vPosition[1] -= nMoveSpeed * vStrafeDir[1];
-		oState.oView.vPosition[2] -= nMoveSpeed * vStrafeDir[2];
+		oState.oView.pPosition[0] -= nMoveSpeed * pStrafeDir[0];
+		oState.oView.pPosition[1] -= nMoveSpeed * pStrafeDir[1];
+		oState.oView.pPosition[2] -= nMoveSpeed * pStrafeDir[2];
 	}
 	if (oI.bKey(87)) { /// w
-		oState.oView.vPosition[0] += nMoveSpeed * vMoveDir[0];
-		oState.oView.vPosition[1] += nMoveSpeed * vMoveDir[1];
-		oState.oView.vPosition[2] += nMoveSpeed * vMoveDir[2];
+		oState.oView.pPosition[0] += nMoveSpeed * pMoveDir[0];
+		oState.oView.pPosition[1] += nMoveSpeed * pMoveDir[1];
+		oState.oView.pPosition[2] += nMoveSpeed * pMoveDir[2];
 	}
 	if (oI.bKey(83)) { /// s
-		oState.oView.vPosition[0] -= nMoveSpeed * vMoveDir[0];
-		oState.oView.vPosition[1] -= nMoveSpeed * vMoveDir[1];
-		oState.oView.vPosition[2] -= nMoveSpeed * vMoveDir[2];
+		oState.oView.pPosition[0] -= nMoveSpeed * pMoveDir[0];
+		oState.oView.pPosition[1] -= nMoveSpeed * pMoveDir[1];
+		oState.oView.pPosition[2] -= nMoveSpeed * pMoveDir[2];
 	}
 	
 	oI.vStep();
