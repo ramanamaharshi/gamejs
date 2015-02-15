@@ -88,6 +88,20 @@ Math3D.mInverse = function (mM) {
 
 
 
+Math3D.mTraverse = function (mM) {
+	
+	return new Float32Array([
+		mM[ 0] , mM[ 4] , mM[ 8] , mM[12] ,
+		mM[ 1] , mM[ 5] , mM[ 9] , mM[13] ,
+		mM[ 2] , mM[ 6] , mM[10] , mM[14] ,
+		mM[ 3] , mM[ 7] , mM[11] , mM[15] ,
+	]);
+	
+};
+
+
+
+
 Math3D.mMxM = function (mA, mB) {
 	
 	var mReturn = new Float32Array(16);

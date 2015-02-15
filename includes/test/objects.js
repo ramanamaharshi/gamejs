@@ -83,7 +83,7 @@ var vInit = function (fOnReady) {
 		return mReturn;
 	};
 	
-	oState.oPkCoordinates = oG.oMakeTestPackage();
+	oState.oPkBase = oG.oMakeTestPackage();
 	
 	oState.oPkTester = oG.oMakeTestPackage({nSize: 0.333});
 	
@@ -160,10 +160,8 @@ var vDraw = function () {
 	var oUniforms = oG.oCurrentProgram.oUniforms;
 	
 	oUniforms.mProjection.vSet(oState.mProjection);
-	oUniforms.mView.vSet(oState.oView.mMakeMatrix());
 	
-	oUniforms.mObject.vSet(Math3D.mIdentity());
-	oState.oPkCoordinates.vDraw();
+	//oUniforms.mView.vSet(oState.oView.mMakeMatrix());
 	
 	var mRV = Math3D.mRotationX(oState.oView.nRV);
 	var mRH = Math3D.mRotationY(oState.oView.nRH);
@@ -173,9 +171,9 @@ var vDraw = function () {
 	
 	var oPkLookArrow = oG.oCreateVertexPackage({
 		v4Position: {aChunks: [
-			[ 0.1 , 0 , 0 ],
-			[ 0 , 2 , 0 ],
-			[ 0 , 0 , 0.1 ],
+			[ 0 , +0.01 , 0 ],
+			[ 0 , -0.01 , 0 ],
+			[ 0 , 0 , -2 ],
 			//[ pLookDir[0] , pLookDir[1] , pLookDir[2] ],
 		]},
 		v3Color: {aChunks: [
@@ -185,14 +183,21 @@ var vDraw = function () {
 		]},
 	});
 	
-	mLook = Math3D.oMatrixHelper.mDirToO(pLookDir);
-//if (Math.random() < 0.01) Math3D.vPrintM(mLook);
-	var mTranslation = Math3D.mInverse(Math3D.mTranslation(oState.oView.pPosition));
-	//oUniforms.mView.vSet(Math3D.mMxM(Math3D.mInverse(mLook), mTranslation));
-	oUniforms.mView.vSet(mTranslation);
-	//mLook = Math3D.mMxM(Math3D.mInverse(mLook), mLook);
-	oUniforms.mObject.vSet(Math3D.mIdentity());
+	//mLook = Math3D.oMatrixHelper.mDirToO(pLookDir);
+	
+	oUniforms.mObject.vSet(mLook);
 	oPkLookArrow.vDraw();
+	
+	var mTranslation = Math3D.mInverse(Math3D.mTranslation(oState.oView.pPosition));
+	//var mRVi = Math3D.mRotationX(-oState.oView.nRV);
+	//var mRHi = Math3D.mRotationY(-oState.oView.nRH);
+	//var mInverseLook = Math3D.mMxM(mRVi, mRHi);
+	var mInverseLook2 = Math3D.mInverse(mLook);
+	
+	oUniforms.mView.vSet(Math3D.mMxM(mInverseLook2, mTranslation));
+	
+	oUniforms.mObject.vSet(Math3D.mIdentity());
+	oState.oPkBase.vDraw();
 	
 };
 

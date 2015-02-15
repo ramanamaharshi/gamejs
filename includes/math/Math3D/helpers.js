@@ -38,21 +38,12 @@ Math3D.oMatrixHelper.mDirToO = function (pDir) {
 	var pX = Math3D.pNormalize(Math3D.pPxP(oMH.pUp, pY));
 	var pZ = Math3D.pNormalize(Math3D.pPxP(pY, pX));
 	
-//console.log('pX');
-//Math3D.vPrintP(pX);
-//console.log('pY');
-//Math3D.vPrintP(pY);
-//console.log('pZ');
-//Math3D.vPrintP(pZ);
-	
 	var mReturn = new Float32Array([
 		pX[0] , pX[1] , pX[2] , 0 ,
 		pY[0] , pY[1] , pY[2] , 0 ,
 		pZ[0] , pZ[1] , pZ[2] , 0 ,
 		0 , 0 , 0 , 1 ,
 	]);
-	
-	//mReturn = Math3D.mIdentity();
 	
 	return mReturn;
 	

@@ -20,15 +20,6 @@
 	
 	
 	
-	Graphics2D.prototype.oGetCanvas = function () {
-		
-		return this.oCanvas;
-		
-	};
-	
-	
-	
-	
 	Graphics2D.prototype.vSetBounds = function (iW, iH) {
 		
 		var oG = this;

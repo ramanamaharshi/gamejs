@@ -409,13 +409,4 @@
 	
 	
 	
-	Graphics3D.prototype.oGetCanvas = function () {
-		
-		return this.oCanvas;
-		
-	};
-	
-	
-	
-	
 })();
