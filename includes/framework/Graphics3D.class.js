@@ -48,8 +48,8 @@
 		}
 		
 		var oReturn = {
-			v4Position: {aChunks: aPositions},
-			v3Color: {aChunks: aColors},
+			v4Position: aPositions,
+			v3Color: aColors,
 		};
 		
 		if (!oParams.bDataOnly) {
@@ -86,6 +86,9 @@
 			oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, gBuffer);
 			
 			var oAttrData = oAttributeData[sAttribute]
+			if (typeof oAttrData.aChunks == 'undefined') {
+				oAttrData = {aChunks: oAttrData};
+			}
 			if (typeof oAttrData.sType == 'undefined') {
 				oAttrData.sType = 'float';
 			}

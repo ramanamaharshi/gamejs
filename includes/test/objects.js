@@ -1,7 +1,7 @@
 
 
 
-var oGame = new Game(400, 400, '3D');
+var oGame = new Game(480, 360, '3D');
 var oG = oGame.oG;
 var oI = oGame.oI;
 
@@ -23,9 +23,12 @@ var vInit = function (fOnReady) {
 			\n\
 			attribute vec4 v4Position; \n\
 			attribute vec3 v3Color; \n\
+			attribute vec3 v3Corner; \n\
 			\n\
-			varying vec3 v3FragColor; \n\
 			varying vec2 v2TexCoord; \n\
+			varying vec3 v3FragColor; \n\
+			varying vec3 v3FragCorner; \n\
+			varying vec3 v3FragNormal; \n\
 			\n\
 			void main() { \n\
 				v3FragColor = v3Color; \n\
@@ -33,6 +36,7 @@ var vInit = function (fOnReady) {
 				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
 				float nNearZ = 11.0; \n\
 				float nRangeZ = 8.0; \n\
+				v3FragCorner = v3Corner; \n\
 			} \n\
 			\n\
 		',
@@ -40,11 +44,14 @@ var vInit = function (fOnReady) {
 			\n\
 			precision mediump float; \n\
 			\n\
+			uniform bool bOutline; \n\
 			uniform sampler2D sSamplerA; \n\
 			uniform sampler2D sSamplerB; \n\
 			\n\
-			varying vec3 v3FragColor; \n\
 			varying vec2 v2TexCoord; \n\
+			varying vec3 v3FragColor; \n\
+			varying vec3 v3FragCorner; \n\
+			varying vec3 v3FragNormal; \n\
 			\n\
 			void main() { \n\
 				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
@@ -57,6 +64,12 @@ var vInit = function (fOnReady) {
 				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) { \n\
 					gl_FragColor *= texture2D(sSamplerB, v2TexC); \n\
 				} \n\
+				if (bOutline) { \n\
+					if (v3FragCorner[0] < 0.01 || v3FragCorner[1] < 0.01 || v3FragCorner[2] < 0.01) { \n\
+						gl_FragColor = vec4(0,0,0,1); \n\
+					} \n\
+					//gl_FragColor *= v3FragCorner[0] * v3FragCorner[1] * v3FragCorner[2]; \n\
+				} \n\
 			} \n\
 			\n\
 		'
@@ -66,14 +79,14 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(80, oG.iW / oG.iH, 0.01, 9);
+	oState.mProjection = oG.mProjection(45, oG.iW / oG.iH, 0.01, 99);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
 	oState.oView.nRH = 0;
-	oState.oView.pPosition = [0,0,3];
+	oState.oView.pPosition = [2,0.5,7];
 	oState.oView.mMakeMatrix = function(){
 		var oView = this;
 		var mTranslation = Math3D.mTranslation(Math3D.pNxP(-1, oView.pPosition));
@@ -86,6 +99,26 @@ var vInit = function (fOnReady) {
 	oState.oPkBase = oG.oMakeTestPackage();
 	
 	oState.oPkTester = oG.oMakeTestPackage({nSize: 0.333});
+	
+	var oSphereAttrData = {
+		v3Color: [],
+		v4Position: [],
+		v3Corner: [],
+	};
+	
+	for (var iBits = 0; iBits < 8; iBits ++) {
+		for (var iV = 0; iV < 3; iV ++) {
+			var aPush = [0,0,0];
+			aPush[iV] = (Math.pow(2, iV) & iBits) ? -1 : 1;
+			oSphereAttrData.v4Position.push(aPush);
+			var aPush = [0,0,0];
+			aPush[iV] = 1;
+			oSphereAttrData.v3Corner.push(aPush);
+			oSphereAttrData.v3Color.push([1,1,1]);
+		}
+	}
+	
+	oState.oSphere = {nR: 0, pP: [2,0,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
 	
 	oI.vActivateMouseCapturing();
 	
@@ -167,6 +200,8 @@ var vDraw = function () {
 	var mRH = Math3D.mRotationY(oState.oView.nRH);
 	var mLook = Math3D.mMxM(mRH, mRV);
 	
+	oUniforms.bOutline.vSet(false);
+	
 	var pLookDir = Math3D.pMxP(mLook, new Float32Array([0,0,-1]));
 	
 	var oPkLookArrow = oG.oCreateVertexPackage({
@@ -198,6 +233,10 @@ var vDraw = function () {
 	
 	oUniforms.mObject.vSet(Math3D.mIdentity());
 	oState.oPkBase.vDraw();
+	
+	oUniforms.bOutline.vSet(true);
+	oUniforms.mObject.vSet(Math3D.mMxM(Math3D.mRotationZ(oState.oSphere.nR), Math3D.mTranslation(oState.oSphere.pP)))
+	oState.oSphere.oPk.vDraw();
 	
 };
 
