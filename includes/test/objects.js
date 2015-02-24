@@ -65,7 +65,7 @@ var vInit = function (fOnReady) {
 					gl_FragColor *= texture2D(sSamplerB, v2TexC); \n\
 				} \n\
 				if (bOutline) { \n\
-					if (v3FragCorner[0] < 0.01 || v3FragCorner[1] < 0.01 || v3FragCorner[2] < 0.01) { \n\
+					if (v3FragCorner[0] < 0.03 || v3FragCorner[1] < 0.03 || v3FragCorner[2] < 0.03) { \n\
 						gl_FragColor = vec4(0,0,0,1); \n\
 					} \n\
 					//gl_FragColor *= v3FragCorner[0] * v3FragCorner[1] * v3FragCorner[2]; \n\
@@ -106,19 +106,40 @@ var vInit = function (fOnReady) {
 		v3Corner: [],
 	};
 	
+	var iSize = .2;
 	for (var iBits = 0; iBits < 8; iBits ++) {
+		var aTriangle = [];
 		for (var iV = 0; iV < 3; iV ++) {
 			var aPush = [0,0,0];
-			aPush[iV] = (Math.pow(2, iV) & iBits) ? -1 : 1;
-			oSphereAttrData.v4Position.push(aPush);
-			var aPush = [0,0,0];
 			aPush[iV] = 1;
-			oSphereAttrData.v3Corner.push(aPush);
-			oSphereAttrData.v3Color.push([1,1,1]);
+			if (Math.pow(2, iV) & iBits) aPush[iV] *= -1;
+			aTriangle.push(aPush);
 		}
+		var aTriangles = aRecTriangles([0,0,0], aTriangle, 5);
+		var iTNr = -1;
+		aTriangles.forEach(function(aPoints){
+			iTNr ++;
+			var iCorner = -1;
+			aPoints.forEach(function(aPoint){
+				var aScaledPoint = [ iSize * aPoint[0] , iSize * aPoint[1] , iSize * aPoint[2] ];
+				oSphereAttrData.v4Position.push(aScaledPoint);
+				var aColor = [0,0,0];
+				if (iTNr % 4 == 0) {
+					aColor = [1,1,1];
+				} else {
+					aColor[(iTNr % 4) - 1] = 1;
+				}
+				oSphereAttrData.v3Color.push(aColor);
+				iCorner ++;
+				var aCorner = [0,0,0];
+				aCorner[iCorner] = 1;
+				oSphereAttrData.v3Corner.push(aCorner);
+			});
+		});
 	}
+console.log(oSphereAttrData);
 	
-	oState.oSphere = {nR: 0, pP: [2,0,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
+	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
 	
 	oI.vActivateMouseCapturing();
 	
@@ -130,6 +151,50 @@ var vInit = function (fOnReady) {
 		}
 		fOnReady();
 	});
+	
+};
+
+
+
+
+var aRecTriangles = function (pCenter, aTriangle, iDepth) {
+	
+	if (iDepth == 0) return [aTriangle];
+	
+	var aPoints = [];
+	
+	for (var iV = 0; iV < 3; iV ++) {
+		var pV = aTriangle[iV];
+		var pNext = aTriangle[(iV + 1) % 3];
+		aPoints.push([pV[0], pV[1], pV[2]]);
+		var pBetween = [0,0,0];
+		for (var iI = 0; iI < 3; iI ++) {
+			pBetween[iI] = (pV[iI] + pNext[iI]) / 2;
+		}
+Math3D.vPrintP(pV);
+		pBetween = Math3D.pNormalize(pBetween);
+		pBetween = [pBetween[0],pBetween[1],pBetween[2]];
+Math3D.vPrintP(pBetween);
+		aPoints.push(pBetween);
+	}
+	
+	var aTriangles = [];
+	
+	aTriangles.push([aPoints[1], aPoints[3], aPoints[5]]);
+	for (var iV = 0; iV < 3; iV ++) {
+		aTriangles.push([aPoints[(2 * iV)], aPoints[(2 * iV + 1) % 6], aPoints[(2 * iV + 5) % 6]]);
+	}
+	
+	var aSubTriangles = [];
+	aTriangles.forEach(function(aTriangle){
+		aSubTs = aRecTriangles(pCenter, aTriangle, iDepth - 1);
+		aSubTs.forEach(function(aSubT){
+			aSubTriangles.push(aSubT);
+		});
+	});
+	aTriangles = aSubTriangles;
+	
+	return aTriangles;
 	
 };
 
