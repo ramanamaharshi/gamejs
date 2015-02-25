@@ -69,10 +69,12 @@ var vInit = function (fOnReady) {
 				if (bOutline) { \n\
 					if (v3FragCorner[0] < 0.03 || v3FragCorner[1] < 0.03 || v3FragCorner[2] < 0.03) { \n\
 						gl_FragColor *= 0.0;//vec4(0,0,0,1); \n\
+						//discard; \n\
+					} else { \n\
 						discard; \n\
 					} \n\
 					if (v3FragCorner[0] < 0.04 || v3FragCorner[1] < 0.04 || v3FragCorner[2] < 0.04) { \n\
-						//gl_FragColor *= 0.5; \n\
+						gl_FragColor *= 0.5; \n\
 					} \n\
 					//gl_FragColor *= v3FragCorner[0] * v3FragCorner[1] * v3FragCorner[2]; \n\
 				} \n\
@@ -121,7 +123,7 @@ var vInit = function (fOnReady) {
 			if (Math.pow(2, iV) & iBits) aPush[iV] *= -1;
 			aTriangle.push(aPush);
 		}
-		var aTriangles = aRecTriangles([0,0,0], aTriangle, 6);
+		var aTriangles = aRecTriangles([0,0,0], aTriangle, 3);
 		var iTNr = -1;
 		aTriangles.forEach(function(aPoints){
 			iTNr ++;
@@ -129,12 +131,7 @@ var vInit = function (fOnReady) {
 			aPoints.forEach(function(aPoint){
 				var aScaledPoint = [ iSize * aPoint[0] , iSize * aPoint[1] , iSize * aPoint[2] ];
 				oSphereAttrData.v4Position.push(aScaledPoint);
-				var aColor = [0,0,0];
-				if (iTNr % 4 == 0) {
-					aColor = [1,1,1];
-				} else {
-					aColor[(iTNr % 4) - 1] = 1;
-				}
+				var aColor = [1,1,1];
 				oSphereAttrData.v3Color.push(aColor);
 				iCorner ++;
 				var aCorner = [0,0,0];
@@ -143,9 +140,15 @@ var vInit = function (fOnReady) {
 			});
 		});
 	}
-console.log(oSphereAttrData);
 	
-	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
+delete oSphereAttrData.v3Corner;
+	
+console.log(oSphereAttrData);
+	var oSphereStuff = oG.oAutoIndex(oSphereAttrData);
+	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereStuff.oAttributeData, oSphereStuff.aIndices)};
+console.log(oSphereStuff.iVertices);
+	
+//	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
 	
 	oI.vActivateMouseCapturing();
 	
@@ -303,9 +306,21 @@ var vDraw = function () {
 	oUniforms.mObject.vSet(Math3D.mIdentity());
 	oState.oPkBase.vDraw();
 	
-	oUniforms.bOutline.vSet(true);
+	//oUniforms.bOutline.vSet(true);
 	oUniforms.mObject.vSet(Math3D.mMxM(Math3D.mRotationZ(oState.oSphere.nR), Math3D.mTranslation(oState.oSphere.pP)))
 	oState.oSphere.oPk.vDraw();
+	
+	//var aIndices = [1,2,3];
+	//var gBuffer = oG.o3D.createBuffer();
+	//oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, gBuffer);
+	//oG.o3D.bufferData(oG.o3D.ELEMENT_ARRAY_BUFFER, new Uint16Array(aIndices), oG.o3D.STATIC_DRAW);
+	//var oBufferData = {
+	//	gBuffer: gBuffer,
+	//	iModeConstant: oG.o3D.TRIANGLES,
+	//	iCount: aIndices.length,
+	//	iTypeConstant: oG.o3D.UNSIGNED_SHORT,
+	//};
+	//oG.vDrawVertexPackage(oState.oSphere.oPk, oBufferData);
 	
 };
 

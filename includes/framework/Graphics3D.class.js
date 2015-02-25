@@ -63,12 +63,78 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateVertexPackage = function (sUsage, sMode, oAttributeData) {
+	Graphics3D.prototype.oAutoIndex = function (oAttributeData) {
+		
+		var iVertices = 0;
+		var aAttributeKeys = [];
+		for (var sKey in oAttributeData) {
+			if (typeof oAttributeData[sKey].aChunks == 'undefined') {
+				oAttributeData[sKey] = {aChunks: oAttributeData[sKey]};
+			}
+			iVertices = oAttributeData[sKey].aChunks.length;
+			aAttributeKeys.push(sKey);
+		}
+		
+		var oHashes = {};
+		var aIndices = [];
+		var aVertices = [];
+		for (var iV = 0; iV < iVertices; iV ++) {
+			var oVertex = {};
+			var aHash = [];
+			aAttributeKeys.forEach(function(sKey){
+				var mDatum = oAttributeData[sKey].aChunks[iV];
+				oVertex[sKey] = mDatum;
+				var aHashPart = [];
+				if (typeof mDatum.length != 'undefined') {
+					mDatum.forEach(function(mDatumElement){
+						aHashPart.push(mDatumElement);
+					});
+				} else {
+					aHashPart.push(mDatum);
+				}
+				aHash.push(aHashPart.join(':'));
+			});
+			var sHash = aHash.join('|');
+			if (typeof oHashes[sHash] == 'undefined') {
+				oHashes[sHash] = aVertices.length;
+				aVertices.push(oVertex);
+//console.log(sHash);
+			} else {
+//console.log(oHashes[sHash] + '   ' + sHash);
+			}
+			aIndices.push(oHashes[sHash]);
+		}
+		
+		var oReturn = {
+			iVertices: aVertices.length,
+			aIndices: aIndices,
+			oAttributeData: {},
+		};
+		
+		aAttributeKeys.forEach(function(sKey){
+			oReturn.oAttributeData[sKey] = [];
+			var oKeyData = oReturn.oAttributeData[sKey];
+			aVertices.forEach(function(oVertex){
+				oKeyData.push(oVertex[sKey]);
+			});
+		});
+		
+		return oReturn;
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.oCreateVertexPackage = function (sUsage, sMode, oAttributeData, aIndices) {
 		
 		var oG = this;
 		
-		if (typeof sUsage == 'object' && typeof sMode == 'undefined' && typeof oAttributeData == 'undefined') {
+		if (typeof sUsage == 'object'){
 			oAttributeData = sUsage;
+			if (typeof sMode == 'object') {
+				aIndices = sMode;
+			}
 			sMode = 'triangles';
 			sUsage = 'dynamic';
 		}
@@ -124,6 +190,19 @@
 		
 		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
 		
+		oVertexPackage.oIndexBuffer = null;
+		if (typeof aIndices != 'undefined') {
+			var gIndexBuffer = oG.o3D.createBuffer();
+			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+			oG.o3D.bufferData(oG.o3D.ELEMENT_ARRAY_BUFFER, new Uint16Array(aIndices), oG.o3D.STATIC_DRAW);
+			oVertexPackage.oIndexBuffer = {
+				gBuffer: gIndexBuffer,
+				iCount: aIndices.length,
+				iTypeConstant: oG.o3D.UNSIGNED_SHORT,
+				iModeConstant: sMode,
+			};
+		}
+		
 		oVertexPackage.vDraw = function () {
 			oG.vDrawVertexPackage(oVertexPackage);
 		};
@@ -147,7 +226,13 @@
 			oG.oCurrentProgram.oAttributes[sAttribute].vSet(oAttributeFiller);
 		}
 		
-		oG.o3D.drawArrays(oVertexPackage.iModeConstant, 0, oVertexPackage.iVertices);
+		if (oVertexPackage.oIndexBuffer) {
+			var oIBD = oVertexPackage.oIndexBuffer;
+			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, oIBD.gBuffer);
+			oG.o3D.drawElements(oIBD.iModeConstant, oIBD.iCount, oIBD.iTypeConstant, 0);
+		} else {
+			oG.o3D.drawArrays(oVertexPackage.iModeConstant, 0, oVertexPackage.iVertices);
+		}
 		
 		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
 		
