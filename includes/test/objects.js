@@ -1,7 +1,7 @@
 
 
 
-var oGame = new Game(480, 360, '3D');
+var oGame = new Game(2 * 480, 2 * 360, '3D');
 var oG = oGame.oG;
 var oI = oGame.oI;
 
@@ -12,7 +12,9 @@ var oState = {};
 
 var vInit = function (fOnReady) {
 	
-	oGame.oCanvas.style.float = 'right';
+	document.body.style['text-align'] = 'center';
+	
+	//oGame.oCanvas.style.float = 'right';
 	
 	var oProgram = oG.oCreateProgram(
 		'\
@@ -66,7 +68,11 @@ var vInit = function (fOnReady) {
 				} \n\
 				if (bOutline) { \n\
 					if (v3FragCorner[0] < 0.03 || v3FragCorner[1] < 0.03 || v3FragCorner[2] < 0.03) { \n\
-						gl_FragColor = vec4(0,0,0,1); \n\
+						gl_FragColor *= 0.0;//vec4(0,0,0,1); \n\
+						discard; \n\
+					} \n\
+					if (v3FragCorner[0] < 0.04 || v3FragCorner[1] < 0.04 || v3FragCorner[2] < 0.04) { \n\
+						//gl_FragColor *= 0.5; \n\
 					} \n\
 					//gl_FragColor *= v3FragCorner[0] * v3FragCorner[1] * v3FragCorner[2]; \n\
 				} \n\
@@ -171,10 +177,8 @@ var aRecTriangles = function (pCenter, aTriangle, iDepth) {
 		for (var iI = 0; iI < 3; iI ++) {
 			pBetween[iI] = (pV[iI] + pNext[iI]) / 2;
 		}
-Math3D.vPrintP(pV);
 		pBetween = Math3D.pNormalize(pBetween);
 		pBetween = [pBetween[0],pBetween[1],pBetween[2]];
-Math3D.vPrintP(pBetween);
 		aPoints.push(pBetween);
 	}
 	
