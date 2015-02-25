@@ -30,12 +30,14 @@ Math3D.oMatrixHelper.mDirToS = function (pDir) {
 
 
 
-Math3D.oMatrixHelper.mDirToO = function (pDir) {
+Math3D.oMatrixHelper.mDirToO = function (pDir, pUp) {
 	
 	var oMH = this;
 	
+	if (typeof pUp == 'undefined') pUp = oMH.pUp;
+	
 	var pY = Math3D.pNormalize([pDir[0], pDir[1], pDir[2]]);
-	var pX = Math3D.pNormalize(Math3D.pPxP(oMH.pUp, pY));
+	var pX = Math3D.pNormalize(Math3D.pPxP(pUp, pY));
 	var pZ = Math3D.pNormalize(Math3D.pPxP(pY, pX));
 	
 	var mReturn = new Float32Array([

@@ -1,7 +1,7 @@
 
 
 
-var oGame = new Game(2 * 480, 1.75 * 360, '3D');
+var oGame = new Game(480, 360, '3D');
 var oG = oGame.oG;
 var oI = oGame.oI;
 
