@@ -98,9 +98,6 @@
 			if (typeof oHashes[sHash] == 'undefined') {
 				oHashes[sHash] = aVertices.length;
 				aVertices.push(oVertex);
-//console.log(sHash);
-			} else {
-//console.log(oHashes[sHash] + '   ' + sHash);
 			}
 			aIndices.push(oHashes[sHash]);
 		}
@@ -112,10 +109,10 @@
 		};
 		
 		aAttributeKeys.forEach(function(sKey){
-			oReturn.oAttributeData[sKey] = [];
-			var oKeyData = oReturn.oAttributeData[sKey];
+			var aKeyChunks = [];
+			oReturn.oAttributeData[sKey] = {aChunks: aKeyChunks};
 			aVertices.forEach(function(oVertex){
-				oKeyData.push(oVertex[sKey]);
+				aKeyChunks.push(oVertex[sKey]);
 			});
 		});
 		
@@ -195,11 +192,12 @@
 			var gIndexBuffer = oG.o3D.createBuffer();
 			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, gIndexBuffer);
 			oG.o3D.bufferData(oG.o3D.ELEMENT_ARRAY_BUFFER, new Uint16Array(aIndices), oG.o3D.STATIC_DRAW);
+			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, null);
 			oVertexPackage.oIndexBuffer = {
 				gBuffer: gIndexBuffer,
 				iCount: aIndices.length,
 				iTypeConstant: oG.o3D.UNSIGNED_SHORT,
-				iModeConstant: sMode,
+				iModeConstant: oG.o3D[sMode.toUpperCase()],
 			};
 		}
 		

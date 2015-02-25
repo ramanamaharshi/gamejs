@@ -1,7 +1,7 @@
 
 
 
-var oGame = new Game(2 * 480, 1.75 * 360, '3D');
+var oGame = new Game(300, 360, '3D');
 var oG = oGame.oG;
 var oI = oGame.oI;
 
@@ -141,14 +141,12 @@ var vInit = function (fOnReady) {
 		});
 	}
 	
-delete oSphereAttrData.v3Corner;
+	oState.oOldSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
 	
-console.log(oSphereAttrData);
+	delete oSphereAttrData.v3Corner;
+	
 	var oSphereStuff = oG.oAutoIndex(oSphereAttrData);
 	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereStuff.oAttributeData, oSphereStuff.aIndices)};
-console.log(oSphereStuff.iVertices);
-	
-//	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
 	
 	oI.vActivateMouseCapturing();
 	
@@ -307,10 +305,10 @@ var vDraw = function () {
 	oState.oPkBase.vDraw();
 	
 	//oUniforms.bOutline.vSet(true);
-	oUniforms.mObject.vSet(Math3D.mMxM(Math3D.mRotationZ(oState.oSphere.nR), Math3D.mTranslation(oState.oSphere.pP)))
+	oUniforms.mObject.vSet(Math3D.mMxM(Math3D.mRotationZ(oState.oSphere.nR), Math3D.mTranslation(oState.oSphere.pP)));
 	oState.oSphere.oPk.vDraw();
 	
-	//var aIndices = [1,2,3];
+	//var aIndices = [0,1,2,3,4,5,6,7,8];
 	//var gBuffer = oG.o3D.createBuffer();
 	//oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, gBuffer);
 	//oG.o3D.bufferData(oG.o3D.ELEMENT_ARRAY_BUFFER, new Uint16Array(aIndices), oG.o3D.STATIC_DRAW);
@@ -320,7 +318,9 @@ var vDraw = function () {
 	//	iCount: aIndices.length,
 	//	iTypeConstant: oG.o3D.UNSIGNED_SHORT,
 	//};
-	//oG.vDrawVertexPackage(oState.oSphere.oPk, oBufferData);
+	//oUniforms.mObject.vSet(Math3D.mMxM(Math3D.mRotationZ(oState.oOldSphere.nR), Math3D.mTranslation(oState.oOldSphere.pP)));
+	//oState.oOldSphere.oPk.oIndexBuffer = oBufferData;
+	//oG.vDrawVertexPackage(oState.oOldSphere.oPk);
 	
 };
 
