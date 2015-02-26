@@ -17,67 +17,71 @@ var vInit = function (fOnReady) {
 	//oGame.oCanvas.style.float = 'right';
 	
 	var oProgram = oG.oCreateProgram(
-		'\
-			\n\
-			uniform mat4 mProjection; \n\
-			uniform mat4 mView; \n\
-			uniform mat4 mObject; \n\
-			\n\
-			attribute vec4 v4Position; \n\
-			attribute vec3 v3Color; \n\
-			attribute vec3 v3Corner; \n\
-			\n\
-			varying vec2 v2TexCoord; \n\
-			varying vec3 v3FragColor; \n\
-			varying vec3 v3FragCorner; \n\
-			varying vec3 v3FragNormal; \n\
-			\n\
-			void main() { \n\
-				v3FragColor = v3Color; \n\
-				gl_Position = mProjection * mView * mObject * v4Position; \n\
-				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
-				float nNearZ = 11.0; \n\
-				float nRangeZ = 8.0; \n\
-				v3FragCorner = v3Corner; \n\
-			} \n\
-			\n\
+		'
+///PARSE: multiline string begin
+			
+			uniform mat4 mProjection;
+			uniform mat4 mView;
+			uniform mat4 mObject;
+			
+			attribute vec4 v4Position;
+			attribute vec3 v3Color;
+			attribute vec3 v3Corner;
+			
+			varying vec2 v2TexCoord;
+			varying vec3 v3FragColor;
+			varying vec3 v3FragCorner;
+			varying vec3 v3FragNormal;
+			
+			void main() {
+				v3FragColor = v3Color;
+				gl_Position = mProjection * mView * mObject * v4Position;
+				v2TexCoord = vec2(v4Position[0], v4Position[1]);
+				float nNearZ = 11.0;
+				float nRangeZ = 8.0;
+				v3FragCorner = v3Corner;
+			}
+			
+///PARSE: multiline string end
 		',
-		'\
-			\n\
-			precision mediump float; \n\
-			\n\
-			uniform bool bOutline; \n\
-			uniform sampler2D sSamplerA; \n\
-			uniform sampler2D sSamplerB; \n\
-			\n\
-			varying vec2 v2TexCoord; \n\
-			varying vec3 v3FragColor; \n\
-			varying vec3 v3FragCorner; \n\
-			varying vec3 v3FragNormal; \n\
-			\n\
-			void main() { \n\
-				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
-				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
-				gl_FragColor = vec4(v3FragColor, 1); \n\
-				gl_FragColor *= gl_FragColor; \n\
-				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) { \n\
-					gl_FragColor *= texture2D(sSamplerA, v2TexC)[0]; \n\
-				} \n\
-				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) { \n\
-					gl_FragColor *= texture2D(sSamplerB, v2TexC); \n\
-				} \n\
-				if (bOutline) { \n\
-					if (v3FragCorner[0] < 0.03 || v3FragCorner[1] < 0.03 || v3FragCorner[2] < 0.03) { \n\
-						gl_FragColor *= 0.0;//vec4(0,0,0,1); \n\
-						discard; \n\
-					} \n\
-					if (v3FragCorner[0] < 0.04 || v3FragCorner[1] < 0.04 || v3FragCorner[2] < 0.04) { \n\
-						//gl_FragColor *= 0.5; \n\
-					} \n\
-					//gl_FragColor *= v3FragCorner[0] * v3FragCorner[1] * v3FragCorner[2]; \n\
-				} \n\
-			} \n\
-			\n\
+		'
+///PARSE: multiline string begin
+			
+			precision mediump float;
+			
+			uniform bool bOutline;
+			uniform sampler2D sSamplerA;
+			uniform sampler2D sSamplerB;
+			
+			varying vec2 v2TexCoord;
+			varying vec3 v3FragColor;
+			varying vec3 v3FragCorner;
+			varying vec3 v3FragNormal;
+			
+			void main() {
+				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2));
+				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]);
+				gl_FragColor = vec4(v3FragColor, 1);
+				gl_FragColor *= gl_FragColor;
+				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) {
+					gl_FragColor *= texture2D(sSamplerA, v2TexC)[0];
+				}
+				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) {
+					gl_FragColor *= texture2D(sSamplerB, v2TexC);
+				}
+				if (bOutline) {
+					if (v3FragCorner[0] < 0.03 || v3FragCorner[1] < 0.03 || v3FragCorner[2] < 0.03) {
+						gl_FragColor *= 0.0;//vec4(0,0,0,1);
+						discard;
+					}
+					if (v3FragCorner[0] < 0.04 || v3FragCorner[1] < 0.04 || v3FragCorner[2] < 0.04) {
+						//gl_FragColor *= 0.5;
+					}
+					//gl_FragColor *= v3FragCorner[0] * v3FragCorner[1] * v3FragCorner[2];
+				}
+			}
+			
+///PARSE: multiline string end
 		'
 	);
 	

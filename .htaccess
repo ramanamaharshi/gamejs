@@ -1,7 +1,8 @@
 
-#RewriteEngine On
-#RewriteBase /
-#RewriteRule ^index\.php$ - [L]
+RewriteEngine On
+RewriteBase /
 #RewriteCond %{REQUEST_FILENAME} -f
-#RewriteCond %{REQUEST_FILENAME} /test/
-#RewriteRule ^.+$ /index.php?r=$0 [L]
+#RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} .*\.js 
+RewriteRule ^.+$ /jsparser.php?file=$0 [L]
