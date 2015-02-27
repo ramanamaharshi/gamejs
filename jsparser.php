@@ -1,7 +1,6 @@
 <?php
 
 $sRelFile = $_REQUEST['file'];
-#$sAbsFile = dirname(__FILE__) . '/' . $sRelFile;
 $sFileContent = file_get_contents($sRelFile);
 
 /// parse begin
@@ -13,7 +12,7 @@ function sParseMultilineStrings ($sFileContent) {
 	while (preg_match($sPattern, $sFileContent, $aMatches)) {
 		$sParse = $aMatches['parse'];
 		$sParse = implode($sELB, explode("\n", $sParse));
-		$sFileContent = $aMatches['before'] . $sELB . $sParse . $sELB . $aMatches['after'];
+		$sFileContent = $aMatches['before'] . "'" . $sELB . $sParse . $sELB . "'" . $aMatches['after'];
 	}
 	
 	return $sFileContent;
