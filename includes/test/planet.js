@@ -85,7 +85,7 @@ var vInit = function (fOnReady) {
 	oG.vSetProgram(oProgram);
 	
 	oG.vOnResize(function(iNewW, iNewH){
-		oState.mProjection = oG.mProjection(45, iNewW / iNewH, 0.01, 99);
+		oState.mProjection = oG.mProjection(0.01, 99, 45);
 	});
 	oG.vOnResize(1000);
 	

@@ -452,7 +452,11 @@
 	
 	
 	
-	Graphics3D.prototype.mProjection = function (nHFOVinDegrees, nAspectRatioWpH, nNearViewDistance, nFarViewDistance) {
+	Graphics3D.prototype.mProjection = function (nNearViewDistance, nFarViewDistance, nHFOVinDegrees, nAspectRatioWpH) {
+		
+		if (typeof nAspectRatioWpH == 'undefined') {
+			nAspectRatioWpH =  this.iGetW() / this.iGetH();
+		}
 		
 		var nHFOVinRadians = nHFOVinDegrees * (2 * Math.PI / 360);
 		var nHFOVT = Math.abs(Math.tan(0.5 * nHFOVinRadians));
