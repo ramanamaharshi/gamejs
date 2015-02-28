@@ -17,6 +17,7 @@ var vInit = function (fOnReady) {
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
 	var oProgram = oG.oCreateProgram(
+		
 		///PARSE: multiline string begin
 			
 			uniform mat4 mProjection;
@@ -42,7 +43,9 @@ var vInit = function (fOnReady) {
 			}
 			
 		///PARSE: multiline string end
+		
 		,
+		
 		///PARSE: multiline string begin
 			
 			precision mediump float;
@@ -80,6 +83,7 @@ var vInit = function (fOnReady) {
 			}
 			
 		///PARSE: multiline string end
+		
 	);
 	
 	oG.vSetProgram(oProgram);
@@ -113,6 +117,7 @@ var vInit = function (fOnReady) {
 	oI.vActivateMouseCapturing();
 	
 	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
+	
 	oG.vLoadImages(oState.oImages, function(){
 		oState.oTextures = {};
 		for (var sKey in oState.oImages) {
@@ -161,6 +166,10 @@ var vInput = function () {
 		oState.oView.pPosition[0] -= nMoveSpeed * pMoveDir[0];
 		oState.oView.pPosition[1] -= nMoveSpeed * pMoveDir[1];
 		oState.oView.pPosition[2] -= nMoveSpeed * pMoveDir[2];
+	}
+	
+	if (oI.iJustWheel()) {
+		console.log(oI.iJustWheel());
 	}
 	
 	oI.vStep();

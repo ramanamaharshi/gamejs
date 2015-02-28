@@ -114,6 +114,7 @@
 		oI.oMouse.oPressedButtons = {};
 		oI.oMouse.aJustPressedButtons = [];
 		oI.oMouse.aJustReleasedButtons = [];
+		oI.oMouse.iJustWheel = 0;
 		
 		oI.oCanvas.addEventListener('mousemove', function(oEvent){
 			var oCanvasOffset = oI.oGetCanvasOffset();
@@ -144,6 +145,14 @@
 				oI.oMouse.aJustReleasedButtons.push(iButton);
 			}
 		});
+		
+		var vOnMouseWheel = function (oEvent) {
+			var iDelta = Math.max(-1, Math.min(1, (-oEvent.detail || oEvent.wheelDelta)));
+			oI.oMouse.iJustWheel += iDelta;
+		};
+		
+		oI.oCanvas.addEventListener('DOMMouseScroll', vOnMouseWheel);
+		oI.oCanvas.addEventListener('mousewheel', vOnMouseWheel);
 		
 	};
 	
@@ -241,6 +250,15 @@
 	
 	
 	
+	Input.prototype.iJustWheel = function () {
+		
+		return this.oMouse.iJustWheel;
+		
+	};
+	
+	
+	
+	
 	Input.prototype.vStep = function () {
 		
 		var oI = this;
@@ -253,6 +271,8 @@
 		
 		oI.oMouse.aJustPressedButtons = [];
 		oI.oMouse.aJustReleasedButtons = [];
+		
+		oI.oMouse.iJustWheel = 0;
 		
 	};
 	
