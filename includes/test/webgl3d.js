@@ -111,7 +111,7 @@ var vInit = function (fOnReady) {
 	oState.oPackageA = oFigureA(-0.1, 0.9, function(){return [rnd(),rnd(),rnd()];});
 	oState.oPackageB = oFigureA(+0.1, 0.7, function(){return [1,1,1];});
 	
-	oState.oPackageC = oG.oMakeTestPackage();
+	oState.oPackageC = TestPackages.oCoords(oG);
 	
 	oI.vActivateMouseCapturing();
 	

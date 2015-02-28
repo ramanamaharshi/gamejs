@@ -104,9 +104,9 @@ var vInit = function (fOnReady) {
 		return mReturn;
 	};
 	
-	oState.oPkBase = oG.oMakeTestPackage();
+	oState.oPkBase = TestPackages.oCoords(oG);
 	
-	oState.oPkTester = oG.oMakeTestPackage({nSize: 0.333});
+	oState.oPkTester = TestPackages.oCoords(oG, {nSize: 0.333});
 	
 	var oSphereAttrData = {
 		v3Color: [],

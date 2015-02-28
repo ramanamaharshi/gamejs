@@ -99,9 +99,11 @@ var vInit = function (fOnReady) {
 	
 	//oState.mObject = Math3D.mIdentity();
 	
-	oState.oDpBase = new DrawPackage(oG.oMakeTestPackage());
+	oState.oDpBase = new DrawPackage(TestPackages.oCoords(oG));
 	
-	oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oMakeSphereAttributes(.2, 4)), Math3D.mTranslation([2,.5,2]));
+	//oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oMakeSphereAttributes(.2, 4)), Math3D.mTranslation([2,.5,2]));
+	
+	oState.oDpPointer = new DrawPackage(TestPackages.oPointer(oG), Math3D.mTranslation([0.5,0.5,0.5]));
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
@@ -215,7 +217,50 @@ var vDraw = function () {
 	
 	oState.oDpBase.vDraw();
 	
-	oState.oDpSphere.vDraw();
+	//oState.oDpSphere.vDraw();
+	
+	oState.oDpPointer.vDraw();
+	
+};
+
+
+
+
+var Puppet = function (oPuppetData, oPlanetData) {
+	
+	var oP = this;
+	
+	oP.nH = 1;
+	oP.nR = 1;
+	oP.pPos = [0,0,0];
+	oP.pDir = [0,1,0];
+	
+	for (var sKey in oPuppetData) {
+		oP[sKey] = oPuppetData[sKey];
+	}
+	
+	oP.oPlanet = {nRadius: 1, pCenter: [0,0,0]};
+	
+	for (var sKey in oPlanetData) {
+		oP.oPlanet[sKey] = oPlanetData[sKey];
+	}
+	
+};
+
+
+
+
+Puppet.prototype.vMove = function (nForwards, nSideways) {
+	
+	var oP = this;
+	
+};
+
+
+
+Puppet.prototype.vCorrectPosition = function () {
+	
+	var oP = this;
 	
 };
 
