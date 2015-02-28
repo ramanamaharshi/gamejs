@@ -88,8 +88,10 @@ var vInit = function (fOnReady) {
 	
 	oG.vSetProgram(oProgram);
 	
+	oState.nFOV = 45;
+	
 	oG.vOnResize(function(iNewW, iNewH){
-		oState.mProjection = oG.mProjection(0.01, 99, 45);
+		oState.mProjection = oG.mProjection(0.01, 99, oState.nFOV);
 	});
 	oG.vOnResize(1000);
 	
@@ -134,9 +136,9 @@ var vInit = function (fOnReady) {
 var vInput = function () {
 	
 	if (oI.bMouseCaptured) {
-		var nLookSpeed = 0.003;
-		oState.oView.nRH += nLookSpeed * oI.oMouseMoved.iX;
-		oState.oView.nRV += nLookSpeed * oI.oMouseMoved.iY;
+		var nLookSpeed = 0.00005;
+		oState.oView.nRH += oState.nFOV * nLookSpeed * oI.oMouseMoved.iX;
+		oState.oView.nRV += oState.nFOV * nLookSpeed * oI.oMouseMoved.iY;
 		if (oState.oView.nRV < -(Math.PI / 2)) oState.oView.nRV = -(Math.PI / 2);
 		if (oState.oView.nRV > +(Math.PI / 2)) oState.oView.nRV = +(Math.PI / 2);
 	}
@@ -168,8 +170,11 @@ var vInput = function () {
 		oState.oView.pPosition[2] -= nMoveSpeed * pMoveDir[2];
 	}
 	
-	if (oI.iJustWheel()) {
-		console.log(oI.iJustWheel());
+	var iWheel = oI.iJustWheel();
+	if (iWheel) {
+		oState.nFOV *= Math.pow(2, -0.2 * iWheel);
+		oState.nFOV = Math.min(Math.max(oState.nFOV, 0.1), 160);
+		oState.mProjection = oG.mProjection(0.01, 99, oState.nFOV);
 	}
 	
 	oI.vStep();
