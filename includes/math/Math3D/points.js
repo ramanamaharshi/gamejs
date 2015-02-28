@@ -7,9 +7,9 @@ var Math3D = Math3D || {};
 
 /**
  * scalation
- * axisX = pPxP(axisY, axisZ)
- * axisX = pPxP(axisY, axisZ)
- * axisX = pPxP(axisY, axisZ)
+ * x = pPxP(y,z)
+ * y = pPxP(z,x)
+ * z = pPxP(x,y)
  */
 Math3D.pPxP = function (pA, pB) {
 	

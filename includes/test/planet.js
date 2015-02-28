@@ -103,7 +103,16 @@ var vInit = function (fOnReady) {
 	
 	//oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oMakeSphereAttributes(.2, 4)), Math3D.mTranslation([2,.5,2]));
 	
-	oState.oDpPointer = new DrawPackage(TestPackages.oPointer(oG), Math3D.mTranslation([0.5,0.5,0.5]));
+	var aCols = [[1,0,0], [0,1,0], [1,1,1]];
+	var mPos = Math3D.mTranslation([2,0.5,0.5])
+	
+	var aDirs = [[1,0,0], [0,1,0]];
+	aDirs.push(Math3D.pPxP(aDirs[0], aDirs[1]));
+	
+	oState.aDpPointers = [];
+	for (var iP = 0; iP < aDirs.length; iP ++) {
+		oState.aDpPointers.push(new DrawPackage(TestPackages.oPointer(oG, {aColor: aCols[iP], pDir: aDirs[iP]}), mPos));
+	}
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
@@ -219,7 +228,9 @@ var vDraw = function () {
 	
 	//oState.oDpSphere.vDraw();
 	
-	oState.oDpPointer.vDraw();
+	oState.aDpPointers.forEach(function(oDpPointer){
+		oDpPointer.vDraw();
+	});
 	
 };
 

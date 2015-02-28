@@ -53,6 +53,7 @@ var TestPackages = {
 		if (typeof oParams.nRadius == 'undefined') oParams.nRadius = oParams.nLength * 0.05;
 		if (typeof oParams.aColor == 'undefined') oParams.aColor = [1,1,1];
 		if (typeof oParams.aColorBottom == 'undefined') oParams.aColorBottom = [0,0,0];
+		if (typeof oParams.iBasePoints == 'undefined') oParams.iBasePoints = 5;
 		
 		oParams.pDir = Math3D.pNormalize(oParams.pDir);
 		
@@ -64,7 +65,7 @@ var TestPackages = {
 			var pTestDir = new Float32Array([0,0,0]);
 			pTestDir[iD] = 1;
 			var nDelta = Math3D.nLength(Math3D.pSub(oParams.pDir, pTestDir));
-			if (nDelta > nMaxDelta) {
+			if (nDelta < 1.9 && nDelta > nMaxDelta) {
 				nMaxDelta = nDelta;
 				pMaxDeltaDir = pTestDir;
 			}
@@ -73,8 +74,8 @@ var TestPackages = {
 		var pOrthoB = Math3D.pPxP(oParams.pDir, pOrthoA);
 		
 		var aBasePoints = [];
-		for (var iP = 0; iP < 3; iP ++) {
-			var nRadient = (2 * Math.PI / 3) * iP;
+		for (var iP = 0; iP < oParams.iBasePoints; iP ++) {
+			var nRadient = (2 * Math.PI / oParams.iBasePoints) * iP;
 			var pPoint = new Float32Array([0,0,0]);
 			pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.cos(nRadient) * oParams.nRadius, pOrthoA));
 			pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.sin(nRadient) * oParams.nRadius, pOrthoB));
@@ -92,10 +93,14 @@ var TestPackages = {
 			aColors.push(oParams.aColorBottom);
 		});
 		
-		var aIndices = [/*1,2,3,*/0,1,2,0,2,3,0,3,1];
+		var aIndices = [/*1,2,3,*/];
+		var iPrev = aPositions.length - 1;
+		for (var iP = 1; iP < aPositions.length; iP ++) {
+			aIndices.push(0, iP, iPrev);
+			iPrev = iP;
+		}
 		
 		oReturn = oG.oCreateAttributeBufferPackage({v4Position: aPositions, v3Color: aColors}, aIndices);
-console.log(oReturn);
 		
 		return oReturn;
 		
