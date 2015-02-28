@@ -3,7 +3,7 @@
 	
 	
 	
-	window.Graphics2D = function (oCanvas, iW, iH) {
+	window.Graphics2D = function (oCanvas) {
 		
 		var oG = this;
 		
@@ -11,24 +11,7 @@
 		
 		oG.o2D = oG.oCanvas.getContext("2d");
 		
-		oG.vSetBounds(iW, iH);
-		
 		oG.iDrawShift = 0;
-		
-	};
-	
-	
-	
-	
-	Graphics2D.prototype.vSetBounds = function (iW, iH) {
-		
-		var oG = this;
-		
-		oG.iW = iW;
-		oG.iH = iH;
-		
-		oG.oCanvas.width = iW;
-		oG.oCanvas.height = iH;
 		
 	};
 	
@@ -49,13 +32,6 @@
 		
 		return oImage;
 		
-	};
-	
-	
-	
-	
-	Graphics2D.prototype.vSetFont = function (sFont) {
-		this.o2D.font = sFont;
 	};
 	
 	
@@ -208,6 +184,31 @@
 	Graphics2D.prototype.vSetColor = function (sColor) {
 		this.o2D.strokeStyle = sColor;
 		this.o2D.fillStyle = sColor;
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.vSetFont = function (sFont) {
+		this.o2D.font = sFont;
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.iGetW = function () {
+		
+		return this.oCanvas.clientWidth;
+		
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.iGetH = function () {
+		
+		return this.oCanvas.clientHeight;
+		
 	};
 	
 	

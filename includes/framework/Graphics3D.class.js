@@ -3,7 +3,7 @@
 	
 	
 	
-	window.Graphics3D = function (oCanvas, iW, iH) {
+	window.Graphics3D = function (oCanvas) {
 		
 		var oG = this;
 		
@@ -11,12 +11,13 @@
 		
 		oG.o3D = oG.oCanvas.getContext("webgl");
 		
-		oG.vSetBounds(iW, iH);
+		oG.oTextureState = {iAtTexture: 0};
 		
-		oG.oTextureState = {iAtTexture: 0, aBoundTextures: []};
-		for (var iT = 0; iT < 30; iT ++) {
-			oG.oTextureState.aBoundTextures.push(null);
-		}
+		oG.iResizeIntervalID = null;
+		
+		oG.aOnResize = [];
+		
+		oG.vCheckResize(1000);
 		
 	};
 	
@@ -478,17 +479,73 @@
 	
 	
 	
-	Graphics3D.prototype.vSetBounds = function (iW, iH) {
+	Graphics3D.prototype.vOnResize = function (fFunc) {
 		
 		var oG = this;
 		
-		oG.iW = iW;
-		oG.iH = iH;
+		if (typeof fFunc == 'function') {
+			oG.aOnResize.push(fFunc);
+		} else {
+			oG.aOnResize.forEach(function(fFunc){
+				fFunc(oG.iViewPortW, oG.iViewPortH);
+			});
+		}
 		
-		oG.oCanvas.width = oG.iW;
-		oG.oCanvas.height = oG.iH;
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.vCheckResize = function (iIntervalMillis) {
 		
-		oG.o3D.viewport(0, 0, oG.iW, oG.iH);
+		var oG = this;
+		
+		if (oG.iGetW() != oG.iViewPortW || oG.iGetH() != oG.iViewPortH) {
+			oG.vUpdateViewPort();
+		}
+		
+		if (typeof iIntervalMillis != 'undefined') {
+			clearInterval(oG.iResizeIntervalID);
+			if (typeof iIntervalMillis == 'number' && iIntervalMillis) {
+				setInterval(function(){
+					oG.vCheckResize();
+				}, iIntervalMillis);
+			}
+		}
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.vUpdateViewPort = function () {
+		
+		var oG = this;
+		
+		oG.iViewPortW = oG.iGetW();
+		oG.iViewPortH = oG.iGetH();
+		
+		oG.o3D.viewport(0, 0, oG.iViewPortW, oG.iViewPortH);
+		
+		oG.vOnResize();
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.iGetW = function () {
+		
+		return this.oCanvas.clientWidth;
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.iGetH = function () {
+		
+		return this.oCanvas.clientHeight;
 		
 	};
 	

@@ -136,7 +136,7 @@ var vCalc = function () {
 var vDraw = function () {
 	
 	oG.vSetColor('#FFF');
-	oG.vFillRect(0, 0, oG.iW, oG.iH);
+	oG.vFillRect(0, 0, oG.iGetW(), oG.iGetH());
 	
 	var mGDM = oLA.mIdentity();
 	

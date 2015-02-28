@@ -86,7 +86,11 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(45, oG.iW / oG.iH, 0.01, 99);
+	oG.vOnResize(function(iNewW, iNewH){
+		oState.mProjection = oG.mProjection(45, iNewW / iNewH, 0.01, 99);
+console.log('projection updated', iNewW, iNewH);
+	});
+	oG.vOnResize();
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
@@ -105,8 +109,6 @@ var vInit = function (fOnReady) {
 	
 	oState.oPkBase = oG.oMakeTestPackage();
 	
-	oState.oPkTester = oG.oMakeTestPackage({nSize: 0.333});
-	
 	var oSphereAttrData = {
 		v3Color: [],
 		v4Position: [],
@@ -122,7 +124,7 @@ var vInit = function (fOnReady) {
 			if (Math.pow(2, iV) & iBits) aPush[iV] *= -1;
 			aTriangle.push(aPush);
 		}
-		var aTriangles = aRecTriangles([0,0,0], aTriangle, 6);
+		var aTriangles = aRecTriangles([0,0,0], aTriangle, 4);
 		var iTNr = -1;
 		aTriangles.forEach(function(aPoints){
 			iTNr ++;

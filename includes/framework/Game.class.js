@@ -16,10 +16,13 @@
 		oGame.oCanvas.style.margin = '10px';
 		oGame.oCanvas.style.border = '1px solid #ccc';
 		
+		oGame.oCanvas.width = iW;
+		oGame.oCanvas.height = iH;
+		
 		document.body.appendChild(oGame.oCanvas);
 		
 		var sGraphicsClass = (sGraphicsType == '3D' ? 'Graphics3D' : 'Graphics2D');
-		oGame.oG = new window[sGraphicsClass](oGame.oCanvas, iW, iH);
+		oGame.oG = new window[sGraphicsClass](oGame.oCanvas);
 		oGame.oI = new Input(oGame.oCanvas);
 		
 	};
