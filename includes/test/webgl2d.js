@@ -65,7 +65,7 @@ var vInit = function (fOnReady) {
 			aPositions.push([iSize * aCorners[iPrevC][0], iSize * aCorners[iPrevC][1]]);
 			iPrevC = iC;
 		}
-		var oFigure = oG.oCreateVertexPackage('dynamic', 'triangles', {
+		var oFigure = oG.oCreateAttributeBufferPackage('dynamic', 'triangles', {
 			v2Position: {aChunks: aPositions},
 			v3Color: {aChunks: aColors},
 		});

@@ -141,12 +141,12 @@ var vInit = function (fOnReady) {
 		});
 	}
 	
-	oState.oOldSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
+	oState.oOldSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateAttributeBufferPackage(oSphereAttrData)};
 	
 	delete oSphereAttrData.v3Corner;
 	
 	var oSphereStuff = oG.oAutoIndex(oSphereAttrData);
-	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereStuff.oAttributeData, oSphereStuff.aIndices)};
+	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateAttributeBufferPackage(oSphereStuff.oAttributeData, oSphereStuff.aIndices)};
 	
 	oI.vActivateMouseCapturing();
 	
@@ -274,7 +274,7 @@ var vDraw = function () {
 	
 	var pLookDir = Math3D.pMxP(mLook, new Float32Array([0,0,-1]));
 	
-	var oPkLookArrow = oG.oCreateVertexPackage({
+	var oPkLookArrow = oG.oCreateAttributeBufferPackage({
 		v4Position: {aChunks: [
 			[ 0 , +0.01 , 0 ],
 			[ 0 , -0.01 , 0 ],
@@ -320,7 +320,7 @@ var vDraw = function () {
 	//};
 	//oUniforms.mObject.vSet(Math3D.mMxM(Math3D.mRotationZ(oState.oOldSphere.nR), Math3D.mTranslation(oState.oOldSphere.pP)));
 	//oState.oOldSphere.oPk.oIndexBuffer = oBufferData;
-	//oG.vDrawVertexPackage(oState.oOldSphere.oPk);
+	//oG.vDrawAttributeBufferPackage(oState.oOldSphere.oPk);
 	
 };
 

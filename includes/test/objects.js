@@ -17,8 +17,7 @@ var vInit = function (fOnReady) {
 	//oGame.oCanvas.style.float = 'right';
 	
 	var oProgram = oG.oCreateProgram(
-		'
-///PARSE: multiline string begin
+		///PARSE: multiline string begin
 			
 			uniform mat4 mProjection;
 			uniform mat4 mView;
@@ -42,10 +41,11 @@ var vInit = function (fOnReady) {
 				v3FragCorner = v3Corner;
 			}
 			
-///PARSE: multiline string end
-		',
-		'
-///PARSE: multiline string begin
+		///PARSE: multiline string end
+		
+		,
+		
+		///PARSE: multiline string begin
 			
 			precision mediump float;
 			
@@ -81,15 +81,15 @@ var vInit = function (fOnReady) {
 				}
 			}
 			
-///PARSE: multiline string end
-		'
+		///PARSE: multiline string end
+		
 	);
 	
 	oG.vSetProgram(oProgram);
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(45, oG.iW / oG.iH, 0.01, 99);
+	oState.mProjection = oG.mProjection(45, oG.iGetW() / oG.iGetH(), 0.01, 99);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
@@ -149,7 +149,7 @@ var vInit = function (fOnReady) {
 	}
 console.log(oSphereAttrData);
 	
-	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateVertexPackage(oSphereAttrData)};
+	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateAttributeBufferPackage(oSphereAttrData)};
 	
 	oI.vActivateMouseCapturing();
 	
@@ -277,7 +277,7 @@ var vDraw = function () {
 	
 	var pLookDir = Math3D.pMxP(mLook, new Float32Array([0,0,-1]));
 	
-	var oPkLookArrow = oG.oCreateVertexPackage({
+	var oPkLookArrow = oG.oCreateAttributeBufferPackage({
 		v4Position: {aChunks: [
 			[ 0 , +0.01 , 0 ],
 			[ 0 , -0.01 , 0 ],

@@ -66,7 +66,7 @@ var vInit = function (fOnReady) {
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
 	
-	oState.mProjection = oG.mProjection(77, oG.iW / oG.iH, 0.01, 9);
+	oState.mProjection = oG.mProjection(77, oG.iGetW() / oG.iGetH(), 0.01, 9);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
@@ -101,7 +101,7 @@ var vInit = function (fOnReady) {
 			aPositions.push([iSize * aCorners[iPrevC][0] , iSize * aCorners[iPrevC][1] , iZ]);
 			iPrevC = iC;
 		}
-		var oFigure = oG.oCreateVertexPackage({
+		var oFigure = oG.oCreateAttributeBufferPackage({
 			v4Position: {aChunks: aPositions},
 			v3Color: {aChunks: aColors},
 		});
