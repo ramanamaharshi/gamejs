@@ -24,46 +24,6 @@
 	
 	
 	
-	Graphics3D.prototype.oMakeTestPackage = function (oParams) {
-		
-		var oG = this;
-		
-		if (typeof oParams == 'undefined') oParams = {};
-		if (typeof oParams.nSize == 'undefined') oParams.nSize = 1;
-		
-		var aColors = [];
-		var aPositions = [];
-		//var aDirColors = [[0,0,1],[0,1,0],[1,0,0]];
-		for (var iDir = 0; iDir < 3; iDir ++) {
-			for (var iCorner = 0; iCorner < 3; iCorner ++) {
-				var aPosition = [0,0,0];
-				//var aColor = aDirColors[iDir];
-				if (iCorner == iDir) {
-					aPosition[iCorner] = oParams.nSize;
-				} else {
-					aPosition[iCorner] = 0.1;
-				}
-				aPositions.push(aPosition);
-				aColors.push([aPosition[2], aPosition[1], aPosition[0]]);
-			}
-		}
-		
-		var oReturn = {
-			v4Position: aPositions,
-			v3Color: aColors,
-		};
-		
-		if (!oParams.bDataOnly) {
-			oReturn = oG.oCreateAttributeBufferPackage(oReturn);
-		}
-		
-		return oReturn;
-		
-	}
-	
-	
-	
-	
 	Graphics3D.prototype.oAutoIndex = function (oAttributeData) {
 		
 		var iVertices = 0;
@@ -164,9 +124,9 @@
 			if (iChunks) {
 				iChunkSize = aChunks[0].length;
 				aChunks.forEach(function(aChunk){
-					aChunk.forEach(function(mComponent){
-						aBufferData.push(mComponent);
-					});
+					for (var iC = 0; iC < aChunk.length; iC ++) {
+						aBufferData.push(aChunk[iC]);
+					}
 				});
 			}
 			oG.o3D.bufferData(oG.o3D.ARRAY_BUFFER, new Float32Array(aBufferData), oAttributeBufferPackage.iUsageConstant);
