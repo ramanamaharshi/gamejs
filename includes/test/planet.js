@@ -15,6 +15,8 @@ var vInit = function (fOnReady) {
 	document.body.style['text-align'] = 'center';
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
+	oG.o3D.enable(oG.o3D.CULL_FACE);
+	oG.o3D.cullFace(oG.o3D.BACK);
 	
 	var oProgram = oG.oCreateProgram(
 		
@@ -101,23 +103,16 @@ var vInit = function (fOnReady) {
 	
 	oState.oDpBase = new DrawPackage(TestPackages.oCoords(oG));
 	
-	//oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oMakeSphereAttributes(.2, 4)), Math3D.mTranslation([2,.5,2]));
+	oState.oDpCullTest = new DrawPackage(oG.oCreateAttributeBufferPackage({v4Position: [[1,0,0], [0,1,0], [0,0,1]], v3Color: [[0,0,1], [0,1,0], [1,0,0]]}));
 	
-	var aCols = [[1,0,0], [0,1,0], [1,1,1]];
-	var mPos = Math3D.mTranslation([2,0.5,0.5])
+	oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(Shapes.oSphere({iDepth: 4, nRadius: 0.2})), Math3D.mTranslation([2,.5,2]));
 	
-	var aDirs = [[1,0,0], [0,1,0]];
-	aDirs.push(Math3D.pPxP(aDirs[0], aDirs[1]));
-	
-	oState.aDpPointers = [];
-	for (var iP = 0; iP < aDirs.length; iP ++) {
-		oState.aDpPointers.push(new DrawPackage(TestPackages.oPointer(oG, {aColor: aCols[iP], pDir: aDirs[iP]}), mPos));
-	}
+	oState.oPlanet = {oConeTree: new ConeTree(2)};
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
 	oState.oView.nRH = 0;
-	oState.oView.pPosition = [2,0.5,3];
+	oState.oView.pPosition = [2,0.5,5];
 	oState.oView.mMakeMatrix = function(){
 		var oView = this;
 		var mTranslation = Math3D.mTranslation(Math3D.pNxP(-1, oView.pPosition));
@@ -226,11 +221,45 @@ var vDraw = function () {
 	
 	oState.oDpBase.vDraw();
 	
-	//oState.oDpSphere.vDraw();
+	var pRelPos = Math3D.pSub(oState.oView.pPosition, [2,.51,2]);
+	var oPlanetNode = oState.oPlanet.oConeTree.oGetLeaf(pRelPos);
 	
-	oState.aDpPointers.forEach(function(oDpPointer){
-		oDpPointer.vDraw();
+	var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
+	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
+		var oParent = oLeaf;
+		while (oParent.oParent) {
+			oParent = oParent.oParent;
+		}
+		var aColor = [0,0,0];
+		aColor[iLeafNr % 3] = 1;
+		aColor = [1,1,1];
+		if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
+			aColor = [1,0,0];
+		}
+		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
+		oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
 	});
+//console.log(oPlanetSphereAttributes);
+	
+	oState.oDpPlanetSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oPlanetSphereAttributes), Math3D.mTranslation([2,.51,2]));
+	
+	oState.oDpPlanetSphere.vDraw();
+	
+	//var pLookDir = Math3D.pMxP(mLook, [0,0,-1]);
+	//
+	//var aLookOrthos = Math3D.aMakeOrthogonals(pLookDir);
+	//
+	//var oDpLookPointer = new DrawPackage(TestPackages.oPointer(oG, {pDir: pLookDir, aColor: [1,1,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
+	//
+	//oDpLookX = new DrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[0], aColor: [0,0,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
+	//oDpLookY = new DrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[1], aColor: [0,1,0]}), Math3D.mTranslation([0.5,0.5,0.5]));
+	//
+	//oDpLookPointer.vDraw();
+	//
+	//oDpLookX.vDraw();
+	//oDpLookY.vDraw();
+	
+	oState.oDpCullTest.vDraw();
 	
 };
 
@@ -314,95 +343,6 @@ DrawPackage.prototype.vDraw = function () {
 	oDP.aSubPackages.forEach(function(oSubPackage){
 		oSubPackage.vDraw();
 	});
-	
-};
-
-
-
-
-var oMakeSphereAttributes = function (iRadius, iDepth) {
-	
-	var oSphereAttrData = {
-		v3Color: [],
-		v4Position: [],
-		v3Corner: [],
-	};
-	
-	var iSize = iRadius;
-	for (var iBits = 0; iBits < 8; iBits ++) {
-		var aTriangle = [];
-		for (var iV = 0; iV < 3; iV ++) {
-			var aPush = [0,0,0];
-			aPush[iV] = 1;
-			if (Math.pow(2, iV) & iBits) aPush[iV] *= -1;
-			aTriangle.push(aPush);
-		}
-		var aTriangles = aRecTriangles([0,0,0], aTriangle, iDepth);
-		var iTNr = -1;
-		aTriangles.forEach(function(aPoints){
-			iTNr ++;
-			var iCorner = -1;
-			aPoints.forEach(function(aPoint){
-				var aScaledPoint = [ iSize * aPoint[0] , iSize * aPoint[1] , iSize * aPoint[2] ];
-				oSphereAttrData.v4Position.push(aScaledPoint);
-				var aColor = [0,0,0];
-				if (iTNr % 4 == 0) {
-					aColor = [1,1,1];
-				} else {
-					aColor[(iTNr % 4) - 1] = 1;
-				}
-				oSphereAttrData.v3Color.push(aColor);
-				iCorner ++;
-				var aCorner = [0,0,0];
-				aCorner[iCorner] = 1;
-				oSphereAttrData.v3Corner.push(aCorner);
-			});
-		});
-	}
-	
-	return oSphereAttrData;
-	
-};
-
-
-
-
-var aRecTriangles = function (pCenter, aTriangle, iDepth) {
-	
-	if (iDepth == 0) return [aTriangle];
-	
-	var aPoints = [];
-	
-	for (var iV = 0; iV < 3; iV ++) {
-		var pV = aTriangle[iV];
-		var pNext = aTriangle[(iV + 1) % 3];
-		aPoints.push([pV[0], pV[1], pV[2]]);
-		var pBetween = [0,0,0];
-		for (var iI = 0; iI < 3; iI ++) {
-			pBetween[iI] = (pV[iI] + pNext[iI]) / 2;
-		}
-		pBetween = Math3D.pNormalize(pBetween);
-		pBetween = [pBetween[0],pBetween[1],pBetween[2]];
-		aPoints.push(pBetween);
-	}
-	
-	var aTriangles = [];
-	
-	aTriangles.push([aPoints[1], aPoints[3], aPoints[5]]);
-	for (var iV = 0; iV < 3; iV ++) {
-		aTriangles.push([aPoints[(2 * iV)], aPoints[(2 * iV + 1) % 6], aPoints[(2 * iV + 5) % 6]]);
-	}
-	
-	var aSubTriangles = [];
-	aTriangles.forEach(function(aTriangle){
-		aSubTs = aRecTriangles(pCenter, aTriangle, iDepth - 1);
-		aSubTs.forEach(function(aSubT){
-			aSubTriangles.push(aSubT);
-		});
-	});
-	aTriangles = aSubTriangles;
-	
-	return aTriangles;
 	
 };
 

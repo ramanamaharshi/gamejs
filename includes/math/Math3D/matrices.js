@@ -88,20 +88,6 @@ Math3D.mInverse = function (mM) {
 
 
 
-Math3D.mTraverse = function (mM) {
-	
-	return new Float32Array([
-		mM[ 0] , mM[ 4] , mM[ 8] , mM[12] ,
-		mM[ 1] , mM[ 5] , mM[ 9] , mM[13] ,
-		mM[ 2] , mM[ 6] , mM[10] , mM[14] ,
-		mM[ 3] , mM[ 7] , mM[11] , mM[15] ,
-	]);
-	
-};
-
-
-
-
 Math3D.mMxM = function (mA, mB) {
 	
 	var mReturn = new Float32Array(16);
@@ -156,6 +142,34 @@ Math3D.pMxP = function (mM, pP) {
 	pReturn[2] = mM[ 2] * pP[0] + mM[ 6] * pP[1] + mM[10] * pP[2] + mM[14];
 	
 	return pReturn;
+	
+};
+
+
+
+
+Math3D.mTraverse = function (mM) {
+	
+	return new Float32Array([
+		mM[ 0] , mM[ 4] , mM[ 8] , mM[12] ,
+		mM[ 1] , mM[ 5] , mM[ 9] , mM[13] ,
+		mM[ 2] , mM[ 6] , mM[10] , mM[14] ,
+		mM[ 3] , mM[ 7] , mM[11] , mM[15] ,
+	]);
+	
+};
+
+
+
+
+Math3D.mFromCoordinateSystem = function (pX, pY, pZ) {
+	
+	return new Float32Array([
+		pX[0] , pX[1] , pX[2] , 0 ,
+		pY[0] , pY[1] , pY[2] , 0 ,
+		pZ[0] , pZ[1] , pZ[2] , 0 ,
+		  0   ,   0   ,   0   , 1 ,
+	]);
 	
 };
 

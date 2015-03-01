@@ -59,26 +59,14 @@ var TestPackages = {
 		
 		var pTip = Math3D.pNxP(oParams.nLength, oParams.pDir);
 		
-		var nMaxDelta = 0;
-		var pMaxDeltaDir = null;
-		for (var iD = 0; iD < 3; iD ++) {
-			var pTestDir = new Float32Array([0,0,0]);
-			pTestDir[iD] = 1;
-			var nDelta = Math3D.nLength(Math3D.pSub(oParams.pDir, pTestDir));
-			if (nDelta < 1.9 && nDelta > nMaxDelta) {
-				nMaxDelta = nDelta;
-				pMaxDeltaDir = pTestDir;
-			}
-		}
-		var pOrthoA = Math3D.pPxP(oParams.pDir, pMaxDeltaDir);
-		var pOrthoB = Math3D.pPxP(oParams.pDir, pOrthoA);
+		var aOrthos = Math3D.aMakeOrthogonals(oParams.pDir);
 		
 		var aBasePoints = [];
 		for (var iP = 0; iP < oParams.iBasePoints; iP ++) {
 			var nRadient = (2 * Math.PI / oParams.iBasePoints) * iP;
 			var pPoint = new Float32Array([0,0,0]);
-			pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.cos(nRadient) * oParams.nRadius, pOrthoA));
-			pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.sin(nRadient) * oParams.nRadius, pOrthoB));
+			pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.cos(nRadient) * oParams.nRadius, aOrthos[0]));
+			pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.sin(nRadient) * oParams.nRadius, aOrthos[1]));
 			aBasePoints.push(pPoint);
 		}
 		
