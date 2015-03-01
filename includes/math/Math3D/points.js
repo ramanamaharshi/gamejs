@@ -6,7 +6,40 @@ var Math3D = Math3D || {};
 
 
 /**
- * scalation
+ * pP = pPxP(aR[0], aR[1]);
+ */
+Math3D.aMakeOrthogonals = function (pP) {
+	
+	var aReturn = [];
+	
+	var nMaxDiff = 0;
+	var pMaxDiffDir = null;
+	
+	for (var iD = 0; iD < 3; iD ++) {
+		var pDiffDir = new Float32Array([0,0,0]);
+		pDiffDir[iD] = 1;
+		var nDiff = 0;
+		for (var iI = 0; iI < 3; iI ++) {
+			nDiff = (pDiffDir[iI] - pP[iI]) * (pDiffDir[iI] - pP[iI]);
+		}
+		if (nDiff < 3.9 && nDiff > nMaxDiff) {
+			nMaxDiff = nDiff;
+			pMaxDiffDir = pDiffDir;
+		}
+	}
+	
+	aReturn.push(Math3D.pNormalize(Math3D.pPxP(pP, pMaxDiffDir)));
+	aReturn.push(Math3D.pNormalize(Math3D.pPxP(pP, aReturn[0])));
+	
+	return aReturn;
+	
+};
+
+
+
+
+/**
+ * cross product
  * x = pPxP(y,z)
  * y = pPxP(z,x)
  * z = pPxP(x,y)
