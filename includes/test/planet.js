@@ -103,9 +103,7 @@ var vInit = function (fOnReady) {
 	
 	oState.oDpBase = new DrawPackage(TestPackages.oCoords(oG));
 	
-	oState.oDpCullTest = new DrawPackage(oG.oCreateAttributeBufferPackage({v4Position: [[1,0,0], [0,1,0], [0,0,1]], v3Color: [[0,0,1], [0,1,0], [1,0,0]]}));
-	
-	//oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(Shapes.oSphere({iDepth: 4, nRadius: 0.2})), Math3D.mTranslation([2,.5,2]));
+	oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(Shapes.oSphere({iDepth: 4, nRadius: 0.2})), Math3D.mTranslation([2,.5,2]));
 	
 	oState.oPlanet = {oConeTree: new ConeTree(5)};
 	
@@ -227,33 +225,32 @@ var vDraw = function () {
 	
 	oState.oDpBase.vDraw();
 	
-	var pRelPos = Math3D.pSub(oState.oView.pPosition, [2,.51,2]);
-	var oCurrentLeaf = oState.oPlanet.oConeTree.oGetLeaf(pRelPos);
+	//var pRelPos = Math3D.pSub(oState.oView.pPosition, [2,.51,2]);
+	//var oCurrentLeaf = oState.oPlanet.oConeTree.oGetLeaf(pRelPos);
+	//
+	//var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
+	//oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
+	//	//var aColor = [1,1,1];
+	//	var aColor = [0,0,0];
+	//	var iColor = (iLeafNr + 1) % 4;
+	//	if (iColor == 3) {
+	//		aColor = [1,1,0];
+	//	} else {
+	//		aColor[iColor] = 1;
+	//	}
+	//	if (oLeaf == oCurrentLeaf) {
+	//		aColor = [1,1,1];
+	//	}
+	//	if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
+	//		aColor = [1,1,1];
+	//	}
+	//	oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
+	//	oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
+	//});
+	//
+	//oState.oDpPlanetSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oPlanetSphereAttributes), Math3D.mTranslation([2,.51,2]));
 	
-	var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
-	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
-		//var aColor = [1,1,1];
-		var aColor = [0,0,0];
-		var iColor = (iLeafNr + 1) % 4;
-		if (iColor == 3) {
-			aColor = [1,1,0];
-		} else {
-			aColor[iColor] = 1;
-		}
-		if (oLeaf == oCurrentLeaf) {
-			aColor = [1,1,1];
-		}
-		if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
-			aColor = [1,1,1];
-		}
-		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
-		oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
-	});
-//console.log(oPlanetSphereAttributes);
-	
-	oState.oDpPlanetSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oPlanetSphereAttributes), Math3D.mTranslation([2,.51,2]));
-	
-	oState.oDpPlanetSphere.vDraw();
+	oState.oDpSphere.vDraw();
 	
 	//var pLookDir = Math3D.pMxP(mLook, [0,0,-1]);
 	//
@@ -269,7 +266,7 @@ var vDraw = function () {
 	//oDpLookX.vDraw();
 	//oDpLookY.vDraw();
 	
-	oState.oDpCullTest.vDraw();
+	//oState.oDpCullTest.vDraw();
 	
 };
 

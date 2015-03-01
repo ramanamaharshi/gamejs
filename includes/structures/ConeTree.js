@@ -17,7 +17,7 @@ var ConeTree = function (iDepth) {
 			if (Math.pow(2, iI) & iBits) pPush[iI] *= -1;
 			aTriangle.push(pPush);
 		}
-		if (aTriangle[0][0] * aTriangle[1][1] * aTriangle[2][2] == -1) {
+		if (aTriangle[0][0] * aTriangle[1][1] * aTriangle[2][2] < 0) {
 			aTriangle = [aTriangle[2], aTriangle[1], aTriangle[0]];
 		}
 		oT.aBaseNodes.push(oT.oMakeNode(aTriangle, null, iDepth - 1));

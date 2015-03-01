@@ -104,6 +104,9 @@ Shapes.oSphere = function (oParams) {
 			if (Math.pow(2, iV) & iBits) aPush[iV] *= -1;
 			aTriangle.push(aPush);
 		}
+		if (aTriangle[0][0] * aTriangle[1][1] * aTriangle[2][2] < 0) {
+			aTriangle = [aTriangle[2], aTriangle[1], aTriangle[0]];
+		}
 		var aTriangles = aRecursive(aTriangle, oParams.iDepth);
 		var iTNr = -1;
 		aTriangles.forEach(function(aPoints){
