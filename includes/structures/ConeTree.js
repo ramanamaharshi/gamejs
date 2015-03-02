@@ -7,7 +7,8 @@ var ConeTree = function (iDepth) {
 	var oT = this;
 	
 	oT.aLeafs = [];
-	oT.aBaseNodes = [];
+	oT.aQuadrants = [];
+	oT.aLeafVectors = [];
 	
 	for (var iBits = 0; iBits < 8; iBits ++) {
 		var aTriangle = [];
@@ -20,8 +21,23 @@ var ConeTree = function (iDepth) {
 		if (aTriangle[0][0] * aTriangle[1][1] * aTriangle[2][2] < 0) {
 			aTriangle = [aTriangle[2], aTriangle[1], aTriangle[0]];
 		}
-		oT.aBaseNodes.push(oT.oMakeNode(aTriangle, null, iDepth - 1));
+		oT.aQuadrants.push(oT.oMakeNode(aTriangle, null, iDepth - 1));
 	}
+	
+	var oHashedLeafVectors = {};
+	oT.aLeafs.forEach(function(oLeaf){
+		oLeaf.aTriangle.forEach(function(pVector){
+			var sVectorHash = pVector[0] + ':' + pVector[1] + ':' + pVector[2];
+			if (typeof oHashedLeafVectors[sVectorHash] == 'undefined') {
+				var oNewVector = {pVector: pVector, aLeafs: []};
+				oHashedLeafVectors[sVectorHash] = oNewVector;
+				oT.aLeafVectors.push(oNewVector);
+			}
+			var oVector = oHashedLeafVectors[sVectorHash];
+			oLeaf.aVectors.push(oVector);
+			oVector.aLeafs.push(oLeaf);
+		});
+	});
 	
 };
 
@@ -68,6 +84,7 @@ ConeTree.prototype.oMakeNode = function (aTriangle, oParent, iMakeChildren) {
 	} else {
 		
 		oT.aLeafs.push(oNode);
+		oNode.aVectors = [];
 		oNode.bLeaf = true;
 		
 	}
@@ -83,11 +100,11 @@ ConeTree.prototype.oGetLeaf = function (pP) {
 	
 	var oT = this;
 	
-	var iBaseNodeNr = 0;
-	if (pP[0] < 0) iBaseNodeNr += 1;
-	if (pP[1] < 0) iBaseNodeNr += 2;
-	if (pP[2] < 0) iBaseNodeNr += 4;
-	var oNode = oT.aBaseNodes[iBaseNodeNr];
+	var iQuadrantNr = 0;
+	if (pP[0] < 0) iQuadrantNr += 1;
+	if (pP[1] < 0) iQuadrantNr += 2;
+	if (pP[2] < 0) iQuadrantNr += 4;
+	var oNode = oT.aQuadrants[iQuadrantNr];
 	
 	while (!oNode.bLeaf) {
 		var iChildNr = 0;

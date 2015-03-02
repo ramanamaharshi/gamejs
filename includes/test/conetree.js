@@ -245,6 +245,7 @@ var vDraw = function () {
 		if (oLeaf == oCurrentLeaf) {
 			aColor = [0,0,0];
 		}
+		
 		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
 	});
 	
