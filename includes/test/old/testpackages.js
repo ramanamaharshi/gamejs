@@ -99,9 +99,9 @@ var vInit = function (fOnReady) {
 	
 	//oState.mObject = Math3D.mIdentity();
 	
-	oState.oDpBase = new DrawPackage(TestPackages.oCoords(oG));
+	oState.oDpBase = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
 	
-	//oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oMakeSphereAttributes(.2, 4)), Math3D.mTranslation([2,.5,2]));
+	//oState.oDpSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oMakeSphereAttributes(.2, 4)), Math3D.mTranslation([2,.5,2]));
 	
 	var aCols = [[1,0,0], [0,1,0], [1,1,1]];
 	var mPos = Math3D.mTranslation([2,0.5,0.5])
@@ -111,7 +111,7 @@ var vInit = function (fOnReady) {
 	
 	oState.aDpPointers = [];
 	for (var iP = 0; iP < aDirs.length; iP ++) {
-		oState.aDpPointers.push(new DrawPackage(TestPackages.oPointer(oG, {aColor: aCols[iP], pDir: aDirs[iP]}), mPos));
+		oState.aDpPointers.push(oG.oCreateDrawPackage(TestPackages.oPointer(oG, {aColor: aCols[iP], pDir: aDirs[iP]}), mPos));
 	}
 	
 	oState.oView = {};
@@ -272,48 +272,6 @@ Puppet.prototype.vMove = function (nForwards, nSideways) {
 Puppet.prototype.vCorrectPosition = function () {
 	
 	var oP = this;
-	
-};
-
-
-
-
-var DrawPackage = function (oAttributeBufferPackage, mObject) {
-	
-	var oDP = this;
-	
-	oDP.aSubPackages = [];
-	
-	oDP.oUniforms = {};
-	oDP.oAttributeBufferPackage = oAttributeBufferPackage;
-	oDP.mObject = Math3D.mIdentity();
-	
-	if (typeof mObject != 'undefined')  oDP.mObject = mObject;
-	
-	oDP.oUserSpace = {};
-	
-};
-
-
-
-
-DrawPackage.prototype.vDraw = function () {
-	
-	var oDP = this;
-	
-	var oUniforms = oG.oCurrentProgram.oUniforms;
-	
-	for (var sKey in oDP.oUniforms) {
-		oUniforms[sKey].vSet(oDP.oUniforms[sKey]);
-	}
-	
-	oUniforms.mObject.vSet(oDP.mObject);
-	
-	oDP.oAttributeBufferPackage.vDraw();
-	
-	oDP.aSubPackages.forEach(function(oSubPackage){
-		oSubPackage.vDraw();
-	});
 	
 };
 

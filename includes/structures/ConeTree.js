@@ -84,9 +84,9 @@ ConeTree.prototype.oGetLeaf = function (pP) {
 	var oT = this;
 	
 	var iBaseNodeNr = 0;
-	for (var iP = 0; iP < 3; iP ++) {
-		if (pP[iP] < 0) iBaseNodeNr += Math.pow(2, iP);
-	}
+	if (pP[0] < 0) iBaseNodeNr += 1;
+	if (pP[1] < 0) iBaseNodeNr += 2;
+	if (pP[2] < 0) iBaseNodeNr += 4;
 	var oNode = oT.aBaseNodes[iBaseNodeNr];
 	
 	while (!oNode.bLeaf) {

@@ -101,9 +101,9 @@ var vInit = function (fOnReady) {
 	
 	//oState.mObject = Math3D.mIdentity();
 	
-	oState.oDpBase = new DrawPackage(TestPackages.oCoords(oG));
+	oState.oDpBase = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
 	
-	oState.oDpSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(Shapes.oSphere({iDepth: 4, nRadius: 0.2})), Math3D.mTranslation([2,.5,2]));
+	oState.oDpSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(Shapes.oSphere({iDepth: 4, nRadius: 0.2})), Math3D.mTranslation([2,.5,2]));
 	
 	oState.oPlanet = {oConeTree: new ConeTree(5)};
 	
@@ -248,7 +248,7 @@ var vDraw = function () {
 	//	oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
 	//});
 	//
-	//oState.oDpPlanetSphere = new DrawPackage(oG.oCreateAttributeBufferPackage(oPlanetSphereAttributes), Math3D.mTranslation([2,.51,2]));
+	//oState.oDpPlanetSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), Math3D.mTranslation([2,.51,2]));
 	
 	oState.oDpSphere.vDraw();
 	
@@ -256,10 +256,10 @@ var vDraw = function () {
 	//
 	//var aLookOrthos = Math3D.aMakeOrthogonals(pLookDir);
 	//
-	//var oDpLookPointer = new DrawPackage(TestPackages.oPointer(oG, {pDir: pLookDir, aColor: [1,1,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
+	//var oDpLookPointer = oG.oCreateDrawPackage(TestPackages.oPointer(oG, {pDir: pLookDir, aColor: [1,1,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
 	//
-	//oDpLookX = new DrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[0], aColor: [0,0,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
-	//oDpLookY = new DrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[1], aColor: [0,1,0]}), Math3D.mTranslation([0.5,0.5,0.5]));
+	//oDpLookX = oG.oCreateDrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[0], aColor: [0,0,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
+	//oDpLookY = oG.oCreateDrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[1], aColor: [0,1,0]}), Math3D.mTranslation([0.5,0.5,0.5]));
 	//
 	//oDpLookPointer.vDraw();
 	//
@@ -308,48 +308,6 @@ Puppet.prototype.vMove = function (nForwards, nSideways) {
 Puppet.prototype.vCorrectPosition = function () {
 	
 	var oP = this;
-	
-};
-
-
-
-
-var DrawPackage = function (oAttributeBufferPackage, mObject) {
-	
-	var oDP = this;
-	
-	oDP.aSubPackages = [];
-	
-	oDP.oUniforms = {};
-	oDP.oAttributeBufferPackage = oAttributeBufferPackage;
-	oDP.mObject = Math3D.mIdentity();
-	
-	if (typeof mObject != 'undefined')  oDP.mObject = mObject;
-	
-	oDP.oUserSpace = {};
-	
-};
-
-
-
-
-DrawPackage.prototype.vDraw = function () {
-	
-	var oDP = this;
-	
-	var oUniforms = oG.oCurrentProgram.oUniforms;
-	
-	for (var sKey in oDP.oUniforms) {
-		oUniforms[sKey].vSet(oDP.oUniforms[sKey]);
-	}
-	
-	oUniforms.mObject.vSet(oDP.mObject);
-	
-	oDP.oAttributeBufferPackage.vDraw();
-	
-	oDP.aSubPackages.forEach(function(oSubPackage){
-		oSubPackage.vDraw();
-	});
 	
 };
 

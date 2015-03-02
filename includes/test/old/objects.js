@@ -149,7 +149,7 @@ var vInit = function (fOnReady) {
 	}
 console.log(oSphereAttrData);
 	
-	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateAttributeBufferPackage(oSphereAttrData)};
+	oState.oSphere = {nR: 0, pP: [2,.5,2], oPk: oG.oCreateAttributeBufferGroup(oSphereAttrData)};
 	
 	oI.vActivateMouseCapturing();
 	
@@ -277,7 +277,7 @@ var vDraw = function () {
 	
 	var pLookDir = Math3D.pMxP(mLook, new Float32Array([0,0,-1]));
 	
-	var oPkLookArrow = oG.oCreateAttributeBufferPackage({
+	var oPkLookArrow = oG.oCreateAttributeBufferGroup({
 		v4Position: {aChunks: [
 			[ 0 , +0.01 , 0 ],
 			[ 0 , -0.01 , 0 ],

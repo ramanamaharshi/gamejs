@@ -101,7 +101,7 @@ var vInit = function (fOnReady) {
 			aPositions.push([iSize * aCorners[iPrevC][0] , iSize * aCorners[iPrevC][1] , iZ]);
 			iPrevC = iC;
 		}
-		var oFigure = oG.oCreateAttributeBufferPackage({
+		var oFigure = oG.oCreateAttributeBufferGroup({
 			v4Position: {aChunks: aPositions},
 			v3Color: {aChunks: aColors},
 		});

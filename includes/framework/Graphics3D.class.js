@@ -24,15 +24,193 @@
 	
 	
 	
-	Graphics3D.prototype.oAutoIndex = function (oAttributeData) {
+	Graphics3D.prototype.oCreateDrawPackage = function (oABG, mObject) {
+		
+		return new Graphics3D.DrawPackage(this, oABG, mObject);
+		
+	};
+	
+	
+	
+	
+	Graphics3D.DrawPackage = function (oG, oABG, mObject) {
+		
+		var oDP = this;
+		
+		oDP.oG = oG;
+		
+		oDP.oABG = oABG;
+		
+		oDP.mObject = Math3D.mIdentity();
+		if (typeof mObject != 'undefined')  oDP.mObject = mObject;
+		
+		oDP.oUniforms = {};
+		
+		oDP.aSubPackages = [];
+		
+		oDP.oUserSpace = {};
+		
+	};
+	
+	
+	
+	
+	Graphics3D.DrawPackage.prototype.vDraw = function () {
+		
+		var oDP = this;
+		
+		var oG = oDP.oG;
+		
+		var oUniforms = oG.oCurrentProgram.oUniforms;
+		
+		for (var sKey in oDP.oUniforms) {
+			oUniforms[sKey].vSet(oDP.oUniforms[sKey]);
+		}
+		
+		oUniforms.mObject.vSet(oDP.mObject);
+		
+		oDP.oABG.vDraw();
+		
+		oDP.aSubPackages.forEach(function(oSubPackage){
+			oSubPackage.vDraw();
+		});
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.oCreateAttributeBufferGroup = function (sUsage, sMode, oAttributeGroup, aIndices) {
+		
+		return new Graphics3D.AttributeBufferGroup(this, sUsage, sMode, oAttributeGroup, aIndices);
+		
+	};
+	Graphics3D.prototype.oCreateABG = Graphics3D.prototype.oCreateAttributeBufferGroup;
+	
+	
+	
+	
+	Graphics3D.AttributeBufferGroup = function (oG, sUsage, sMode, oAttributeGroup, aIndices) {
+		
+		var oAttributeBufferGroup = this;
+		
+		oAttributeBufferGroup.oG = oG;
+		
+		if (typeof sUsage == 'object'){
+			oAttributeGroup = sUsage;
+			if (typeof sMode == 'object') {
+				aIndices = sMode;
+			}
+			sMode = 'triangles';
+			sUsage = 'dynamic';
+		}
+		
+		oAttributeBufferGroup.iUsageConstant = oG.o3D[sUsage.toUpperCase() + '_DRAW'];
+		oAttributeBufferGroup.iModeConstant = oG.o3D[sMode.toUpperCase()];
+		
+		oAttributeBufferGroup.oAttributeFillers = {};
+		
+		for (var sAttribute in oAttributeGroup) {
+			
+			var gBuffer = oG.o3D.createBuffer();
+			oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, gBuffer);
+			
+			var oAttrData = oAttributeGroup[sAttribute]
+			if (typeof oAttrData.aChunks == 'undefined') {
+				oAttrData = {aChunks: oAttrData};
+			}
+			if (typeof oAttrData.sType == 'undefined') {
+				oAttrData.sType = 'float';
+			}
+			var sType = oAttrData.sType;
+			var aChunks = oAttrData.aChunks;
+			var iChunks = aChunks.length;
+			var iChunkSize = 1;
+			var aBufferData = [];
+			if (iChunks) {
+				iChunkSize = aChunks[0].length;
+				aChunks.forEach(function(aChunk){
+					for (var iC = 0; iC < aChunk.length; iC ++) {
+						aBufferData.push(aChunk[iC]);
+					}
+				});
+			}
+			oG.o3D.bufferData(oG.o3D.ARRAY_BUFFER, new Float32Array(aBufferData), oAttributeBufferGroup.iUsageConstant);
+			
+			oAttributeBufferGroup.oAttributeFillers[sAttribute] = {
+				sAttribute: sAttribute,
+				gBuffer: gBuffer,
+				iTypeConstant: oG.o3D[sType.toUpperCase()],
+				iNormalizedConstant: oG.o3D.FALSE,
+				iStride: 0,
+				iOffset: 0,
+				iChunks: iChunks,
+				iChunkSize: iChunkSize,
+			};
+			
+			oAttributeBufferGroup.iVertices = iChunks;
+			
+		}
+		
+		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
+		
+		oAttributeBufferGroup.oIndexBuffer = null;
+		if (typeof aIndices != 'undefined') {
+			var gIndexBuffer = oG.o3D.createBuffer();
+			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+			oG.o3D.bufferData(oG.o3D.ELEMENT_ARRAY_BUFFER, new Uint16Array(aIndices), oG.o3D.STATIC_DRAW);
+			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, null);
+			oAttributeBufferGroup.oIndexBuffer = {
+				gBuffer: gIndexBuffer,
+				iCount: aIndices.length,
+				iTypeConstant: oG.o3D.UNSIGNED_SHORT,
+				iModeConstant: oG.o3D[sMode.toUpperCase()],
+			};
+		}
+		
+	};
+	
+	
+	
+	
+	Graphics3D.AttributeBufferGroup.prototype.vDraw = function (oAttributeBufferGroup) {
+		
+		var oAttributeBufferGroup = this;
+		
+		var oG = oAttributeBufferGroup.oG;
+		
+		for (var sAttribute in oG.oCurrentProgram.oAttributes) {
+			var oAttributeFiller = null;
+			if (typeof oAttributeBufferGroup.oAttributeFillers[sAttribute] != 'undefined') {
+				var oAttributeFiller = oAttributeBufferGroup.oAttributeFillers[sAttribute];
+			}
+			oG.oCurrentProgram.oAttributes[sAttribute].vSet(oAttributeFiller);
+		}
+		
+		if (oAttributeBufferGroup.oIndexBuffer) {
+			var oIBD = oAttributeBufferGroup.oIndexBuffer;
+			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, oIBD.gBuffer);
+			oG.o3D.drawElements(oIBD.iModeConstant, oIBD.iCount, oIBD.iTypeConstant, 0);
+		} else {
+			oG.o3D.drawArrays(oAttributeBufferGroup.iModeConstant, 0, oAttributeBufferGroup.iVertices);
+		}
+		
+		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.oAutoIndex = function (oAttributeGroup) {
 		
 		var iVertices = 0;
 		var aAttributeKeys = [];
-		for (var sKey in oAttributeData) {
-			if (typeof oAttributeData[sKey].aChunks == 'undefined') {
-				oAttributeData[sKey] = {aChunks: oAttributeData[sKey]};
+		for (var sKey in oAttributeGroup) {
+			if (typeof oAttributeGroup[sKey].aChunks == 'undefined') {
+				oAttributeGroup[sKey] = {aChunks: oAttributeGroup[sKey]};
 			}
-			iVertices = oAttributeData[sKey].aChunks.length;
+			iVertices = oAttributeGroup[sKey].aChunks.length;
 			aAttributeKeys.push(sKey);
 		}
 		
@@ -43,7 +221,7 @@
 			var oVertex = {};
 			var aHash = [];
 			aAttributeKeys.forEach(function(sKey){
-				var mDatum = oAttributeData[sKey].aChunks[iV];
+				var mDatum = oAttributeGroup[sKey].aChunks[iV];
 				oVertex[sKey] = mDatum;
 				var aHashPart = [];
 				if (typeof mDatum.length != 'undefined') {
@@ -66,134 +244,18 @@
 		var oReturn = {
 			iVertices: aVertices.length,
 			aIndices: aIndices,
-			oAttributeData: {},
+			oAttributeGroup: {},
 		};
 		
 		aAttributeKeys.forEach(function(sKey){
 			var aKeyChunks = [];
-			oReturn.oAttributeData[sKey] = {aChunks: aKeyChunks};
+			oReturn.oAttributeGroup[sKey] = {aChunks: aKeyChunks};
 			aVertices.forEach(function(oVertex){
 				aKeyChunks.push(oVertex[sKey]);
 			});
 		});
 		
 		return oReturn;
-		
-	};
-	
-	
-	
-	
-	Graphics3D.prototype.oCreateAttributeBufferPackage = function (sUsage, sMode, oAttributeData, aIndices) {
-		
-		var oG = this;
-		
-		if (typeof sUsage == 'object'){
-			oAttributeData = sUsage;
-			if (typeof sMode == 'object') {
-				aIndices = sMode;
-			}
-			sMode = 'triangles';
-			sUsage = 'dynamic';
-		}
-		
-		var oAttributeBufferPackage = {};
-		
-		oAttributeBufferPackage.iUsageConstant = oG.o3D[sUsage.toUpperCase() + '_DRAW'];
-		oAttributeBufferPackage.iModeConstant = oG.o3D[sMode.toUpperCase()];
-		
-		oAttributeBufferPackage.oAttributeFillers = {};
-		
-		for (var sAttribute in oAttributeData) {
-			
-			var gBuffer = oG.o3D.createBuffer();
-			oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, gBuffer);
-			
-			var oAttrData = oAttributeData[sAttribute]
-			if (typeof oAttrData.aChunks == 'undefined') {
-				oAttrData = {aChunks: oAttrData};
-			}
-			if (typeof oAttrData.sType == 'undefined') {
-				oAttrData.sType = 'float';
-			}
-			var sType = oAttrData.sType;
-			var aChunks = oAttrData.aChunks;
-			var iChunks = aChunks.length;
-			var iChunkSize = 1;
-			var aBufferData = [];
-			if (iChunks) {
-				iChunkSize = aChunks[0].length;
-				aChunks.forEach(function(aChunk){
-					for (var iC = 0; iC < aChunk.length; iC ++) {
-						aBufferData.push(aChunk[iC]);
-					}
-				});
-			}
-			oG.o3D.bufferData(oG.o3D.ARRAY_BUFFER, new Float32Array(aBufferData), oAttributeBufferPackage.iUsageConstant);
-			
-			oAttributeBufferPackage.oAttributeFillers[sAttribute] = {
-				sAttribute: sAttribute,
-				gBuffer: gBuffer,
-				iTypeConstant: oG.o3D[sType.toUpperCase()],
-				iNormalizedConstant: oG.o3D.FALSE,
-				iStride: 0,
-				iOffset: 0,
-				iChunks: iChunks,
-				iChunkSize: iChunkSize,
-			};
-			
-			oAttributeBufferPackage.iVertices = iChunks;
-			
-		}
-		
-		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
-		
-		oAttributeBufferPackage.oIndexBuffer = null;
-		if (typeof aIndices != 'undefined') {
-			var gIndexBuffer = oG.o3D.createBuffer();
-			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, gIndexBuffer);
-			oG.o3D.bufferData(oG.o3D.ELEMENT_ARRAY_BUFFER, new Uint16Array(aIndices), oG.o3D.STATIC_DRAW);
-			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, null);
-			oAttributeBufferPackage.oIndexBuffer = {
-				gBuffer: gIndexBuffer,
-				iCount: aIndices.length,
-				iTypeConstant: oG.o3D.UNSIGNED_SHORT,
-				iModeConstant: oG.o3D[sMode.toUpperCase()],
-			};
-		}
-		
-		oAttributeBufferPackage.vDraw = function () {
-			oG.vDrawAttributeBufferPackage(oAttributeBufferPackage);
-		};
-		
-		return oAttributeBufferPackage;
-		
-	};
-	
-	
-	
-	
-	Graphics3D.prototype.vDrawAttributeBufferPackage = function (oAttributeBufferPackage) {
-		
-		var oG = this;
-		
-		for (var sAttribute in oG.oCurrentProgram.oAttributes) {
-			var oAttributeFiller = null;
-			if (typeof oAttributeBufferPackage.oAttributeFillers[sAttribute] != 'undefined') {
-				var oAttributeFiller = oAttributeBufferPackage.oAttributeFillers[sAttribute];
-			}
-			oG.oCurrentProgram.oAttributes[sAttribute].vSet(oAttributeFiller);
-		}
-		
-		if (oAttributeBufferPackage.oIndexBuffer) {
-			var oIBD = oAttributeBufferPackage.oIndexBuffer;
-			oG.o3D.bindBuffer(oG.o3D.ELEMENT_ARRAY_BUFFER, oIBD.gBuffer);
-			oG.o3D.drawElements(oIBD.iModeConstant, oIBD.iCount, oIBD.iTypeConstant, 0);
-		} else {
-			oG.o3D.drawArrays(oAttributeBufferPackage.iModeConstant, 0, oAttributeBufferPackage.iVertices);
-		}
-		
-		oG.o3D.bindBuffer(oG.o3D.ARRAY_BUFFER, null);
 		
 	};
 	
