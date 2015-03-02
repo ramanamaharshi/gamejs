@@ -224,6 +224,8 @@ Math3D.mRotation = function (pAxis, nR, sHandedness) {
 
 Math3D.mScalation = function (pS) {
 	
+	if (typeof pS == 'number') pS = [pS, pS, pS];
+	
 	return new Float32Array([
 		pS[0],0,0,0,
 		0,pS[1],0,0,

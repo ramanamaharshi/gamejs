@@ -26,19 +26,14 @@ var vInit = function (fOnReady) {
 			uniform mat4 mView;
 			uniform mat4 mObject;
 			
-			attribute vec4 v4Position;
 			attribute vec3 v3Color;
+			attribute vec4 v4Position;
 			
-			varying vec2 v2TexCoord;
 			varying vec3 v3FragColor;
-			varying vec3 v3FragNormal;
 			
 			void main() {
 				v3FragColor = v3Color;
 				gl_Position = mProjection * mView * mObject * v4Position;
-				v2TexCoord = vec2(v4Position[0], v4Position[1]);
-				float nNearZ = 11.0;
-				float nRangeZ = 8.0;
 			}
 			
 		///PARSE: multiline string end
@@ -49,24 +44,11 @@ var vInit = function (fOnReady) {
 			
 			precision mediump float;
 			
-			uniform sampler2D sSamplerA;
-			uniform sampler2D sSamplerB;
-			
-			varying vec2 v2TexCoord;
 			varying vec3 v3FragColor;
-			varying vec3 v3FragNormal;
 			
 			void main() {
-				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2));
-				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]);
 				gl_FragColor = vec4(v3FragColor, 1);
-				gl_FragColor *= gl_FragColor;
-				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) {
-					gl_FragColor *= texture2D(sSamplerA, v2TexC)[0];
-				}
-				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) {
-					gl_FragColor *= texture2D(sSamplerB, v2TexC);
-				}
+				//gl_FragColor *= gl_FragColor;
 			}
 			
 		///PARSE: multiline string end
@@ -75,12 +57,9 @@ var vInit = function (fOnReady) {
 	
 	oG.vSetProgram(oProgram);
 	
-	oState.nFOV = 45;
-	
 	oG.vOnResize(function(iNewW, iNewH){
-		oState.mProjection = oG.mProjection(0.01, 99, oState.nFOV);
+		oState.mProjection = oG.mProjection(0.01, 99, oState.oView.nFOV);
 	});
-	oG.vOnResize(1000);
 	
 	oState.oPkBase = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
 	
@@ -97,12 +76,6 @@ var vInit = function (fOnReady) {
 		} else {
 			aColor[iColor] = 1;
 		}
-		//if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
-		//	aColor = [1,1,1];
-		//}
-		//if (oLeaf == oCurrentLeaf) {
-		//	aColor = [0,0,0];
-		//}
 		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
 		oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
 	});
@@ -112,6 +85,7 @@ var vInit = function (fOnReady) {
 	oState.oView = {};
 	oState.oView.nRV = 0;
 	oState.oView.nRH = 0;
+	oState.oView.nFOV = 45;
 	oState.oView.pPosition = [2,0.5,5];
 	oState.oView.mMakeMatrix = function(){
 		var oView = this;
@@ -124,15 +98,9 @@ var vInit = function (fOnReady) {
 	
 	oI.vActivateMouseCapturing();
 	
-	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
+	oG.vOnResize(1000);
 	
-	oG.vLoadImages(oState.oImages, function(){
-		oState.oTextures = {};
-		for (var sKey in oState.oImages) {
-			oState.oTextures[sKey] = oG.oCreateTexture(oState.oImages[sKey]);
-		}
-		fOnReady();
-	});
+	fOnReady();
 	
 };
 
@@ -143,8 +111,8 @@ var vInput = function () {
 	
 	if (oI.bMouseCaptured) {
 		var nLookSpeed = 0.00005;
-		oState.oView.nRH += oState.nFOV * nLookSpeed * oI.oMouseMoved.iX;
-		oState.oView.nRV += oState.nFOV * nLookSpeed * oI.oMouseMoved.iY;
+		oState.oView.nRH += oState.oView.nFOV * nLookSpeed * oI.oMouseMoved.iX;
+		oState.oView.nRV += oState.oView.nFOV * nLookSpeed * oI.oMouseMoved.iY;
 		if (oState.oView.nRV < -(Math.PI / 2)) oState.oView.nRV = -(Math.PI / 2);
 		if (oState.oView.nRV > +(Math.PI / 2)) oState.oView.nRV = +(Math.PI / 2);
 	}
@@ -184,9 +152,9 @@ var vInput = function () {
 	
 	var iWheel = oI.iJustWheel();
 	if (iWheel) {
-		oState.nFOV *= Math.pow(2, -0.2 * iWheel);
-		oState.nFOV = Math.min(Math.max(oState.nFOV, 0.1), 160);
-		oState.mProjection = oG.mProjection(0.01, 99, oState.nFOV);
+		oState.oView.nFOV *= Math.pow(2, -0.2 * iWheel);
+		oState.oView.nFOV = Math.min(Math.max(oState.oView.nFOV, 0.1), 160);
+		oState.mProjection = oG.mProjection(0.01, 99, oState.oView.nFOV);
 	}
 	
 	oI.vStep();

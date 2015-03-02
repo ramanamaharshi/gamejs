@@ -7,6 +7,112 @@ var Shapes = {};
 
 
 
+Shapes.vTransform = function (oShape, mTransformation) {
+	
+	var aPositions = oShape.v4Position;
+	for (var iP = 0; iP < aPositions.length; iP ++) {
+		aPositions[iP] = Math3D.pMxP(mTransformation, aPositions[iP]);
+	}
+	
+};
+
+
+
+
+Shapes.oConcatenate = function (/* arguments */) {
+	
+	var oReturn = {};
+	
+	if (typeof arguments[0].length != 'undefined') {
+		var aShapes = arguments[0];
+	} else {
+		var aShapes = [];
+		for (var iI = 0; iI < arguments.length; iI ++) {
+			aShapes.push(arguments[iI]);
+		}
+	}
+	
+	for (var sKey in aShapes[0])  {
+		oReturn[sKey] = [];
+		aShapes.forEach(function(oShape){
+			oShape[sKey].forEach(function(pPoint){
+				oReturn[sKey].push(pPoint);
+			});
+		});
+	}
+	
+	return oReturn;
+	
+};
+
+
+
+
+Shapes.oPike = function (oParams) {
+	
+	oParams = Shapes.oParseParams(oParams, {
+		nRadius: 0.5,
+		nLength: 1,
+		iColumns: 5,
+		pDir: [0,1,0],
+		aColorTop: [1,1,1],
+		aColorBottom: [1,1,1],
+	});
+	
+	oParams.pDir = Math3D.pNormalize(oParams.pDir);
+	
+	var pTip = Math3D.pNxP(oParams.nLength, oParams.pDir);
+	
+	var aOrthos = Math3D.aMakeOrthogonals(oParams.pDir);
+	
+	var aBasePoints = [];
+	for (var iP = 0; iP < oParams.iColumns; iP ++) {
+		var nRadient = (2 * Math.PI / oParams.iColumns) * iP;
+		var pPoint = new Float32Array([0,0,0]);
+		pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.sin(nRadient) * oParams.nRadius, aOrthos[0]));
+		pPoint = Math3D.pAdd(pPoint, Math3D.pNxP(Math.cos(nRadient) * oParams.nRadius, aOrthos[1]));
+		aBasePoints.push(pPoint);
+	}
+	
+	var aColors = [];
+	var aPositions = [];
+	
+	aPositions.push([0,0,0]);
+	aColors.push(oParams.aColorBottom);
+	
+	aPositions.push(pTip);
+	aColors.push(oParams.aColorTop);
+	
+	aBasePoints.forEach(function(pPoint){
+		aPositions.push(pPoint);
+		aColors.push(oParams.aColorBottom);
+	});
+	
+	var aIndices = [/*1,2,3,*/];
+	var iPrev = aPositions.length - 1;
+	for (var iP = 2; iP < aPositions.length; iP ++) {
+		aIndices.push(0, iP, iPrev);
+		aIndices.push(1, iPrev, iP);
+		iPrev = iP;
+	}
+	
+	var oReturn = {
+		v3Color: [],
+		v4Position: [],
+	};
+	
+	aIndices.forEach(function(iIndex){
+		oReturn.v3Color.push(aColors[iIndex]);
+		oReturn.v4Position.push(aPositions[iIndex]);
+	});
+	
+	return oReturn;
+	
+};
+
+
+
+
 Shapes.oCylinder = function (oParams) {
 	
 	oParams = Shapes.oParseParams(oParams, {nRadius: 0.5, nHeight: 1, iColumns: 12, pDir: [0,1,0], aColor: 'colored'});
@@ -147,7 +253,7 @@ Shapes.oParseParams = function (oParams, oFallback) {
 		if (typeof oParams[sKey] == 'undefined') {
 			oParams[sKey] = oFallback[sKey];
 		} else if (typeof oFallback[sKey] == 'object' && oFallback[sKey] instanceof Object) {
-			oParams[sKey] = Shape.oParseParams(oParams[sKey], oFallback[sKey]);
+			oParams[sKey] = Shapes.oParseParams(oParams[sKey], oFallback[sKey]);
 		}
 	}
 	

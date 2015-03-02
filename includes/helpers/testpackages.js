@@ -88,7 +88,7 @@ var TestPackages = {
 			iPrev = iP;
 		}
 		
-		oReturn = oG.oCreateAttributeBufferGroup({v4Position: aPositions, v3Color: aColors}, aIndices);
+		var oReturn = oG.oCreateAttributeBufferGroup({v4Position: aPositions, v3Color: aColors}, aIndices);
 		
 		return oReturn;
 		

@@ -26,22 +26,14 @@ var vInit = function (fOnReady) {
 			uniform mat4 mView;
 			uniform mat4 mObject;
 			
-			attribute vec4 v4Position;
 			attribute vec3 v3Color;
-			attribute vec3 v3Corner;
+			attribute vec4 v4Position;
 			
-			varying vec2 v2TexCoord;
 			varying vec3 v3FragColor;
-			varying vec3 v3FragCorner;
-			varying vec3 v3FragNormal;
 			
 			void main() {
 				v3FragColor = v3Color;
 				gl_Position = mProjection * mView * mObject * v4Position;
-				v2TexCoord = vec2(v4Position[0], v4Position[1]);
-				float nNearZ = 11.0;
-				float nRangeZ = 8.0;
-				v3FragCorner = v3Corner;
 			}
 			
 		///PARSE: multiline string end
@@ -52,36 +44,11 @@ var vInit = function (fOnReady) {
 			
 			precision mediump float;
 			
-			uniform bool bOutline;
-			uniform sampler2D sSamplerA;
-			uniform sampler2D sSamplerB;
-			
-			varying vec2 v2TexCoord;
 			varying vec3 v3FragColor;
-			varying vec3 v3FragCorner;
-			varying vec3 v3FragNormal;
 			
 			void main() {
-				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2));
-				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]);
 				gl_FragColor = vec4(v3FragColor, 1);
-				gl_FragColor *= gl_FragColor;
-				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) {
-					gl_FragColor *= texture2D(sSamplerA, v2TexC)[0];
-				}
-				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) {
-					gl_FragColor *= texture2D(sSamplerB, v2TexC);
-				}
-				if (bOutline) {
-					if (v3FragCorner[0] < 0.03 || v3FragCorner[1] < 0.03 || v3FragCorner[2] < 0.03) {
-						gl_FragColor *= 0.0;//vec4(0,0,0,1);
-						discard;
-					}
-					if (v3FragCorner[0] < 0.04 || v3FragCorner[1] < 0.04 || v3FragCorner[2] < 0.04) {
-						//gl_FragColor *= 0.5;
-					}
-					//gl_FragColor *= v3FragCorner[0] * v3FragCorner[1] * v3FragCorner[2];
-				}
+				//gl_FragColor *= gl_FragColor;
 			}
 			
 		///PARSE: multiline string end
@@ -90,26 +57,69 @@ var vInit = function (fOnReady) {
 	
 	oG.vSetProgram(oProgram);
 	
-	oState.nFOV = 45;
-	
 	oG.vOnResize(function(iNewW, iNewH){
-		oState.mProjection = oG.mProjection(0.01, 99, oState.nFOV);
+		oState.mProjection = oG.mProjection(0.01, 99, oState.oView.nFOV);
 	});
-	oG.vOnResize(1000);
 	
-	//oState.mView = Math3D.mIdentity();
+	oState.oPkBase = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
 	
-	//oState.mObject = Math3D.mIdentity();
-	
-	oState.oDpBase = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
-	
-	oState.oDpSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(Shapes.oSphere({iDepth: 4, nRadius: 0.2})), Math3D.mTranslation([2,.5,2]));
+	oState.oPkCullTest = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup({v4Position: [[1,0,0], [0,1,0], [0,0,1]], v3Color: [[0,0,1], [0,1,0], [1,0,0]]}));
 	
 	oState.oPlanet = {oConeTree: new ConeTree(5)};
+	
+	var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
+	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
+		var aColor = [0,0,0];
+		var iColor = (iLeafNr + 1) % 4;
+		if (iColor == 3) {
+			aColor = [1,1,0];
+		} else {
+			aColor[iColor] = 1;
+		}
+		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
+		oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
+	});
+	
+	oState.oPkPlanetSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), Math3D.mTranslation([2,.5,2]));
+	
+	var oPuppet = {nSize: 0.5, oShapes: {}};
+	oPuppet.oShapes.oBody = Shapes.oPike({
+		nRadius: 1 / 6,
+		nLength: 1,
+		pDir: [0,0,1],
+		aColorTop: [1,1,1],
+		//aColorBottom: [.5,0,0],
+	});
+	Shapes.vTransform(oPuppet.oShapes.oBody, Math3D.mTranslation([0,0,-0.5]));
+	oPuppet.oShapes.oLeftArm = Shapes.oPike({
+		nRadius: 0.4 / 6,
+		nLength: 0.4,
+		pDir: [1,0,0],
+		aColorTop: [1,1,1],
+		//aColorBottom: [0,.5,0],
+	});
+	Shapes.vTransform(oPuppet.oShapes.oLeftArm, Math3D.mTranslation([-0.1,0.2,-0.2]));
+	oPuppet.oShapes.oRightArm = Shapes.oPike({
+		nRadius: 0.4 / 6,
+		nLength: 0.4,
+		pDir: [1,0,0],
+		aColorTop: [1,1,1],
+		//aColorBottom: [0,0,.5],
+	});
+	Shapes.vTransform(oPuppet.oShapes.oRightArm, Math3D.mTranslation([-0.1,-0.2,-0.2]));
+	
+	oPuppet.oShapes.oComplete = Shapes.oConcatenate(oPuppet.oShapes.oBody, oPuppet.oShapes.oLeftArm, oPuppet.oShapes.oRightArm);
+	
+	Shapes.vTransform(oPuppet.oShapes.oComplete, Math3D.mScalation(oPuppet.nSize));
+	
+	oState.oPkPuppet = oG.oCreateDrawPackage(oG.oCreateABG(oPuppet.oShapes.oComplete), Math3D.mTranslation([1,1,1]));
+	
+	oState.oPkPikeTest = oG.oCreateDrawPackage(oG.oCreateABG(Shapes.oPike({iColumns: 12})), Math3D.mTranslation([1,1,1]));
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
 	oState.oView.nRH = 0;
+	oState.oView.nFOV = 45;
 	oState.oView.pPosition = [2,0.5,5];
 	oState.oView.mMakeMatrix = function(){
 		var oView = this;
@@ -122,15 +132,9 @@ var vInit = function (fOnReady) {
 	
 	oI.vActivateMouseCapturing();
 	
-	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
+	oG.vOnResize(1000);
 	
-	oG.vLoadImages(oState.oImages, function(){
-		oState.oTextures = {};
-		for (var sKey in oState.oImages) {
-			oState.oTextures[sKey] = oG.oCreateTexture(oState.oImages[sKey]);
-		}
-		fOnReady();
-	});
+	fOnReady();
 	
 };
 
@@ -141,8 +145,8 @@ var vInput = function () {
 	
 	if (oI.bMouseCaptured) {
 		var nLookSpeed = 0.00005;
-		oState.oView.nRH += oState.nFOV * nLookSpeed * oI.oMouseMoved.iX;
-		oState.oView.nRV += oState.nFOV * nLookSpeed * oI.oMouseMoved.iY;
+		oState.oView.nRH += oState.oView.nFOV * nLookSpeed * oI.oMouseMoved.iX;
+		oState.oView.nRV += oState.oView.nFOV * nLookSpeed * oI.oMouseMoved.iY;
 		if (oState.oView.nRV < -(Math.PI / 2)) oState.oView.nRV = -(Math.PI / 2);
 		if (oState.oView.nRV > +(Math.PI / 2)) oState.oView.nRV = +(Math.PI / 2);
 	}
@@ -182,9 +186,9 @@ var vInput = function () {
 	
 	var iWheel = oI.iJustWheel();
 	if (iWheel) {
-		oState.nFOV *= Math.pow(2, -0.2 * iWheel);
-		oState.nFOV = Math.min(Math.max(oState.nFOV, 0.1), 160);
-		oState.mProjection = oG.mProjection(0.01, 99, oState.nFOV);
+		oState.oView.nFOV *= Math.pow(2, -0.2 * iWheel);
+		oState.oView.nFOV = Math.min(Math.max(oState.oView.nFOV, 0.1), 160);
+		oState.mProjection = oG.mProjection(0.01, 99, oState.oView.nFOV);
 	}
 	
 	oI.vStep();
@@ -223,50 +227,34 @@ var vDraw = function () {
 	
 	/// DRAW
 	
-	oState.oDpBase.vDraw();
+	oState.oPkBase.vDraw();
 	
-	//var pRelPos = Math3D.pSub(oState.oView.pPosition, [2,.51,2]);
-	//var oCurrentLeaf = oState.oPlanet.oConeTree.oGetLeaf(pRelPos);
-	//
-	//var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
-	//oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
-	//	//var aColor = [1,1,1];
-	//	var aColor = [0,0,0];
-	//	var iColor = (iLeafNr + 1) % 4;
-	//	if (iColor == 3) {
-	//		aColor = [1,1,0];
-	//	} else {
-	//		aColor[iColor] = 1;
-	//	}
-	//	if (oLeaf == oCurrentLeaf) {
-	//		aColor = [1,1,1];
-	//	}
-	//	if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
-	//		aColor = [1,1,1];
-	//	}
-	//	oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
-	//	oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
-	//});
-	//
-	//oState.oDpPlanetSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), Math3D.mTranslation([2,.51,2]));
+	var pRelPos = Math3D.pSub(oState.oView.pPosition, [2,.5,2]);
+	var oCurrentLeaf = oState.oPlanet.oConeTree.oGetLeaf(pRelPos);
 	
-	oState.oDpSphere.vDraw();
+	var oPlanetSphereAttributes = {v3Color: []};
+	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
+		var aColor = [0,0,0];
+		var iColor = (iLeafNr + 1) % 4;
+		if (iColor == 3) {
+			aColor = [1,1,0];
+		} else {
+			aColor[iColor] = 1;
+		}
+		if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
+			aColor = [1,1,1];
+		}
+		if (oLeaf == oCurrentLeaf) {
+			aColor = [0,0,0];
+		}
+		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
+	});
 	
-	//var pLookDir = Math3D.pMxP(mLook, [0,0,-1]);
-	//
-	//var aLookOrthos = Math3D.aMakeOrthogonals(pLookDir);
-	//
-	//var oDpLookPointer = oG.oCreateDrawPackage(TestPackages.oPointer(oG, {pDir: pLookDir, aColor: [1,1,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
-	//
-	//oDpLookX = oG.oCreateDrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[0], aColor: [0,0,1]}), Math3D.mTranslation([0.5,0.5,0.5]));
-	//oDpLookY = oG.oCreateDrawPackage(TestPackages.oPointer(oG, {pDir: aLookOrthos[1], aColor: [0,1,0]}), Math3D.mTranslation([0.5,0.5,0.5]));
-	//
-	//oDpLookPointer.vDraw();
-	//
-	//oDpLookX.vDraw();
-	//oDpLookY.vDraw();
+	oState.oPkPlanetSphere.oABG.vModify(oPlanetSphereAttributes);
 	
-	//oState.oDpCullTest.vDraw();
+	//oState.oPkPlanetSphere.vDraw();
+	
+	oState.oPkPuppet.vDraw();
 	
 };
 
