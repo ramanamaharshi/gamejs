@@ -37,6 +37,8 @@ ConeTree.prototype.oMakeNode = function (aTriangle, oParent, iMakeChildren) {
 	oNode.mO = Math3D.mFromCoordinateSystem(aTriangle[0], aTriangle[1], aTriangle[2]);
 	oNode.mS = Math3D.mInverse(oNode.mO);
 	
+	oNode.oUserSpace = {};
+	
 	if (iMakeChildren) {
 		
 		var aPoints = [];
@@ -66,7 +68,6 @@ ConeTree.prototype.oMakeNode = function (aTriangle, oParent, iMakeChildren) {
 	} else {
 		
 		oT.aLeafs.push(oNode);
-		oNode.oUserSpace = {};
 		oNode.bLeaf = true;
 		
 	}
