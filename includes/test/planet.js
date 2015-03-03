@@ -46,8 +46,7 @@ var vInit = function (fOnReady) {
 			varying vec3 v3FragColor;
 			
 			void main() {
-				gl_FragColor = vec4(v3FragColor, 1);
-				//gl_FragColor *= gl_FragColor;
+				gl_FragColor = vec4(v3FragColor * v3FragColor, 1);
 			}
 			
 		///PARSE: multiline string end
@@ -62,9 +61,11 @@ var vInit = function (fOnReady) {
 	
 	oState.oPkBase = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
 	
+	oState.oPkCamera = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
+	
 	/// create planet
 	
-	oState.oPlanet = {nRadius: 0.5, pPosition: [2,.5,2], oConeTree: new ConeTree(5)};
+	oState.oPlanet = {nRadius: 0.5, pPosition: [2,.5,2], oConeTree: new ConeTree(7)};
 	
 	var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
 	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
@@ -83,7 +84,11 @@ var vInit = function (fOnReady) {
 		);
 	});
 	
-	oState.oPlanet.oPk = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), Math3D.mTranslation(oState.oPlanet.pPosition));
+	oState.oPlanet.oPk = oG.oCreateDrawPackage(oG.oCreateABG(oPlanetSphereAttributes), Math3D.mTranslation(oState.oPlanet.pPosition));
+	
+	oState.oPlanet.mPlanetToWorld = function () {
+		return Math3D.mMxM(this.oPk.mObject, Math3D.mScalation(this.nRadius));
+	};
 	
 	/// create puppet
 	
@@ -111,7 +116,7 @@ var vInit = function (fOnReady) {
 	Shapes.vTransform(oPuppetShapes.oRightArm, Math3D.mTranslation([-0.1,-0.2,-0.2]));
 	oPuppetShapes.oComplete = Shapes.oConcatenate(oPuppetShapes.oBody, oPuppetShapes.oLeftArm, oPuppetShapes.oRightArm);
 	
-	oState.oPuppet = {nSize: 0.1, pP: [0,0,1], pDir: [1,0,0]};
+	oState.oPuppet = {nSize: 0.01, pP: [0,0,1], pDir: [1,0,0]};
 	
 	Shapes.vTransform(oPuppetShapes.oComplete, Math3D.mScalation(oState.oPuppet.nSize));
 	
@@ -133,32 +138,37 @@ var vInit = function (fOnReady) {
 	oState.oPuppet.vUpdate = function () {
 		var oPuppet = this;
 		oPuppet.mTranslationO = Math3D.mTranslation(oPuppet.pP);
-		//oPuppet.mTranslationS = Math3D.mTranslation(Math3D.pNxP(-1,oPuppet.pP));
 		var oCone = oPuppet.oGetCone();
 		var pX = oPuppet.pDir;
 		var pZ = oCone.pNormal;
 		var pY = Math3D.pNormalize(Math3D.pPxP(pZ, pX));
 		var pX = Math3D.pNormalize(Math3D.pPxP(pY, pZ));
 		oPuppet.mRotationO = Math3D.mFromCoordinateSystem(pX, pY, pZ);
-		//oPuppet.mRotationS = Math3D.mInverse(oPuppet.mRotationO);
 		oPuppet.pDir = pX;
-		//var mOnPlanet = Math3D.mMxM(oPuppet.mTranslationO, /*Math3D.mMxM(Math3D.mTranslation([0 , 0 , 0.5 * oPuppet.nSize]), */oPuppet.mRotationO));
 		var mOnPlanet = Math3D.mMxM(oPuppet.mTranslationO, oPuppet.mRotationO);
-		oPuppet.oPk.mObject = Math3D.mMxM(oState.oPlanet.oPk.mObject, Math3D.mMxM(Math3D.mScalation(oState.oPlanet.nRadius), mOnPlanet));
+		oPuppet.oPk.mObject = Math3D.mMxM(oState.oPlanet.mPlanetToWorld(), mOnPlanet);
+	};
+	
+	oState.oPuppet.mMakeView = function () {
+		var oPuppet = this;
+		if (typeof pTranslation == 'undefined') pTranslation = [0,0,0];
+		var mOnPlanet = Math3D.mMxM(oPuppet.mTranslationO, oPuppet.mRotationO);
+		
+		return Math3D.mInverse(Math3D.mMxM(oState.oPlanet.mPlanetToWorld(), mOnPlanet));
+		
+		var pViewDir = [1,0,0];
+		pViewDirOnPlanet = Math3D.pMxP(mOnPlanet, pViewDir);
+		var pViewZonPlanet = Math3D.pNxP(-1, pViewDir);
+		var pViewYonPlanet = oPuppet.oGetCone().pNormal;
+		var pViewXonPlanet = Math3D.pNormalize(Math3D.pPxP(pViewYonPlanet, pViewZonPlanet));
+		pViewZonPlanet = Math3D.pNormalize(Math3D.pPxP(pViewXonPlanet, pViewYonPlanet));
+		var mViewOnPlanet = Math3D.mFromCoordinateSystem(pViewXonPlanet, pViewZonPlanet, pViewZonPlanet);
+		var mView = Math3D.mInverse(Math3D.mMxM(oState.oPlanet.mPlanetToWorld(), mViewOnPlanet));
+		return mView;
 	};
 	
 	oState.oPuppet.oGetCone = function () {
 		return oState.oPlanet.oConeTree.oGetLeaf(this.pP);
-	};
-	
-	oState.oPuppet.mMakeView = function (pTranslation) {
-		var oPuppet = this;
-		if (typeof pTranslation == 'undefined') pTranslation = [0,0,0];
-		var mOnPlanet = Math3D.mMxM(oPuppet.mTranslationO, oPuppet.mRotationO);
-		var mObject = Math3D.mMxM(oState.oPlanet.oPk.mObject, Math3D.mMxM(Math3D.mScalation(oState.oPlanet.nRadius), mOnPlanet));
-		var mCamera = Math3D.mInverse(mObject);
-		mCamera = Math3D.mMxM(Math3D.mTranslation(Math3D.pNxP(-oPuppet.nSize, pTranslation)), mCamera);
-		return mCamera;
 	};
 	
 	oState.oPuppet.vUpdate();
@@ -264,7 +274,12 @@ var vInput = function () {
 
 
 
-var vCalc = function (iMillis) {};
+var vCalc = function (iMillis) {
+	
+	oState.oPlanet.oPk.mObject = Math3D.mMxM(oState.oPlanet.oPk.mObject, Math3D.mRotationY(0.001));
+	oState.oPuppet.vUpdate();
+	
+};
 
 
 
@@ -291,7 +306,17 @@ var vDraw = function () {
 	
 	oUniforms.mView.vSet(Math3D.mMxM(mInverseLook2, mTranslation));
 	
-	oUniforms.mView.vSet(oState.oPuppet.mMakeView([0,0,1]));
+	var mPuppetEyePosition = Math3D.mFromCoordinateSystem([0,-1,0], [0,0,1], [-1,0,0]);
+	
+	var mCameraOffset = Math3D.mMxM(Math3D.mRotationX(0.25), Math3D.mTranslation([0,0,5*oState.oPuppet.nSize]));
+	
+	var mRelativeCameraPosition = Math3D.mMxM(mPuppetEyePosition, mCameraOffset);
+	
+	var mMyCamera = Math3D.mMxM(Math3D.mInverse(mRelativeCameraPosition), oState.oPuppet.mMakeView());
+	
+	//oState.oPkCamera.mObject = Math3D.mInverse(mMyCamera);
+	
+	oUniforms.mView.vSet(mMyCamera);
 	
 	/// DRAW
 	
@@ -323,6 +348,8 @@ var vDraw = function () {
 	oState.oPlanet.oPk.vDraw();
 	
 	oState.oPuppet.oPk.vDraw();
+	
+	oState.oPkCamera.vDraw();
 	
 };
 
