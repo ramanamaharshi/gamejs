@@ -164,6 +164,12 @@ Math3D.mTraverse = function (mM) {
 
 Math3D.mFromCoordinateSystem = function (pX, pY, pZ) {
 	
+	if (typeof pY == 'undefined') {
+		pZ = pX[2];
+		pY = pX[1];
+		pX = pX[0];
+	}
+	
 	return new Float32Array([
 		pX[0] , pX[1] , pX[2] , 0 ,
 		pY[0] , pY[1] , pY[2] , 0 ,

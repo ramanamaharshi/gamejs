@@ -4,7 +4,6 @@
 var oGame = new Game(480, 360, '3D');
 var oG = oGame.oG;
 var oI = oGame.oI;
-
 var oState = {};
 
 
@@ -63,58 +62,99 @@ var vInit = function (fOnReady) {
 	
 	oState.oPkBase = oG.oCreateDrawPackage(TestPackages.oCoords(oG));
 	
-	oState.oPkCullTest = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup({v4Position: [[1,0,0], [0,1,0], [0,0,1]], v3Color: [[0,0,1], [0,1,0], [1,0,0]]}));
+	/// create planet
 	
-	oState.oPlanet = {oConeTree: new ConeTree(5)};
+	oState.oPlanet = {nRadius: 0.5, pPosition: [2,.5,2], oConeTree: new ConeTree(5)};
 	
 	var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
 	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
 		var aColor = [0,0,0];
 		var iColor = (iLeafNr + 1) % 4;
 		if (iColor == 3) {
-			aColor = [1,1,0];
+			aColor = [0,1,1];
 		} else {
 			aColor[iColor] = 1;
 		}
 		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
-		oPlanetSphereAttributes.v4Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
+		oPlanetSphereAttributes.v4Position.push(
+			Math3D.pNxP(oState.oPlanet.nRadius, oLeaf.aTriangle[0]),
+			Math3D.pNxP(oState.oPlanet.nRadius, oLeaf.aTriangle[1]),
+			Math3D.pNxP(oState.oPlanet.nRadius, oLeaf.aTriangle[2])
+		);
 	});
 	
-	oState.oPkPlanetSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), Math3D.mTranslation([2,.5,2]));
+	oState.oPlanet.oPk = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), Math3D.mTranslation(oState.oPlanet.pPosition));
 	
-	var oPuppet = {nSize: 0.5, oShapes: {}};
-	oPuppet.oShapes.oBody = Shapes.oPike({
+	/// create puppet
+	
+	var oPuppetShapes = {};
+	oPuppetShapes.oBody = Shapes.oPike({
 		nRadius: 1 / 6,
 		nLength: 1,
 		pDir: [0,0,1],
 		aColorTop: [1,1,1],
-		//aColorBottom: [.5,0,0],
 	});
-	Shapes.vTransform(oPuppet.oShapes.oBody, Math3D.mTranslation([0,0,-0.5]));
-	oPuppet.oShapes.oLeftArm = Shapes.oPike({
+	Shapes.vTransform(oPuppetShapes.oBody, Math3D.mTranslation([0,0,-0.5]));
+	oPuppetShapes.oLeftArm = Shapes.oPike({
 		nRadius: 0.4 / 6,
 		nLength: 0.4,
 		pDir: [1,0,0],
 		aColorTop: [1,1,1],
-		//aColorBottom: [0,.5,0],
 	});
-	Shapes.vTransform(oPuppet.oShapes.oLeftArm, Math3D.mTranslation([-0.1,0.2,-0.2]));
-	oPuppet.oShapes.oRightArm = Shapes.oPike({
+	Shapes.vTransform(oPuppetShapes.oLeftArm, Math3D.mTranslation([-0.1,0.2,-0.2]));
+	oPuppetShapes.oRightArm = Shapes.oPike({
 		nRadius: 0.4 / 6,
 		nLength: 0.4,
 		pDir: [1,0,0],
 		aColorTop: [1,1,1],
-		//aColorBottom: [0,0,.5],
 	});
-	Shapes.vTransform(oPuppet.oShapes.oRightArm, Math3D.mTranslation([-0.1,-0.2,-0.2]));
+	Shapes.vTransform(oPuppetShapes.oRightArm, Math3D.mTranslation([-0.1,-0.2,-0.2]));
+	oPuppetShapes.oComplete = Shapes.oConcatenate(oPuppetShapes.oBody, oPuppetShapes.oLeftArm, oPuppetShapes.oRightArm);
 	
-	oPuppet.oShapes.oComplete = Shapes.oConcatenate(oPuppet.oShapes.oBody, oPuppet.oShapes.oLeftArm, oPuppet.oShapes.oRightArm);
+	oState.oPuppet = {nSize: 0.25, pP: [0,0,1], pDir: [1,0,0]};
 	
-	Shapes.vTransform(oPuppet.oShapes.oComplete, Math3D.mScalation(oPuppet.nSize));
+	Shapes.vTransform(oPuppetShapes.oComplete, Math3D.mScalation(oState.oPuppet.nSize));
 	
-	oState.oPkPuppet = oG.oCreateDrawPackage(oG.oCreateABG(oPuppet.oShapes.oComplete), Math3D.mTranslation([1,1,1]));
+	oState.oPuppet.oPk = oG.oCreateDrawPackage(oG.oCreateABG(oPuppetShapes.oComplete));
 	
-	oState.oPkPikeTest = oG.oCreateDrawPackage(oG.oCreateABG(Shapes.oPike({iColumns: 12})), Math3D.mTranslation([1,1,1]));
+	oState.oPuppet.vTurn = function (nTurns) {
+		var oPuppet = this;
+		oPuppet.pDir = Math3D.pMxP(oPuppet.mRotationO,[Math.cos(2 * Math.PI * nTurns), Math.sin(2 * Math.PI * nTurns), 0]);
+		oPuppet.vUpdate();
+	};
+	
+	oState.oPuppet.vMove = function (pTranslation) {
+		var oPuppet = this;
+		oPuppet.pP = Math3D.pAdd(oPuppet.pP, Math3D.pMxP(oPuppet.mRotationO, pTranslation));
+		oPuppet.pP = Math3D.pNxP((1 + 0.5 * oPuppet.nSize) / Math3D.nLength(oPuppet.pP), oPuppet.pP);
+		oPuppet.vUpdate();
+	};
+	
+	oState.oPuppet.vUpdate = function () {
+		var oPuppet = this;
+		oPuppet.mTranslationO = Math3D.mTranslation(oPuppet.pP);
+		//oPuppet.mTranslationS = Math3D.mTranslation(Math3D.pNxP(-1,oPuppet.pP));
+		var oCone = oPuppet.oGetCone();
+		var pX = oPuppet.pDir;
+		var pZ = oCone.pNormal;
+		var pY = Math3D.pNormalize(Math3D.pPxP(pZ, pX));
+		var pX = Math3D.pNormalize(Math3D.pPxP(pY, pZ));
+		oPuppet.mRotationO = Math3D.mFromCoordinateSystem(pX, pY, pZ);
+		//oPuppet.mRotationS = Math3D.mInverse(oPuppet.mRotationO);
+		oPuppet.pDir = pX;
+		//var mOnPlanet = Math3D.mMxM(oPuppet.mTranslationO, /*Math3D.mMxM(Math3D.mTranslation([0 , 0 , 0.5 * oPuppet.nSize]), */oPuppet.mRotationO));
+		var mOnPlanet = Math3D.mMxM(oPuppet.mTranslationO, oPuppet.mRotationO);
+		oPuppet.oPk.mObject = Math3D.mMxM(oState.oPlanet.oPk.mObject, Math3D.mMxM(Math3D.mScalation(oState.oPlanet.nRadius), mOnPlanet));
+	};
+	
+	oState.oPuppet.oGetCone = function () {
+		return oState.oPlanet.oConeTree.oGetLeaf(this.pP);
+	};
+	
+	oState.oPuppet.vUpdate();
+	
+	oState.oPuppet.vMove([0,0,0]);
+	oState.oPuppet.vMove([1,0,0]);
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
@@ -191,6 +231,22 @@ var vInput = function () {
 		oState.mProjection = oG.mProjection(0.01, 99, oState.oView.nFOV);
 	}
 	
+	/// puppet
+	var nPuppetTurnSpeed = oState.oPuppet.nSize * 0.05;
+	var nPuppetMoveSpeed = oState.oPuppet.nSize * 0.05;
+	if (oI.bKey(37)) {
+		oState.oPuppet.vTurn(+nPuppetTurnSpeed);
+	}
+	if (oI.bKey(39)) {
+		oState.oPuppet.vTurn(-nPuppetTurnSpeed);
+	}
+	if (oI.bKey(38)) {
+		oState.oPuppet.vMove([+nPuppetMoveSpeed,0,0]);
+	}
+	if (oI.bKey(40)) {
+		oState.oPuppet.vMove([-nPuppetMoveSpeed,0,0]);
+	}
+	
 	oI.vStep();
 	
 };
@@ -229,32 +285,32 @@ var vDraw = function () {
 	
 	oState.oPkBase.vDraw();
 	
-	var pRelPos = Math3D.pSub(oState.oView.pPosition, [2,.5,2]);
-	var oCurrentLeaf = oState.oPlanet.oConeTree.oGetLeaf(pRelPos);
+	//var pRelPos = Math3D.pSub(oState.oView.pPosition, [2,.5,2]);
+	//var oCurrentLeaf = oState.oPlanet.oConeTree.oGetLeaf(pRelPos);
+	//
+	//var oPlanetSphereAttributes = {v3Color: []};
+	//oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
+	//	var aColor = [0,0,0];
+	//	var iColor = (iLeafNr + 1) % 4;
+	//	if (iColor == 3) {
+	//		aColor = [0,1,1];
+	//	} else {
+	//		aColor[iColor] = 1;
+	//	}
+	//	if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
+	//		aColor = [1,1,0];
+	//	}
+	//	if (oLeaf == oCurrentLeaf) {
+	//		aColor = [0,0,0];
+	//	}
+	//	oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
+	//});
+	//
+	//oState.oPlanet.oPk.oABG.vModify(oPlanetSphereAttributes);
 	
-	var oPlanetSphereAttributes = {v3Color: []};
-	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
-		var aColor = [0,0,0];
-		var iColor = (iLeafNr + 1) % 4;
-		if (iColor == 3) {
-			aColor = [1,1,0];
-		} else {
-			aColor[iColor] = 1;
-		}
-		if (oState.oPlanet.oConeTree.bInNode(oLeaf, pRelPos)) {
-			aColor = [1,1,1];
-		}
-		if (oLeaf == oCurrentLeaf) {
-			aColor = [0,0,0];
-		}
-		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
-	});
+	oState.oPlanet.oPk.vDraw();
 	
-	oState.oPkPlanetSphere.oABG.vModify(oPlanetSphereAttributes);
-	
-	//oState.oPkPlanetSphere.vDraw();
-	
-	oState.oPkPuppet.vDraw();
+	oState.oPuppet.oPk.vDraw();
 	
 };
 

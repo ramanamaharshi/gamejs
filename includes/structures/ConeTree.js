@@ -53,6 +53,14 @@ ConeTree.prototype.oMakeNode = function (aTriangle, oParent, iMakeChildren) {
 	oNode.mO = Math3D.mFromCoordinateSystem(aTriangle[0], aTriangle[1], aTriangle[2]);
 	oNode.mS = Math3D.mInverse(oNode.mO);
 	
+	oNode.pCenter = new Float32Array([
+		(aTriangle[0][0] + aTriangle[1][0] + aTriangle[2][0]) / 3,
+		(aTriangle[0][1] + aTriangle[1][1] + aTriangle[2][1]) / 3,
+		(aTriangle[0][2] + aTriangle[1][2] + aTriangle[2][2]) / 3,
+	]);
+	
+	oNode.pNormal = Math3D.pNormalize(oNode.pCenter);
+	
 	oNode.oUserSpace = {};
 	
 	if (iMakeChildren) {
