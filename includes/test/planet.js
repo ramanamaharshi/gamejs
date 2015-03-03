@@ -14,8 +14,8 @@ var vInit = function (fOnReady) {
 	document.body.style['text-align'] = 'center';
 	
 	oG.o3D.enable(oG.o3D.DEPTH_TEST);
-	oG.o3D.enable(oG.o3D.CULL_FACE);
-	oG.o3D.cullFace(oG.o3D.BACK);
+	//oG.o3D.enable(oG.o3D.CULL_FACE);
+	//oG.o3D.cullFace(oG.o3D.BACK);
 	
 	var oProgram = oG.oCreateProgram(
 		
@@ -111,7 +111,7 @@ var vInit = function (fOnReady) {
 	Shapes.vTransform(oPuppetShapes.oRightArm, Math3D.mTranslation([-0.1,-0.2,-0.2]));
 	oPuppetShapes.oComplete = Shapes.oConcatenate(oPuppetShapes.oBody, oPuppetShapes.oLeftArm, oPuppetShapes.oRightArm);
 	
-	oState.oPuppet = {nSize: 0.25, pP: [0,0,1], pDir: [1,0,0]};
+	oState.oPuppet = {nSize: 0.1, pP: [0,0,1], pDir: [1,0,0]};
 	
 	Shapes.vTransform(oPuppetShapes.oComplete, Math3D.mScalation(oState.oPuppet.nSize));
 	
@@ -151,10 +151,19 @@ var vInit = function (fOnReady) {
 		return oState.oPlanet.oConeTree.oGetLeaf(this.pP);
 	};
 	
+	oState.oPuppet.mMakeView = function (pTranslation) {
+		var oPuppet = this;
+		if (typeof pTranslation == 'undefined') pTranslation = [0,0,0];
+		var mOnPlanet = Math3D.mMxM(oPuppet.mTranslationO, oPuppet.mRotationO);
+		var mObject = Math3D.mMxM(oState.oPlanet.oPk.mObject, Math3D.mMxM(Math3D.mScalation(oState.oPlanet.nRadius), mOnPlanet));
+		var mCamera = Math3D.mInverse(mObject);
+		mCamera = Math3D.mMxM(Math3D.mTranslation(Math3D.pNxP(-oPuppet.nSize, pTranslation)), mCamera);
+		return mCamera;
+	};
+	
 	oState.oPuppet.vUpdate();
 	
 	oState.oPuppet.vMove([0,0,0]);
-	oState.oPuppet.vMove([1,0,0]);
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
@@ -232,19 +241,20 @@ var vInput = function () {
 	}
 	
 	/// puppet
-	var nPuppetTurnSpeed = oState.oPuppet.nSize * 0.05;
-	var nPuppetMoveSpeed = oState.oPuppet.nSize * 0.05;
+	var oPuppet = oState.oPuppet;
+	var nPuppetTurnSpeed = 0.01;
+	var nPuppetMoveSpeed = oPuppet.nSize * 0.05;
 	if (oI.bKey(37)) {
-		oState.oPuppet.vTurn(+nPuppetTurnSpeed);
+		oPuppet.vTurn(+nPuppetTurnSpeed);
 	}
 	if (oI.bKey(39)) {
-		oState.oPuppet.vTurn(-nPuppetTurnSpeed);
+		oPuppet.vTurn(-nPuppetTurnSpeed);
 	}
 	if (oI.bKey(38)) {
-		oState.oPuppet.vMove([+nPuppetMoveSpeed,0,0]);
+		oPuppet.vMove([+nPuppetMoveSpeed,0,0]);
 	}
 	if (oI.bKey(40)) {
-		oState.oPuppet.vMove([-nPuppetMoveSpeed,0,0]);
+		oPuppet.vMove([-nPuppetMoveSpeed,0,0]);
 	}
 	
 	oI.vStep();
@@ -280,6 +290,8 @@ var vDraw = function () {
 	var mInverseLook2 = Math3D.mInverse(mLook);
 	
 	oUniforms.mView.vSet(Math3D.mMxM(mInverseLook2, mTranslation));
+	
+	oUniforms.mView.vSet(oState.oPuppet.mMakeView([0,0,1]));
 	
 	/// DRAW
 	
