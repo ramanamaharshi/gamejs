@@ -21,7 +21,7 @@ var vInit = function (fOnReady) {
 			uniform mat4 mView; \n\
 			uniform mat4 mObject; \n\
 			\n\
-			attribute vec4 v4Position; \n\
+			attribute vec3 v3Position; \n\
 			attribute vec3 v3Color; \n\
 			\n\
 			varying vec3 v3FragColor; \n\
@@ -29,8 +29,8 @@ var vInit = function (fOnReady) {
 			\n\
 			void main() { \n\
 				v3FragColor = v3Color; \n\
-				gl_Position = mProjection * mView * mObject * v4Position; \n\
-				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
+				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0); \n\
+				v2TexCoord = vec2(v3Position[0], v3Position[1]); \n\
 				float nNearZ = 11.0; \n\
 				float nRangeZ = 8.0; \n\
 			} \n\
@@ -102,7 +102,7 @@ var vInit = function (fOnReady) {
 			iPrevC = iC;
 		}
 		var oFigure = oG.oCreateAttributeBufferGroup({
-			v4Position: {aChunks: aPositions},
+			v3Position: {aChunks: aPositions},
 			v3Color: {aChunks: aColors},
 		});
 		return oFigure;

@@ -24,7 +24,7 @@ var vInit = function (fOnReady) {
 			uniform mat4 mView;
 			uniform mat4 mObject;
 			
-			attribute vec4 v4Position;
+			attribute vec3 v3Position;
 			attribute vec3 v3Color;
 			attribute vec3 v3Corner;
 			
@@ -35,8 +35,8 @@ var vInit = function (fOnReady) {
 			
 			void main() {
 				v3FragColor = v3Color;
-				gl_Position = mProjection * mView * mObject * v4Position;
-				v2TexCoord = vec2(v4Position[0], v4Position[1]);
+				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0);
+				v2TexCoord = vec2(v3Position[0], v3Position[1]);
 				float nNearZ = 11.0;
 				float nRangeZ = 8.0;
 				v3FragCorner = v3Corner;
@@ -282,7 +282,7 @@ var oMakeSphereAttributes = function (iRadius, iDepth) {
 	
 	var oSphereAttrData = {
 		v3Color: [],
-		v4Position: [],
+		v3Position: [],
 		v3Corner: [],
 	};
 	
@@ -302,7 +302,7 @@ var oMakeSphereAttributes = function (iRadius, iDepth) {
 			var iCorner = -1;
 			aPoints.forEach(function(aPoint){
 				var aScaledPoint = [ iSize * aPoint[0] , iSize * aPoint[1] , iSize * aPoint[2] ];
-				oSphereAttrData.v4Position.push(aScaledPoint);
+				oSphereAttrData.v3Position.push(aScaledPoint);
 				var aColor = [0,0,0];
 				if (iTNr % 4 == 0) {
 					aColor = [1,1,1];

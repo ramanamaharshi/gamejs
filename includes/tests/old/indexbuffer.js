@@ -23,7 +23,7 @@ var vInit = function (fOnReady) {
 			uniform mat4 mView; \n\
 			uniform mat4 mObject; \n\
 			\n\
-			attribute vec4 v4Position; \n\
+			attribute vec3 v3Position; \n\
 			attribute vec3 v3Color; \n\
 			attribute vec3 v3Corner; \n\
 			\n\
@@ -34,8 +34,8 @@ var vInit = function (fOnReady) {
 			\n\
 			void main() { \n\
 				v3FragColor = v3Color; \n\
-				gl_Position = mProjection * mView * mObject * v4Position; \n\
-				v2TexCoord = vec2(v4Position[0], v4Position[1]); \n\
+				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0); \n\
+				v2TexCoord = vec2(v3Position[0], v3Position[1]); \n\
 				float nNearZ = 11.0; \n\
 				float nRangeZ = 8.0; \n\
 				v3FragCorner = v3Corner; \n\
@@ -110,7 +110,7 @@ var vInit = function (fOnReady) {
 	
 	var oSphereAttrData = {
 		v3Color: [],
-		v4Position: [],
+		v3Position: [],
 		v3Corner: [],
 	};
 	
@@ -130,7 +130,7 @@ var vInit = function (fOnReady) {
 			var iCorner = -1;
 			aPoints.forEach(function(aPoint){
 				var aScaledPoint = [ iSize * aPoint[0] , iSize * aPoint[1] , iSize * aPoint[2] ];
-				oSphereAttrData.v4Position.push(aScaledPoint);
+				oSphereAttrData.v3Position.push(aScaledPoint);
 				var aColor = [1,1,1];
 				oSphereAttrData.v3Color.push(aColor);
 				iCorner ++;
@@ -275,7 +275,7 @@ var vDraw = function () {
 	var pLookDir = Math3D.pMxP(mLook, new Float32Array([0,0,-1]));
 	
 	var oPkLookArrow = oG.oCreateAttributeBufferGroup({
-		v4Position: {aChunks: [
+		v3Position: {aChunks: [
 			[ 0 , +0.01 , 0 ],
 			[ 0 , -0.01 , 0 ],
 			[ 0 , 0 , -2 ],

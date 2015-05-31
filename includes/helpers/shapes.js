@@ -9,7 +9,7 @@ var Shapes = {};
 
 Shapes.vTransform = function (oShape, mTransformation) {
 	
-	var aPositions = oShape.v4Position;
+	var aPositions = oShape.v3Position;
 	for (var iP = 0; iP < aPositions.length; iP ++) {
 		aPositions[iP] = Math3D.pMxP(mTransformation, aPositions[iP]);
 	}
@@ -98,12 +98,12 @@ Shapes.oPike = function (oParams) {
 	
 	var oReturn = {
 		v3Color: [],
-		v4Position: [],
+		v3Position: [],
 	};
 	
 	aIndices.forEach(function(iIndex){
 		oReturn.v3Color.push(aColors[iIndex]);
-		oReturn.v4Position.push(aPositions[iIndex]);
+		oReturn.v3Position.push(aPositions[iIndex]);
 	});
 	
 	return oReturn;
@@ -118,7 +118,7 @@ Shapes.oCylinder = function (oParams) {
 	oParams = Shapes.oParseParams(oParams, {nRadius: 0.5, nHeight: 1, iColumns: 12, pDir: [0,1,0], aColor: 'colored'});
 	
 	var oAttributes = {
-		v4Position: [],
+		v3Position: [],
 		v3Color: [],
 	};
 	
@@ -139,7 +139,7 @@ Shapes.oCylinder = function (oParams) {
 	for (var iC = 0; iC < oParams.iColumns; iC ++) {
 		var aColumnPair = [aColumns[iC], aColumns[(iC + 1) % oParams.iColumns]];
 		for (var iE = 0; iE < 2; iE ++) {
-			oAttributes.v4Position.push(
+			oAttributes.v3Position.push(
 				Math3D.pAdd(aEnds[iE], aColumnPair[0]),
 				Math3D.pAdd(aEnds[iE], aColumnPair[1]),
 				aEnds[iE]
@@ -160,7 +160,7 @@ Shapes.oSphere = function (oParams) {
 	oParams = Shapes.oParseParams(oParams, {nRadius: 0.5, iDepth: 2, aColor: 'colored'});
 	
 	var oSphereAttrData = {
-		v4Position: [],
+		v3Position: [],
 		v3Color: [],
 	};
 	
@@ -223,7 +223,7 @@ Shapes.oSphere = function (oParams) {
 					oParams.nRadius * aPoint[1],
 					oParams.nRadius * aPoint[2],
 				];
-				oSphereAttrData.v4Position.push(aScaledPoint);
+				oSphereAttrData.v3Position.push(aScaledPoint);
 				var aColor = oParams.aColor;
 				if (aColor == 'colored') {
 					var aColor = [0,0,0];

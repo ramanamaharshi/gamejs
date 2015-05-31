@@ -26,13 +26,13 @@ var vInit = function (fOnReady) {
 			uniform mat4 mObject;
 			
 			attribute vec3 v3Color;
-			attribute vec4 v4Position;
+			attribute vec3 v3Position;
 			
 			varying vec3 v3FragColor;
 			
 			void main() {
 				v3FragColor = v3Color;
-				gl_Position = mProjection * mView * mObject * v4Position;
+				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0);
 			}
 			
 		///PARSE: multiline string end
@@ -67,7 +67,7 @@ var vInit = function (fOnReady) {
 	
 	oState.oPlanet = {nRadius: 0.5, pPosition: [2,.5,2], oConeTree: new ConeTree(7)};
 	
-	var oPlanetSphereAttributes = {v4Position: [], v3Color: []};
+	var oPlanetSphereAttributes = {v3Position: [], v3Color: []};
 	oState.oPlanet.oConeTree.aLeafs.forEach(function(oLeaf, iLeafNr){
 		var aColor = [0,0,0];
 		var iColor = (iLeafNr + 1) % 4;
@@ -77,7 +77,7 @@ var vInit = function (fOnReady) {
 			aColor[iColor] = 1;
 		}
 		oPlanetSphereAttributes.v3Color.push(aColor, aColor, aColor);
-		oPlanetSphereAttributes.v4Position.push(
+		oPlanetSphereAttributes.v3Position.push(
 			Math3D.pNxP(oState.oPlanet.nRadius, oLeaf.aTriangle[0]),
 			Math3D.pNxP(oState.oPlanet.nRadius, oLeaf.aTriangle[1]),
 			Math3D.pNxP(oState.oPlanet.nRadius, oLeaf.aTriangle[2])

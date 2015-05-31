@@ -26,13 +26,13 @@ var vInit = function (fOnReady) {
 			uniform mat4 mObject;
 			
 			attribute vec3 v3Color;
-			attribute vec4 v4Position;
+			attribute vec3 v3Position;
 			
 			varying vec3 v3FragColor;
 			
 			void main() {
 				v3FragColor = v3Color;
-				gl_Position = mProjection * mView * mObject * v4Position;
+				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0);
 			}
 			
 		/// PARSE: multiline string end
