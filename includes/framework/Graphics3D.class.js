@@ -303,14 +303,14 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateTexture = function (sImage) {
+	Graphics3D.prototype.oCreateTexture = function (dImage) {
 		
 		var oG = this;
 		
 		oG.oTextureState.iAtTexture ++;
 		
 		var oTexture = {
-			sImage: sImage,
+			dImage: dImage,
 			gTexture: null,
 			iBoundOn: oG.oTextureState.iAtTexture,
 		}
@@ -320,7 +320,7 @@
 		oG.o3D.activeTexture(oG.o3D['TEXTURE' + oTexture.iBoundOn]);
 		oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
 		
-		oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, oTexture.sImage);
+		oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, oTexture.dImage);
 		
 		oG.o3D.pixelStorei(oG.o3D.UNPACK_FLIP_Y_WEBGL, true);
 		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MIN_FILTER, oG.o3D.NEAREST);
