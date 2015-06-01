@@ -80,7 +80,7 @@ var vInit = function (fOnReady) {
 		oPlanetSphereAttributes.v3Position.push(oLeaf.aTriangle[0], oLeaf.aTriangle[1], oLeaf.aTriangle[2]);
 	});
 	
-	oState.oPkPlanetSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), Math3D.mTranslation([2,.5,2]));
+	oState.oPkPlanetSphere = oG.oCreateDrawPackage(oG.oCreateAttributeBufferGroup(oPlanetSphereAttributes), {mObject: Math3D.mTranslation([2,.5,2])});
 	
 	oState.oView = {};
 	oState.oView.nRV = 0;
