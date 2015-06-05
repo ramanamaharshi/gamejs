@@ -343,7 +343,7 @@
 		
 		var vOnImageLoad = function () {
 			iRemaining --;
-			if (!iRemaining) fOnReady();
+			if (!iRemaining) fOnReady(oImages);
 		};
 		
 		for (var sKey in oImages) {
