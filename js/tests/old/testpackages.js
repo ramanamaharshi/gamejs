@@ -111,7 +111,7 @@ var vInit = function (fOnReady) {
 	
 	oState.aDpPointers = [];
 	for (var iP = 0; iP < aDirs.length; iP ++) {
-		oState.aDpPointers.push(oG.oCreateDrawPackage(TestPackages.oPointer(oG, {aColor: aCols[iP], pDir: aDirs[iP]}), mPos));
+		oState.aDpPointers.push(oG.oCreateDrawPackage(TestPackages.oPointer(oG, {aColor: aCols[iP], pDir: aDirs[iP]}), {mObject: mPos}));
 	}
 	
 	oState.oView = {};

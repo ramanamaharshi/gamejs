@@ -24,20 +24,13 @@
 				return $aFiles;
 			}
 			
-			$aFilesInInclude = aListFiles('includes');
-			
-			$aIncludeFiles = array();
-			$aGameFiles = array();
-			$aTestFiles = array();
-			
-			foreach ($aFilesInInclude as $sFileInInclude) {
-				if (preg_match('#\.js$#', $sFileInInclude)) {
-					if (preg_match('#/games/#', $sFileInInclude)) {
-						$aGameFiles []= $sFileInInclude;
-					} else if (preg_match('#/tests/#', $sFileInInclude)) {
-						$aTestFiles []= $sFileInInclude;
-					} else {
-						$aIncludeFiles []= $sFileInInclude;
+			$aFolderContents = array();
+			foreach (array('lib', 'tests', 'games') as $sFolder) {
+				$aFolderContents[$sFolder] = array();
+				$aFiles = aListFiles('js/' . $sFolder);
+				foreach ($aFiles as $sFile)  {
+					if (preg_match('#\.js$#', $sFile)) {
+						$aFolderContents[$sFolder] []= $sFile;
 					}
 				}
 			}
@@ -45,6 +38,7 @@
 			$sMainFile = '';
 			if (isset($_REQUEST['game'])) {
 				$sGame = $_REQUEST['game'];
+				$aGameFiles = $aFolderContents['games'];
 				foreach ($aGameFiles as $sGameFile) {
 					if (preg_match('#/games/' . preg_quote($sGame) . '/#', $sGameFile)) {
 						if (preg_match('#/main\.js$#', $sGameFile)) {
@@ -57,6 +51,7 @@
 			}
 			if (isset($_REQUEST['test'])) {
 				$sTest = $_REQUEST['test'];
+				$aTestFiles = $aFolderContents['tests'];
 				foreach ($aTestFiles as $sTestFile) {
 					if (preg_match('/' . preg_quote($sTest) . '.js$/', $sTestFile)) {
 						$sMainFile = $sTestFile;
@@ -65,6 +60,7 @@
 			}
 			
 			$aIncludeScripts = array();
+			$aIncludeFiles = $aFolderContents['lib'];
 			foreach ($aIncludeFiles as $sIncludeFile) {
 				$aIncludeScripts []= '/' . $sIncludeFile;
 			}

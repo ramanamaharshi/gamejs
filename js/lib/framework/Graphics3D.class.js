@@ -24,30 +24,26 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateDrawPackage = function (oABG, mObject) {
+	Graphics3D.prototype.oCreateDrawPackage = function (oABG, oUniforms) {
 		
-		return new Graphics3D.DrawPackage(this, oABG, mObject);
+		return new Graphics3D.DrawPackage(this, oABG, oUniforms);
 		
 	};
 	
 	
 	
 	
-	Graphics3D.DrawPackage = function (oG, oABG, mObject) {
+	Graphics3D.DrawPackage = function (oG, oABG, oUniforms) {
 		
 		var oDP = this;
 		
+		if (typeof oUniforms == 'undefined') oUniforms = {};
+		if (typeof oUniforms.mObject == 'undefined') oUniforms.mObject = Math3D.mIdentity();
+		
 		oDP.oG = oG;
-		
 		oDP.oABG = oABG;
-		
-		oDP.mObject = Math3D.mIdentity();
-		if (typeof mObject != 'undefined')  oDP.mObject = mObject;
-		
-		oDP.oUniforms = {};
-		
+		oDP.oUniforms = oUniforms;
 		oDP.aSubPackages = [];
-		
 		oDP.oUserSpace = {};
 		
 	};
@@ -66,8 +62,6 @@
 		for (var sKey in oDP.oUniforms) {
 			oUniforms[sKey].vSet(oDP.oUniforms[sKey]);
 		}
-		
-		oUniforms.mObject.vSet(oDP.mObject);
 		
 		oDP.oABG.vDraw();
 		

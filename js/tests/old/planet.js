@@ -84,7 +84,7 @@ var vInit = function (fOnReady) {
 		);
 	});
 	
-	oState.oPlanet.oPk = oG.oCreateDrawPackage(oG.oCreateABG(oPlanetSphereAttributes), Math3D.mTranslation(oState.oPlanet.pPosition));
+	oState.oPlanet.oPk = oG.oCreateDrawPackage(oG.oCreateABG(oPlanetSphereAttributes), {mObject: Math3D.mTranslation(oState.oPlanet.pPosition)});
 	
 	oState.oPlanet.mPlanetToWorld = function () {
 		return Math3D.mMxM(this.oPk.mObject, Math3D.mScalation(this.nRadius));
