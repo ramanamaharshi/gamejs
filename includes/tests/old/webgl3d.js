@@ -119,6 +119,7 @@ var vInit = function (fOnReady) {
 	oG.vLoadImages(oState.oImages, function(){
 		oState.oTextures = {};
 		for (var sKey in oState.oImages) {
+console.log(oState.oImages[sKey]);
 			oState.oTextures[sKey] = oG.oCreateTexture(oState.oImages[sKey]);
 		}
 		fOnReady();
@@ -208,15 +209,15 @@ var vDraw = function () {
 	//oState.mObject = Math3D.mTranslation([1,1,1]);
 	//oState.mObject = Math3D.mRotationX(+0.1 * oState.nRotation);
 	
-	//oUniforms.mObject.vSet(oState.mObject);
-	//oUniforms.sSamplerB.vSet(oState.oTextures.oA);
-	//oUniforms.sSamplerA.vSet(null);
-	//oState.oPackageA.vDraw();
-	//
-	//oUniforms.mObject.vSet(oState.mObject);
-	//oUniforms.sSamplerB.vSet(oState.oTextures.oB);
-	//oUniforms.sSamplerA.vSet(oState.oTextures.oC);
-	//oState.oPackageB.vDraw();
+	oUniforms.mObject.vSet(oState.mObject);
+	oUniforms.sSamplerB.vSet(oState.oTextures.oA);
+	oUniforms.sSamplerA.vSet(null);
+	oState.oPackageA.vDraw();
+	
+	oUniforms.mObject.vSet(oState.mObject);
+	oUniforms.sSamplerB.vSet(oState.oTextures.oB);
+	oUniforms.sSamplerA.vSet(oState.oTextures.oC);
+	oState.oPackageB.vDraw();
 	
 	oUniforms.mObject.vSet(Math3D.mIdentity());
 	oState.oPackageC.vDraw();
