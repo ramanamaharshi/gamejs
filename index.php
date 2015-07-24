@@ -35,36 +35,36 @@
 				}
 			}
 			
-			$sMainFile = '';
-			if (isset($_REQUEST['game'])) {
-				$sGame = $_REQUEST['game'];
-				$aGameFiles = $aFolderContents['games'];
-				foreach ($aGameFiles as $sGameFile) {
-					if (preg_match('#/games/' . preg_quote($sGame) . '/#', $sGameFile)) {
-						if (preg_match('#/main\.js$#', $sGameFile)) {
-							$sMainFile = $sGameFile;
+			$aLibFiles = $aFolderContents['lib'];
+			
+			$sMainProgramFile = '';
+			$aProgramFiles = array();
+			if (isset($_REQUEST['game']) || isset($_REQUEST['test'])) {
+				$sProgramType = isset($_REQUEST['test']) ? 'test' : 'game';
+				$aTypeFolderFiles = $aFolderContents[$sProgramType . 's'];
+				$sProgramName = $_REQUEST[$sProgramType];
+				foreach ($aTypeFolderFiles as $sFile) {
+					$sProgramBase = '/' . $sProgramType . 's/' . preg_quote($sProgramName);
+					if (preg_match('#' . $sProgramBase . '/#', $sFile)) {
+						if (preg_match('#/main\.js$#', $sFile)) {
+							$sMainProgramFile = $sFile;
 						} else {
-							$aIncludeFiles []= $sGameFile;
+							$aProgramFiles []= $sFile;
 						}
+					} else if (preg_match('#' . $sProgramBase . '\.js#', $sFile)) {
+						$sMainProgramFile = $sFile;
 					}
 				}
 			}
-			if (isset($_REQUEST['test'])) {
-				$sTest = $_REQUEST['test'];
-				$aTestFiles = $aFolderContents['tests'];
-				foreach ($aTestFiles as $sTestFile) {
-					if (preg_match('/' . preg_quote($sTest) . '.js$/', $sTestFile)) {
-						$sMainFile = $sTestFile;
-					}
-				}
-			}
+			$aProgramFiles []= $sMainProgramFile;
 			
 			$aIncludeScripts = array();
-			$aIncludeFiles = $aFolderContents['lib'];
-			foreach ($aIncludeFiles as $sIncludeFile) {
-				$aIncludeScripts []= '/' . $sIncludeFile;
+			foreach ($aLibFiles as $sLibFile) {
+				$aIncludeScripts []= '/' . $sLibFile;
 			}
-			$aIncludeScripts []= '/' . $sMainFile;
+			foreach ($aProgramFiles as $sProgramFile) {
+				$aIncludeScripts []= '/' . $sProgramFile;
+			}
 			
 			echo "\n";
 			foreach ($aIncludeScripts as $sScript) {
