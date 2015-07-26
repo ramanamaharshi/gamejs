@@ -22,17 +22,15 @@
 		
 		var oG = this;
 		
-		if (typeof sBackgroundColor == 'undefined') sBackgroundColor = 'rgba(0,0,0,0)';
-		
 		var oBufferImage = document.createElement('canvas');
 		var oBufferGraphics = new Graphics2D(oBufferImage);
 		oBufferImage.width = iW;
 		oBufferImage.height = iH;
 		
-		var sColorStore = oBufferGraphics.o2D.fillStyle;
-		oBufferGraphics.o2D.fillStyle = sBackgroundColor;
-		oBufferGraphics.o2D.fillRect(0, 0, iW, iH);
-		oBufferGraphics.o2D.fillStyle = sColorStore;
+		if (sBackgroundColor) {
+			oBufferGraphics.o2D.fillStyle = sBackgroundColor;
+			oBufferGraphics.o2D.fillRect(0, 0, iW, iH);
+		}
 		
 		return oBufferGraphics;
 		
