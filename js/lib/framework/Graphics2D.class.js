@@ -18,9 +18,7 @@
 	
 	
 	
-	Graphics2D.prototype.oCreateBuffer = function (iW, iH, sBackgroundColor) {
-		
-		var oG = this;
+	Graphics2D.oCreateBuffer = function (iW, iH, sBackgroundColor) {
 		
 		var oBufferImage = document.createElement('canvas');
 		var oBufferGraphics = new Graphics2D(oBufferImage);
