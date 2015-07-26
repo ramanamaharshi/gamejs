@@ -22,6 +22,8 @@ var vInit = function () {
 	
 	oState.oEnvironment = new Environment();
 	
+	oState.oMousePosition = oI.oGetMousePosition();
+	
 };
 
 
@@ -30,8 +32,8 @@ var vInit = function () {
 var vInput = function () {
 	
 	if (oI.iButtonJustPressed(0)) {
-		var iLeafX = Math.floor((oI.oMouse.iX - oG.iW / 2) / iSCALE);
-		var iLeafY = Math.floor((oI.oMouse.iY - oG.iH / 2) / iSCALE);
+		var iLeafX = Math.floor((oState.oMousePos.iX - oG.iW / 2) / iSCALE);
+		var iLeafY = Math.floor((oState.oMousePos.iY - oG.iH / 2) / iSCALE);
 		oState.oSelectedLeaf = oState.oEnvironment.oTree.oGetLeaf(iLeafX, iLeafY, true);
 	}
 	
@@ -57,8 +59,8 @@ var vDraw = function () {
 	oG.vFillRect(0, 0, oG.iW, oG.iH);
 	
 	oG.vSetColor('#CCC');
-	oG.vDrawLine(0, oI.oMouse.iY, oG.iW, oI.oMouse.iY);
-	oG.vDrawLine(oI.oMouse.iX, 0, oI.oMouse.iX, oG.iH);
+	oG.vDrawLine(0, oState.oMousePos.iY, oG.iW, oState.oMousePos.iY);
+	oG.vDrawLine(oState.oMousePos.iX, 0, oState.oMousePos.iX, oG.iH);
 	
 	oG.vSetColor('#F44');
 	var oDrawNode = oState.oSelectedLeaf;
