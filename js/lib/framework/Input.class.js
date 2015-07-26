@@ -21,6 +21,33 @@
 	
 	
 	
+	Input.prototype.oGetMousePos = function () {
+		
+		return this.oMouse.oPos;
+		
+	};
+	
+	
+	
+	
+	Input.prototype.oGetMousePrev = function () {
+		
+		return this.oMouse.oPrev;
+		
+	};
+	
+	
+	
+	
+	Input.prototype.oGetMouseMoved = function () {
+		
+		return this.oMouse.oMoved;
+		
+	};
+	
+	
+	
+	
 	Input.prototype.vActivateMouseCapturing = function (fOnChange) {
 		
 		var oI = this;
@@ -109,8 +136,10 @@
 		oI.iMouseCorrectionX = 0;
 		oI.iMouseCorrectionY = 0;
 		
-		oI.oMouse = {iX: 0, iY: 0};
-		oI.oMouseMoved = {iX: 0, iY: 0};
+		oI.oMouse = {};
+		oI.oMouse.oPos = {iX: 0, iY: 0};
+		oI.oMouse.oPrev = {iX: 0, iY: 0};
+		oI.oMouse.oMoved = {iX: 0, iY: 0};
 		oI.oMouse.oPressedButtons = {};
 		oI.oMouse.aJustPressedButtons = [];
 		oI.oMouse.aJustReleasedButtons = [];
@@ -121,14 +150,14 @@
 			var iNewMouseX = oI.iMouseCorrectionX - oCanvasOffset.iX + oEvent.clientX;
 			var iNewMouseY = oI.iMouseCorrectionY - oCanvasOffset.iY + oEvent.clientY;
 			if (oI.bMouseCaptured) {
-				oI.oMouseMoved.iX += oEvent[oI.oPointerLock.sMovementX];
-				oI.oMouseMoved.iY += oEvent[oI.oPointerLock.sMovementY];
+				oI.oMouse.oMoved.iX += oEvent[oI.oPointerLock.sMovementX];
+				oI.oMouse.oMoved.iY += oEvent[oI.oPointerLock.sMovementY];
 			} else {
-				oI.oMouseMoved.iX += iNewMouseX - oI.oMouse.iX;
-				oI.oMouseMoved.iY += iNewMouseY - oI.oMouse.iY;
+				oI.oMouse.oMoved.iX += iNewMouseX - oI.oMouse.oPos.iX;
+				oI.oMouse.oMoved.iY += iNewMouseY - oI.oMouse.oPos.iY;
 			}
-			oI.oMouse.iX = iNewMouseX;
-			oI.oMouse.iY = iNewMouseY;
+			oI.oMouse.oPos.iX = iNewMouseX;
+			oI.oMouse.oPos.iY = iNewMouseY;
 		});
 		oI.oCanvas.addEventListener('mousedown', function(oEvent){
 			var iButton = oEvent.button;
@@ -192,7 +221,7 @@
 	
 	Input.prototype.bButton = function (iButton) {
 		
-		return (iKey in this.oMouse.oPressedButtons);
+		return (iButton in this.oMouse.oPressedButtons);
 		
 	};
 	
@@ -263,8 +292,11 @@
 		
 		var oI = this;
 		
-		oI.oMouseMoved.iX = 0;
-		oI.oMouseMoved.iY = 0;
+		oI.oMouse.oPrev.iX = oI.oMouse.oPos.iX;
+		oI.oMouse.oPrev.iY = oI.oMouse.oPos.iY;
+		
+		oI.oMouse.oMoved.iX = 0;
+		oI.oMouse.oMoved.iY = 0;
 		
 		oI.aJustPressedKeys = [];
 		oI.aJustReleasedKeys = [];
