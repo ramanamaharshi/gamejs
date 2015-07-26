@@ -7,11 +7,34 @@
 		
 		var oG = this;
 		
-		oG.oCanvas = oCanvas
+		oG.oCanvas = oCanvas;
 		
 		oG.o2D = oG.oCanvas.getContext("2d");
 		
 		oG.iDrawShift = 0;
+		
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.oCreateBuffer = function (iW, iH, sBackgroundColor) {
+		
+		var oG = this;
+		
+		if (typeof sBackgroundColor == 'undefined') sBackgroundColor = 'rgba(0,0,0,0)';
+		
+		var oBufferImage = document.createElement('canvas');
+		var oBufferGraphics = new Graphics2D(oBufferImage);
+		oBufferImage.width = iW;
+		oBufferImage.height = iH;
+		
+		var sColorStore = oBufferGraphics.o2D.fillStyle;
+		oBufferGraphics.o2D.fillStyle = sBackgroundColor;
+		oBufferGraphics.o2D.fillRect(0, 0, iW, iH);
+		oBufferGraphics.o2D.fillStyle = sColorStore;
+		
+		return oBufferGraphics;
 		
 	};
 	
@@ -26,7 +49,7 @@
 		oImage.bReady = true;
 		oImage.onload = function () {
 			oImage.bReady = true;
-			if (typeof vCallback == 'function') vCallback();
+			if (typeof vCallback == 'function') vCallback(oImage);
 		}
 		oImage.src = sSrc;
 		
@@ -174,8 +197,13 @@
 	
 	
 	
-	Graphics2D.prototype.vDrawImage = function (oImage, iX, iY) {
-		this.o2D.drawImage(oImage, iX, iY);
+	Graphics2D.prototype.vDrawBuffer = function (oBuffer, iX, iY, iW, iH) {
+		return this.vDrawImage(oBuffer.oCanvas, iX, iY, iW, iH);
+	};
+	Graphics2D.prototype.vDrawImage = function (oImage, iX, iY, iW, iH) {
+		if (typeof iW == 'undefined') iW = oImage.width;
+		if (typeof iH == 'undefined') iH = oImage.width;
+		this.o2D.drawImage(oImage, 0, 0, oImage.width, oImage.height, iX, iY, iW, iH);
 	};
 	
 	
