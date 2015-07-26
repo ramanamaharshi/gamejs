@@ -153,7 +153,7 @@
 	
 	
 	Graphics2D.prototype.vDrawDot = function (nX, nY) {
-		if (typeof nX == 'object') nY = nX[1]; nX = nX[0];
+		if (typeof nX == 'object') { nY = nX[1]; nX = nX[0]; }
 		this.vFillRect(nX, nY, 1, 1);
 	};
 	
@@ -208,6 +208,15 @@
 	Graphics2D.prototype.iGetH = function () {
 		
 		return this.oCanvas.clientHeight;
+		
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.aGetPixelColor = function (iPixelX, iPixelY) {
+		
+		return this.o2D.getImageData(iPixelX, iPixelY, 1, 1).data;
 		
 	};
 	
