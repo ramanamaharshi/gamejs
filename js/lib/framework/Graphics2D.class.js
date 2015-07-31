@@ -10,6 +10,7 @@
 		oG.oCanvas = oCanvas;
 		
 		oG.o2D = oG.oCanvas.getContext("2d");
+oG.o2D.imageSmoothingEnabled = false;
 		
 		oG.iDrawShift = 0;
 		
@@ -193,13 +194,26 @@
 	
 	
 	
-	Graphics2D.prototype.vDrawBuffer = function (oBuffer, iX, iY, iW, iH) {
-		return this.vDrawImage(oBuffer.oCanvas, iX, iY, iW, iH);
+	Graphics2D.prototype.vDrawBuffer = function (oBuffer, iX, iY, iW, iH, bSmoothing) {
+		return this.vDrawImage(oBuffer.oCanvas, iX, iY, iW, iH, bSmoothing);
 	};
-	Graphics2D.prototype.vDrawImage = function (oImage, iX, iY, iW, iH) {
+	Graphics2D.prototype.vDrawImage = function (oImage, iX, iY, iW, iH, bSmoothing) {
+		this.vSetImageSmoothing(bSmoothing);
 		if (typeof iW == 'undefined') iW = oImage.width;
 		if (typeof iH == 'undefined') iH = oImage.width;
 		this.o2D.drawImage(oImage, 0, 0, oImage.width, oImage.height, iX, iY, iW, iH);
+	};
+	
+	
+	
+	
+	Graphics2D.prototype.vSetImageSmoothing = function (bSmoothing) {
+		
+		this.o2D.imageSmoothingEnabled = bSmoothing;
+		this.o2D.msImageSmoothingEnabled = bSmoothing;
+		this.o2D.mozImageSmoothingEnabled = bSmoothing;
+		this.o2D.webkitImageSmoothingEnabled = bSmoothing;
+		
 	};
 	
 	
@@ -222,7 +236,7 @@
 	
 	Graphics2D.prototype.iGetW = function () {
 		
-		return this.oCanvas.clientWidth;
+		return this.oCanvas.width;
 		
 	};
 	
@@ -231,7 +245,7 @@
 	
 	Graphics2D.prototype.iGetH = function () {
 		
-		return this.oCanvas.clientHeight;
+		return this.oCanvas.height;
 		
 	};
 	
