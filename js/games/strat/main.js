@@ -3,9 +3,14 @@
 	
 	
 	
-	var oGame = new Game(500, 400);
+	var oGame = new Game(333, 333);
 	var oG = oGame.oG;
 	var oI = oGame.oI;
+	
+	
+	
+	
+	var oStuff = {};
 	
 	
 	
@@ -22,12 +27,30 @@
 		oI.iMouseCorrectionX = -1;
 		oI.iMouseCorrectionY = -2;
 		
+		oStuff.oWorld = oInitWorld(64, 64);
+		
+		oStuff.oCamera = new Camera();
+		oStuff.oCamera.vSetDrawRect(0, 0, 333, 333);
+		oStuff.oCamera.vSetViewCenter(oStuff.oWorld.iW / 2, oStuff.oWorld.iH / 2);
+		oStuff.oCamera.vSetZoom(333 / 64);
+		
 	};
 	
 	
 	
 	
 	var vInput = function () {
+		
+		if (oI.iButtonJustPressed(0)) {
+			//oStuff.oLands.vGrow();
+			//console.log('grown');
+		}
+		
+		var iWheel = oI.iJustWheel();
+		if (iWheel != 0) {
+			var oMouse = oI.oGetMousePos();
+			oStuff.oCamera.vZoom(iWheel / 4, [oMouse.iX + 0.5, oMouse.iY + 0.5]);
+		}
 		
 		oI.vStep();
 		
@@ -36,7 +59,11 @@
 	
 	
 	
-	var vCalc = function () {};
+	var vCalc = function () {
+		
+		oStuff.oWorld.vCalc();
+		
+	};
 	
 	
 	
@@ -46,9 +73,7 @@
 		oG.vSetColor('#FFF');
 		oG.vFillRect(0, 0, oG.iGetW(), oG.iGetH());
 		
-		var oCamera = {nZoom: 1, aDisplayRect: [2, 2, 22, 22]};
-		
-		oWorld.vDraw(oG, oCamera);
+		oStuff.oWorld.vDraw(oG, oStuff.oCamera);
 		
 	};
 	
