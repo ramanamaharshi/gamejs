@@ -9,17 +9,19 @@
 		
 		oWorld.oLands = oInitLands(iW, iH);
 		oWorld.oBuildings = oInitBuildings(oWorld, 8);
+		oWorld.oUnits = oInitUnits(oWorld);
+		
 		oWorld.oCows = oInitCows(oWorld, 64);
 		
 		oWorld.vCalc = function () {
 			oWorld.oLands.vCalc();
 			oWorld.oBuildings.vCalc();
-			oWorld.oCows.vCalc();
+			oWorld.oUnits.vCalc();
 		};
 		oWorld.vDraw = function (oG, oCamera) {
 			oWorld.oLands.vDraw(oG, oCamera);
 			oWorld.oBuildings.vDraw(oG, oCamera);
-			oWorld.oCows.vDraw(oG, oCamera);
+			oWorld.oUnits.vDraw(oG, oCamera);
 		};
 		
 		return oWorld;
@@ -129,13 +131,17 @@
 	
 	var oInitBuildings = function (oWorld, iBuildings) {
 		
-		var iWorldW = oWorld.iW;
-		var iWorldH = oWorld.iH;
-		
 		var oBuildings = {iBuildings: 0, aBuildings: []};
 		
-		oBuildings.vAdd = function (iX, iY, iW, iH, oImage) {
-			var oBuilding = {iX: iX, iY: iY, iW: iW, iH: iH, oImage: oImage};
+		oBuildings.vAdd = function (oData) {
+			var oBuilding = {
+				iX: oData.iX,
+				iY: oData.iY,
+				iW: oData.iW,
+				iH: oData.iH,
+				oImage: oData.oImage,
+				sType: oData.sType,
+			};
 			oBuildings.aBuildings.push(oBuilding);
 			oBuildings.iBuildings = oBuildings.aBuildings.length;
 			oBuilding.vDraw = function (oG, oCam) {
@@ -159,14 +165,17 @@
 		};
 		
 		for (var iB = 0; iB < iBuildings; iB ++) {
-			var iW = Math.ceil(3 * Math.random());
-			var iH = Math.ceil(3 * Math.random());
-			var iX = Math.floor((iWorldW - iW) * Math.random());
-			var iY = Math.floor((iWorldH - iH) * Math.random());
-			var oImage = Graphics2D.oCreateBuffer(iW * 8, iH * 8);
-			oImage.vSetColor('#FFF');
-			oImage.vFillRect(1, 1, iW * 8 - 2, iH * 8 - 2);
-			oBuildings.vAdd(iX, iY, iW, iH, oImage.oCanvas);
+			var oData = {};
+			oData.sType = 'test';
+			oData.iW = Math.ceil(3 * Math.random());
+			oData.iH = Math.ceil(3 * Math.random());
+			oData.iX = Math.floor((oWorld.iW - oData.iW) * Math.random());
+			oData.iY = Math.floor((oWorld.iH - oData.iH) * Math.random());
+			var oBuffer = Graphics2D.oCreateBuffer(oData.iW * 8, oData.iH * 8);
+			oBuffer.vSetColor('#FFF');
+			oBuffer.vFillRect(1, 1, oData.iW * 8 - 2, oData.iH * 8 - 2);
+			oData.oImage = oBuffer.oCanvas;
+			oBuildings.vAdd(oData);
 		}
 		
 		return oBuildings;
@@ -176,10 +185,72 @@
 	
 	
 	
-	var oInitCows = function (oWorld, iCows) {
+	var oInitUnits = function (oWorld) {
 		
-		var iWorldW = oWorld.iW;
-		var iWorldH = oWorld.iH;
+		var oUnits = {aUnits: [], iUnits: 0};
+		
+		oUnits.vAdd = function (oData) {
+			
+			var oUnit = {
+				nR: oData.nR,
+				nX: oData.nX,
+				nY: oData.nY,
+				nDir: oData.nDir,
+				sType: oData.sType,
+				oType: oData.oType,
+			};
+			
+			oUnit.vSetPos = function (nX, nY) {
+				oUnit.nX = nX;
+				oUnit.nY = nY;
+			};
+			
+			oUnit.vSetDir = function (nDir) {
+				oUnit.nDir = nDir;
+			};
+			
+			oUnit.vCalc = function () {
+				if (typeof oUnit.oType != 'undefined' && typeof oUnit.oType.vCalc != 'undefined') {
+					oUnit.oType.vCalc();
+				}
+			};
+			
+			oUnit.vDraw = function (oG, oCam) {
+				if (typeof oUnit.oType != 'undefined' && typeof oUnit.oType.vDraw != 'undefined') {
+					oUnit.oType.vDraw(oG, oCam);
+				} else {
+					oG.vDrawCircle(oCam.nPlusX + oCam.nZoom * oUnit.nX, oCam.nPlusY + oCam.nZoom * oUnit.nY, oCam.nZoom * oUnit.nR);
+				}
+			};
+			
+			oUnits.aUnits.push(oUnit);
+			
+			oUnits.iUnits = oUnits.aUnits.length;
+			
+			return oUnit;
+			
+		};
+		
+		oUnits.vCalc = function () {
+			oUnits.aUnits.forEach(function(oUnit){
+				oUnit.vCalc();
+			});
+		};
+		
+		oUnits.vDraw = function (oG, oCam) {
+			oUnits.aUnits.forEach(function(oUnit){
+				oUnit.vDraw(oG, oCam);
+			});
+		};
+		
+		return oUnits;
+		
+	};
+	
+	
+	
+	
+	var oInitCows = function (oWorld, iCows) {
 		
 		var oCows = {iCows: iCows, aCows: []};
 		
@@ -192,34 +263,42 @@
 		
 		for (var iS = 0; iS < iCows; iS ++) {
 			(function(){
+				
 				var oCow = {
-					nX: iWorldW * Math.random(),
-					nY: iWorldH * Math.random(),
-					bHungry: false,
 					nStomach: 0,
 					nSpeed: 0.01,
-					nDir: 0,
+					bHungry: false,
 					oCache: {},
 				};
+				var oUnitData = {
+					nDir: 0,
+					nR: 0.25,
+					nX: oWorld.iW * Math.random(),
+					nY: oWorld.iH * Math.random(),
+					oType: oCow,
+					sType: 'cow',
+				};
+				oCow.oUnit = oWorld.oUnits.vAdd(oUnitData);
+				
 				oCow.oCache.pDir = null;
 				oCow.oCache.mRotation = null;
 				oCow.oCache.aRelPoints = [[0,0],[0,0],[0,0],[0,0]];
 				oCow.vSetDir = function (nNewDir) {
-					oCow.nDir = nNewDir;
-					oCow.oCache.pDir = oLA.pDirToPoint(oCow.nDir);
-					oCow.oCache.mRotation = oLA.mRotation(oCow.nDir);
+					oCow.oUnit.vSetDir(nNewDir);
+					oCow.oCache.pDir = oLA.pDirToPoint(oCow.oUnit.nDir);
+					oCow.oCache.mRotation = oLA.mRotation(oCow.oUnit.nDir);
 					for (var iP = 0; iP < 4; iP ++) {
 						oCow.oCache.aRelPoints[iP] = oLA.pMultiplyNP(1, oLA.pMultiplyMP(oCow.oCache.mRotation, aCowPoints[iP]));
 					}
 				};
 				oCow.vSetDir(Math.PI * 2 * Math.random());
 				oCow.vEat = function () {
-					var oLand = oWorld.oLands.oGetLand(Math.floor(oCow.nX), Math.floor(oCow.nY));
+					var oLand = oWorld.oLands.oGetLand(Math.floor(oCow.oUnit.nX), Math.floor(oCow.oUnit.nY));
 					if (oLand) {
 						oLand.nGrass *= 0.96;
 						oWorld.oLands.vUpdateBuffer(oLand);
 					} else {
-						console.log('no land here', oCow.nX, oCow.nY);
+						console.log('no land here', oCow.oUnit.nX, oCow.oUnit.nY);
 					}
 				};
 				oCow.vCalc = function () {
@@ -227,46 +306,36 @@
 						
 					} else {
 						oCow.vEat();
-						oCow.nX += oCow.nSpeed * oCow.oCache.pDir[0];
-						oCow.nY += oCow.nSpeed * oCow.oCache.pDir[1];
-						if (!(0.5 < oCow.nX && oCow.nX < iWorldW - 0.5 && 0.5 < oCow.nY && oCow.nY < iWorldH - 0.5)) {
-							var pCenterRel = [iWorldW / 2 - oCow.nX, iWorldH / 2 - oCow.nY];
+						var nX = oCow.oUnit.nX + oCow.nSpeed * oCow.oCache.pDir[0];
+						var nY = oCow.oUnit.nY + oCow.nSpeed * oCow.oCache.pDir[1];
+						if (!(0.5 < nX && nX < oWorld.iW - 0.5 && 0.5 < nY && nY < oWorld.iH - 0.5)) {
+							var pCenterRel = [oWorld.iW / 2 - nX, oWorld.iH / 2 - nY];
 							pCenterRel = oLA.pNormalize(pCenterRel);
-							oCow.nX += pCenterRel[0];
-							oCow.nY += pCenterRel[1];
+							nX += pCenterRel[0];
+							nY += pCenterRel[1];
 							oCow.vSetDir(Math.PI * 2 * Math.random());
 						}
 						if (Math.random() < 0.01) {
 							oCow.vSetDir(Math.PI * 2 * Math.random());
 						}
+						oCow.oUnit.vSetPos(nX, nY);
 					}
 				}
 				oCow.vDraw = function (oG, oCam) {
 					var aPolygon = [];
 					for (var iP = 0; iP < 4; iP ++) {
 						aPolygon.push([
-							oCam.nPlusX + oCam.nZoom * (oCow.nX + oCow.oCache.aRelPoints[iP][0]),
-							oCam.nPlusY + oCam.nZoom * (oCow.nY + oCow.oCache.aRelPoints[iP][1]),
+							oCam.nPlusX + oCam.nZoom * (oCow.oUnit.nX + oCow.oCache.aRelPoints[iP][0]),
+							oCam.nPlusY + oCam.nZoom * (oCow.oUnit.nY + oCow.oCache.aRelPoints[iP][1]),
 						]);
 					}
 					oG.vSetColor('white');
 					oG.vFillPolygon(aPolygon);
 				};
 				oCows.aCows.push(oCow);
+				
 			})();
 		}
-		
-		oCows.vCalc = function () {
-			oCows.aCows.forEach(function(oCow){
-				oCow.vCalc();
-			});
-		};
-		
-		oCows.vDraw = function (oG, oCamera) {
-			oCows.aCows.forEach(function(oCow){
-				oCow.vDraw(oG, oCamera);
-			});
-		};
 		
 		return oCows;
 		
