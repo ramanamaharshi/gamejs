@@ -219,7 +219,20 @@ oG.o2D.imageSmoothingEnabled = false;
 	
 	
 	
-	Graphics2D.prototype.vSetColor = function (sColor) {
+	Graphics2D.prototype.vSetColor = function (nRed, nGreen, nBlue, nAlpha) {
+		var sColor = nRed;
+		if (typeof nRed == 'object') {
+			nGreen = nRed[1];
+			nBlue = nRed[2];
+			if (nRed.length == 4) nAlpha = nRed[3];
+			nRed = nRed[0];
+		}
+		if (typeof nGreen != 'undefined') {
+			sColor = 'rgb(' + nRed + ',' + nGreen + ',' + nBlue + ')';
+		}
+		if (typeof nAlpha != 'undefined') {
+			sColor = 'rgba(' + nRed + ',' + nGreen + ',' + nBlue + ',' + nAlpha + ')';
+		}
 		this.o2D.strokeStyle = sColor;
 		this.o2D.fillStyle = sColor;
 	};
