@@ -77,7 +77,7 @@ var vInit = function (fOnReady) {
 	oG.vOnResize(1000);
 	
 	oG.vLoadImages({oImageTexture: 'res/images/boy.gif'}, function(oImages){
-		oState.oImageTexture = oG.oCreateTexture(oImages.oImageTexture);
+		oState.oImageTexture = oG.oCreateImageTexture(oImages.oImageTexture);
 		fOnReady();
 	});
 	

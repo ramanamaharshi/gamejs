@@ -15,51 +15,56 @@ var vInit = function (fOnReady) {
 	oGame.oCanvas.style.float = 'right';
 	
 	var oProgram = oG.oCreateProgram(
-		'\
-			\n\
-			uniform mat4 mProjection; \n\
-			uniform mat4 mView; \n\
-			uniform mat4 mObject; \n\
-			\n\
-			attribute vec3 v3Position; \n\
-			attribute vec3 v3Color; \n\
-			\n\
-			varying vec3 v3FragColor; \n\
-			varying vec2 v2TexCoord; \n\
-			\n\
-			void main() { \n\
-				v3FragColor = v3Color; \n\
-				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0); \n\
-				v2TexCoord = vec2(v3Position[0], v3Position[1]); \n\
-				float nNearZ = 11.0; \n\
-				float nRangeZ = 8.0; \n\
-			} \n\
-			\n\
-		',
-		'\
-			\n\
-			precision mediump float; \n\
-			\n\
-			uniform sampler2D sSamplerA; \n\
-			uniform sampler2D sSamplerB; \n\
-			\n\
-			varying vec3 v3FragColor; \n\
-			varying vec2 v2TexCoord; \n\
-			\n\
-			void main() { \n\
-				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2)); \n\
-				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]); \n\
-				gl_FragColor = vec4(v3FragColor, 1); \n\
-				gl_FragColor *= gl_FragColor; \n\
-				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) { \n\
-					gl_FragColor *= texture2D(sSamplerA, v2TexC)[0]; \n\
-				} \n\
-				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) { \n\
-					gl_FragColor *= texture2D(sSamplerB, v2TexC); \n\
-				} \n\
-			} \n\
-			\n\
-		'
+		
+		/// PARSE: multiline string begin
+			
+			uniform mat4 mProjection;
+			uniform mat4 mView;
+			uniform mat4 mObject;
+			
+			attribute vec3 v3Position;
+			attribute vec3 v3Color;
+			
+			varying vec3 v3FragColor;
+			varying vec2 v2TexCoord;
+			
+			void main() {
+				v3FragColor = v3Color;
+				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0);
+				v2TexCoord = vec2(v3Position[0], v3Position[1]);
+				float nNearZ = 11.0;
+				float nRangeZ = 8.0;
+			}
+			
+		/// PARSE: multiline string end
+		
+		,
+		
+		/// PARSE: multiline string begin
+			
+			precision mediump float;
+			
+			uniform sampler2D sSamplerA;
+			uniform sampler2D sSamplerB;
+			
+			varying vec3 v3FragColor;
+			varying vec2 v2TexCoord;
+			
+			void main() {
+				vec2 v2TexC = (vec2(0.5,0.5)+v2TexCoord/vec2(2,2));
+				//v2TexC += 0.001 * vec2(texture2D(sSamplerA, v2TexC)[0], texture2D(sSamplerB, v2TexC)[0]);
+				gl_FragColor = vec4(v3FragColor, 1);
+				gl_FragColor *= gl_FragColor;
+				if (texture2D(sSamplerA, vec2(0,0)) != vec4(0,0,0,1)) {
+					gl_FragColor *= texture2D(sSamplerA, v2TexC)[0];
+				}
+				if (texture2D(sSamplerB, vec2(0,0)) != vec4(0,0,0,1)) {
+					gl_FragColor *= texture2D(sSamplerB, v2TexC);
+				}
+			}
+			
+		/// PARSE: multiline string end
+		
 	);
 	
 	oG.vSetProgram(oProgram);
@@ -77,8 +82,8 @@ var vInit = function (fOnReady) {
 	oState.oView.mMakeMatrix = function(){
 		var oView = this;
 		var mTranslation = Math3D.mTranslation(Math3D.pNxP(-1, oView.pPosition));
-		var mRH = Math3D.mRotationY(-oView.nRH);
-		var mRV = Math3D.mRotationX(-oView.nRV);
+		var mRH = Math3D.mRotationY(oView.nRH);
+		var mRV = Math3D.mRotationX(oView.nRV);
 		var mReturn = Math3D.mMxM(Math3D.mMxM(mRV, mRH), mTranslation);
 		return mReturn;
 	};
@@ -119,8 +124,7 @@ var vInit = function (fOnReady) {
 	oG.vLoadImages(oState.oImages, function(){
 		oState.oTextures = {};
 		for (var sKey in oState.oImages) {
-console.log(oState.oImages[sKey]);
-			oState.oTextures[sKey] = oG.oCreateTexture(oState.oImages[sKey]);
+			oState.oTextures[sKey] = oG.oCreateImageTexture(oState.oImages[sKey]);
 		}
 		fOnReady();
 	});
@@ -134,8 +138,9 @@ var vInput = function () {
 	
 	if (oI.bMouseCaptured) {
 		var nLookSpeed = 0.003;
-		oState.oView.nRH += nLookSpeed * oI.oMouseMoved.iX;
-		oState.oView.nRV += nLookSpeed * oI.oMouseMoved.iY;
+		var oMouseMoved = oI.oGetMouseMoved();
+		oState.oView.nRH += nLookSpeed * oMouseMoved.iX;
+		oState.oView.nRV += nLookSpeed * oMouseMoved.iY;
 		if (oState.oView.nRV < -(Math.PI / 2)) oState.oView.nRV = -(Math.PI / 2);
 		if (oState.oView.nRV > +(Math.PI / 2)) oState.oView.nRV = +(Math.PI / 2);
 	}

@@ -134,7 +134,7 @@ var vInit = function (fOnReady) {
 	oG.vLoadImages(oState.oImages, function(){
 		oState.oTextures = {};
 		for (var sKey in oState.oImages) {
-			oState.oTextures[sKey] = oG.oCreateTexture(oState.oImages[sKey]);
+			oState.oTextures[sKey] = oG.oCreateImageTexture(oState.oImages[sKey]);
 		}
 		fOnReady();
 	});
