@@ -294,10 +294,12 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateImageTexture = function (dImage) {
+	Graphics3D.prototype.oCreateImageTexture = function (dImage, bFlip) {
 		
 		var oG = this;
 		var oGL = oG.o3D;
+		
+		if (typeof bFlip == 'undefined') bFlip = true;
 		
 		var oTexture = oG.oCreateTexture();
 		
@@ -306,7 +308,8 @@
 		oGL.bindTexture(oGL.TEXTURE_2D, oTexture.gTexture);
 		
 		oGL.texImage2D(oGL.TEXTURE_2D, 0, oGL.RGBA, oGL.RGBA, oGL.UNSIGNED_BYTE, oTexture.dImage);
-		oGL.pixelStorei(oGL.UNPACK_FLIP_Y_WEBGL, true);
+		
+		if (bFlip) oGL.pixelStorei(oGL.UNPACK_FLIP_Y_WEBGL, true);
 		
 		oGL.bindTexture(oGL.TEXTURE_2D, null);
 		
@@ -324,7 +327,7 @@
 		
 		var oTexture = oG.oCreateTexture();
 		
-		oTexture.gFrameBuffer = oGL.createFrameBuffer();
+		oTexture.gFrameBuffer = oGL.createFramebuffer();
 		oGL.bindTexture(oGL.TEXTURE_2D, oTexture.gTexture);
 		oGL.bindFramebuffer(oGL.FRAMEBUFFER, oTexture.gFrameBuffer);
 		

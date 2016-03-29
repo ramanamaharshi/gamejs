@@ -94,8 +94,8 @@ var TestPackages = {
 			iPrev = iP;
 		}
 		
-		var oAGB = oG.oCreateABG({v3Position: aPositions, v3Color: aColors}, aIndices);
-		var oReturn = oG.oCreateDrawPackage(oAGB);
+		var oABG = oG.oCreateABG({v3Position: aPositions, v3Color: aColors}, aIndices);
+		var oReturn = oG.oCreateDrawPackage(oABG);
 		
 		return oReturn;
 		
@@ -118,7 +118,9 @@ var TestPackages = {
 		var oABG = oG.oCreateABG(oAttributes, aIndices);
 		var oUniforms = {sSampler: oTexture};
 		
-		var oReturn = oG.oCreateDrawPackage();
+		var oReturn = oG.oCreateDrawPackage(oABG, oUniforms);
+		
+		return oReturn;
 		
 	},
 	

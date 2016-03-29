@@ -15,6 +15,10 @@ var vInit = function (fOnReady) {
 	
 	oGame.oCanvas.style.float = 'right';
 	
+	oG.o3D.enable(oG.o3D.DEPTH_TEST);
+	oG.o3D.enable(oG.o3D.CULL_FACE);
+	oG.o3D.cullFace(oG.o3D.BACK);
+	
 	oState.oGlPrograms = {};
 	
 	oState.oGlPrograms.oContent = oG.oCreateProgram(
@@ -34,7 +38,7 @@ var vInit = function (fOnReady) {
 			
 			void main() {
 				v3FragColor = v3Color;
-				v2FragmentTexCoord = vec2(v2TexCoord[0], 1.0 - v2TexCoord[1]);
+				v2FragmentTexCoord = vec2(v2TexCoord[0], v2TexCoord[1]);
 				gl_Position = mProjection * mView * mObject * vec4(v3Position, 1.0);
 			}
 			
@@ -62,17 +66,14 @@ var vInit = function (fOnReady) {
 		
 	);
 	
-	oG.o3D.enable(oG.o3D.DEPTH_TEST);
-	oG.o3D.enable(oG.o3D.CULL_FACE);
-	oG.o3D.cullFace(oG.o3D.BACK);
-	
 	oState.mProjection = oG.mProjection(0.01, 9, 55);
 	oState.mView = Math3D.mIdentity();
 	oState.mObject = Math3D.mIdentity();
 	
 	oState.oCam = {
 		
-		oPosRot: new PosRot([2,0,0], [Math.PI / 2, Math.PI / 2]),
+		oPosRot: new PosRot([0,0,2], [0,0]),
+		//oPosRot: new PosRot([2,0,0], [Math.PI / 2, Math.PI / 2]),
 		
 		vMove: function (nForwards, nSideways) {
 			this.oPosRot.vMove(nForwards, nSideways);
@@ -88,17 +89,26 @@ var vInit = function (fOnReady) {
 		
 	};
 	
-	oState.oPackageA = TestPackages.oCoords(oG, {bWhite: true});
+	oState.oCoords = TestPackages.oCoords(oG, {bWhite: true});
 	
 	oI.vActivateMouseCapturing();
 	
-	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/paper06.jpg', oC: 'res/images/leaves.jpg'};
+	oState.oImages = {oA: 'res/images/paper02.jpg', oB: 'res/images/boy.gif', oC: 'res/images/leaves.jpg'};
 	oG.vLoadImages(oState.oImages, function(){
+		
 		oState.oTextures = {};
 		for (var sKey in oState.oImages) {
 			oState.oTextures[sKey] = oG.oCreateImageTexture(oState.oImages[sKey]);
 		}
+		
+		oState.oTextures.oBuffer = oG.oCreateFramebufferTexture(1024,1024);
+		
+		oState.oFrame = TestPackages.oTextureFrame(oG, oState.oTextures.oB);
+		oState.oFrame = TestPackages.oTextureFrame(oG, oState.oTextures.oBuffer);
+		oState.oFrame.oUniforms.mObject = Math3D.mTranslation([0.5,0.5,0.1]);
+		
 		fOnReady();
+		
 	});
 	
 };
@@ -142,10 +152,12 @@ var vCalc = function (iMillis) {
 
 var vDraw = function () {
 	
+	var oGL = oG.o3D;
+	
 	/// clear
 	
-	oG.o3D.clearColor(1,1,1,1);
-	oG.o3D.clear(oG.o3D.COLOR_BUFFER_BIT);
+	oGL.clearColor(1,1,1,1);
+	oGL.clear(oGL.COLOR_BUFFER_BIT);
 	
 	/// content
 	
@@ -154,10 +166,20 @@ var vDraw = function () {
 	var oUniforms = oG.oCurrentProgram.oUniforms;
 	oUniforms.mProjection.vSet(oState.mProjection);
 	
+	oGL.bindFramebuffer(oGL.FRAMEBUFFER, oState.oTextures.oBuffer.gFrameBuffer);
+	
+	oGL.clearColor(1,1,1,1);
+	oGL.clear(oGL.COLOR_BUFFER_BIT);
+	oUniforms.mView.vSet(oState.oCam.mGetView());
+	oState.oCoords.vDraw();
+	
+	oGL.bindFramebuffer(oGL.FRAMEBUFFER, null);
+	
 	oUniforms.mView.vSet(oState.oCam.mGetView());
 	
-	oUniforms.mObject.vSet(Math3D.mIdentity());
-	oState.oPackageA.vDraw();
+	oState.oCoords.vDraw();
+	
+	oState.oFrame.vDraw();
 	
 };
 
