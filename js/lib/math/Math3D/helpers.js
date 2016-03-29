@@ -17,39 +17,53 @@ Math3D.oMatrixHelper.pUp = [ 0 , 1 , 0 ];
 
 
 
-Math3D.oMatrixHelper.mDirToS = function (pDir) {
-	
-	var oMH = this;
-	
-	var mReturn = Math3D.mInverse(oMH.mDirToO(pDir));
-	
-	return mReturn;
-	
-};
-
-
-
-
-Math3D.oMatrixHelper.mDirToO = function (pDir, pUp) {
-	
-	var oMH = this;
-	
-	if (typeof pUp == 'undefined') pUp = oMH.pUp;
-	
-	var pY = Math3D.pNormalize([pDir[0], pDir[1], pDir[2]]);
-	var pX = Math3D.pNormalize(Math3D.pPxP(pUp, pY));
-	var pZ = Math3D.pNormalize(Math3D.pPxP(pY, pX));
-	
-	var mReturn = new Float32Array([
-		pX[0] , pX[1] , pX[2] , 0 ,
-		pY[0] , pY[1] , pY[2] , 0 ,
-		pZ[0] , pZ[1] , pZ[2] , 0 ,
-		0 , 0 , 0 , 1 ,
-	]);
-	
-	return mReturn;
-	
-};
+//  Math3D.oMatrixHelper.mRotToS = function (nRH, nRV) { /// s for subjective
+//  	
+//  	return Math3D.mMxM(Math3D.mRotationX(-nRV), Math3D.mRotationZ(-nRH));
+//  	
+//  };
+//  
+//  
+//  
+//  
+//  Math3D.oMatrixHelper.mRotToO = function (nRH, nRV) { /// o for objective
+//  	
+//  	return Math3D.mMxM(Math3D.mRotationZ(nRH), Math3D.mRotationX(nRV));
+//  	
+//  };
+//  
+//  
+//  
+//  
+//  
+//  Math3D.oMatrixHelper.mDirToS = function (pDir, pUp) { /// s for subjective
+//  	
+//  	var oMH = this;
+//  	
+//  	var mReturn = Math3D.mInverse(oMH.mDirToO(pDir, pUp));
+//  	
+//  	return mReturn;
+//  	
+//  };
+//  
+//  
+//  
+//  
+//  Math3D.oMatrixHelper.mDirToO = function (pDir, pUp) { /// o for objective
+//  	
+//  	var oMH = this;
+//  	
+//  	if (typeof pUp == 'undefined') pUp = oMH.pUp;
+//  	
+//  	var pY = Math3D.pNormalize([pDir[0], pDir[1], pDir[2]]);
+//  	var pX = Math3D.pNormalize(Math3D.pPxP(pUp, pY));
+//  	var pZ = Math3D.pNormalize(Math3D.pPxP(pY, pX));
+//  	
+//  	return Math3D.mFromCoordinateSystem(pX,pY,pZ);
+//  	
+//  	return mReturn;
+//  	
+//  };
 
 
 

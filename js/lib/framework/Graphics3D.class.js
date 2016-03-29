@@ -11,7 +11,7 @@
 		
 		oG.o3D = oG.oCanvas.getContext("webgl");
 		
-		oG.oTextureState = {iAtTexture: 0};
+		oG.oTextureState = {iAtTexture: 1};
 		
 		oG.iResizeIntervalID = null;
 		
@@ -69,15 +69,17 @@
 			oSubPackage.vDraw();
 		});
 		
+		for (var sKey in oDP.oUniforms) {
+			oUniforms[sKey].vSet(null);
+		}
+		
 	};
 	
 	
 	
 	
 	Graphics3D.prototype.oCreateAttributeBufferGroup = function (sUsage, sMode, oAttributeGroup, aIndices) {
-		
 		return new Graphics3D.AttributeBufferGroup(this, sUsage, sMode, oAttributeGroup, aIndices);
-		
 	};
 	Graphics3D.prototype.oCreateABG = Graphics3D.prototype.oCreateAttributeBufferGroup;
 	
@@ -203,11 +205,6 @@
 	
 	
 	
-	//Graphics3D.AttributeBufferGroup.prototype.vPrepareData
-	
-	
-	
-	
 	Graphics3D.AttributeBufferGroup.prototype.vDraw = function () {
 		
 		var oABG = this;
@@ -297,30 +294,73 @@
 	
 	
 	
-	Graphics3D.prototype.oCreateTexture = function (dImage) {
+	Graphics3D.prototype.oCreateImageTexture = function (dImage) {
 		
 		var oG = this;
+		var oGL = oG.o3D;
 		
-		oG.oTextureState.iAtTexture ++;
+		var oTexture = oG.oCreateTexture();
+		
+		oTexture.dImage = dImage;
+		
+		oGL.bindTexture(oGL.TEXTURE_2D, oTexture.gTexture);
+		
+		oGL.texImage2D(oGL.TEXTURE_2D, 0, oGL.RGBA, oGL.RGBA, oGL.UNSIGNED_BYTE, oTexture.dImage);
+		oGL.pixelStorei(oGL.UNPACK_FLIP_Y_WEBGL, true);
+		
+		oGL.bindTexture(oGL.TEXTURE_2D, null);
+		
+		return oTexture;
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.oCreateFramebufferTexture = function (iWidth, iHeight) {
+		
+		var oG = this;
+		var oGL = oG.o3D;
+		
+		var oTexture = oG.oCreateTexture();
+		
+		oTexture.gFrameBuffer = oGL.createFrameBuffer();
+		oGL.bindTexture(oGL.TEXTURE_2D, oTexture.gTexture);
+		oGL.bindFramebuffer(oGL.FRAMEBUFFER, oTexture.gFrameBuffer);
+		
+		oGL.texImage2D(oGL.TEXTURE_2D, 0, oGL.RGBA, iWidth, iHeight, 0, oGL.RGBA, oGL.UNSIGNED_BYTE, null);
+		
+		oGL.framebufferTexture2D(oGL.FRAMEBUFFER, oGL.COLOR_ATTACHMENT0, oGL.TEXTURE_2D, oTexture.gTexture, 0);
+		
+		oGL.bindFramebuffer(oGL.FRAMEBUFFER, null);
+		oGL.bindTexture(oGL.TEXTURE_2D, null);
+		
+		return oTexture;
+		
+	};
+	
+	
+	
+	
+	Graphics3D.prototype.oCreateTexture = function () {
+		
+		var oG = this;
+		var oGL = oG.o3D;
 		
 		var oTexture = {
-			dImage: dImage,
 			gTexture: null,
-			iBoundOn: oG.oTextureState.iAtTexture,
+			iBindSlot: oG.oTextureState.iAtTexture ++,
 		}
 		
-		oTexture.gTexture = oG.o3D.createTexture();
+		oTexture.gTexture = oGL.createTexture();
+		oGL.bindTexture(oGL.TEXTURE_2D, oTexture.gTexture);
 		
-		oG.o3D.activeTexture(oG.o3D['TEXTURE' + oTexture.iBoundOn]);
-		oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, oTexture.gTexture);
+		oGL.texParameteri(oGL.TEXTURE_2D, oGL.TEXTURE_MIN_FILTER, oGL.NEAREST);
+		oGL.texParameteri(oGL.TEXTURE_2D, oGL.TEXTURE_MAG_FILTER, oGL.NEAREST);
+		oGL.texParameteri(oGL.TEXTURE_2D, oGL.TEXTURE_WRAP_S, oGL.CLAMP_TO_EDGE);
+		oGL.texParameteri(oGL.TEXTURE_2D, oGL.TEXTURE_WRAP_T, oGL.CLAMP_TO_EDGE);
 		
-		oG.o3D.texImage2D(oG.o3D.TEXTURE_2D, 0, oG.o3D.RGBA, oG.o3D.RGBA, oG.o3D.UNSIGNED_BYTE, oTexture.dImage);
-		
-		oG.o3D.pixelStorei(oG.o3D.UNPACK_FLIP_Y_WEBGL, true);
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MIN_FILTER, oG.o3D.NEAREST);
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_MAG_FILTER, oG.o3D.NEAREST);
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_S, oG.o3D.CLAMP_TO_EDGE);
-		oG.o3D.texParameteri(oG.o3D.TEXTURE_2D, oG.o3D.TEXTURE_WRAP_T, oG.o3D.CLAMP_TO_EDGE);
+		oGL.bindTexture(oGL.TEXTURE_2D, null);
 		
 		return oTexture;
 		
@@ -392,23 +432,31 @@
 		var gLocation = oUniform.gLocation;
 		
 		if (sType == 'bool') {
+			if (!mValue) mValue = 0;
 			o3D.uniform1i(gLocation, mValue);
 		} else if (sType == 'int') {
-			o3D.uniform1i(gLocation, mValue.iBoundOn);
+			if (!mValue) mValue = 0;
+			o3D.uniform1i(gLocation, mValue);
 		} else if (sType == 'float') {
+			if (!mValue) mValue = 0;
 			o3D.uniform1f(gLocation, mValue);
 		} else if (sType == 'vec2') {
+			if (!mValue) mValue = [0,0];
 			o3D.uniform2f(gLocation, mValue[0], mValue[1]);
 		} else if (sType == 'vec3') {
+			if (!mValue) mValue = [0,0,0];
 			o3D.uniform3f(gLocation, mValue[0], mValue[1], mValue[2]);
 		} else if (sType == 'vec4') {
+			if (!mValue) mValue = [0,0,0,0];
 			o3D.uniform4f(gLocation, mValue[0], mValue[1], mValue[2], mValue[3]);
 		} else if (sType == 'mat4') {
+			if (!mValue) mValue = Math3D.mIdentity();
 			o3D.uniformMatrix4fv(gLocation, 0, mValue);
 		} else if (sType == 'sampler2D') {
-			var iValue = 0;
-			if (mValue) iValue = mValue.iBoundOn;
-			o3D.uniform1i(gLocation, iValue);
+			if (!mValue) mValue = {gTexture: null, iBindSlot: 0};
+			oG.o3D.activeTexture(oG.o3D['TEXTURE' + mValue.iBindSlot]);
+			oG.o3D.bindTexture(oG.o3D.TEXTURE_2D, mValue.gTexture);
+			o3D.uniform1i(gLocation, mValue.iBindSlot);
 		}
 		
 	};

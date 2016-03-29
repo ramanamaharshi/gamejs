@@ -16,16 +16,22 @@ var TestPackages = {
 		var aPositions = [];
 		//var aDirColors = [[0,0,1],[0,1,0],[1,0,0]];
 		for (var iDir = 0; iDir < 3; iDir ++) {
-			for (var iCorner = 0; iCorner < 3; iCorner ++) {
-				var aPosition = [0,0,0];
-				//var aColor = aDirColors[iDir];
-				if (iCorner == iDir) {
-					aPosition[iCorner] = oParams.nSize;
-				} else {
-					aPosition[iCorner] = 0.1;
+			for (var iFace = 0; iFace < 2; iFace ++) {
+				for (var iCorner = 0; iCorner < 3; iCorner ++) {
+					var iC = iFace ? iCorner : (2 - iCorner);
+					var aPosition = [0,0,0];
+					if (iC == iDir) {
+						aPosition[iC] = oParams.nSize;
+					} else {
+						aPosition[iC] = 0.1;
+					}
+					aPositions.push(aPosition);
+					if (oParams.bWhite) {
+						aColors.push([1 - (aPosition[0] + aPosition[1]) / 2, 1 - (aPosition[0] + aPosition[2]) / 2, 1 - (aPosition[1] + aPosition[2]) / 2]);
+					} else {
+						aColors.push([aPosition[2], aPosition[1], aPosition[0]]);
+					}
 				}
-				aPositions.push(aPosition);
-				aColors.push([aPosition[2], aPosition[1], aPosition[0]]);
 			}
 		}
 		
@@ -35,7 +41,7 @@ var TestPackages = {
 		};
 		
 		if (!oParams.bDataOnly) {
-			oReturn = oG.oCreateAttributeBufferGroup(oReturn);
+			oReturn = oG.oCreateDrawPackage(oG.oCreateABG(oReturn));
 		}
 		
 		return oReturn;
@@ -88,9 +94,31 @@ var TestPackages = {
 			iPrev = iP;
 		}
 		
-		var oReturn = oG.oCreateAttributeBufferGroup({v3Position: aPositions, v3Color: aColors}, aIndices);
+		var oAGB = oG.oCreateABG({v3Position: aPositions, v3Color: aColors}, aIndices);
+		var oReturn = oG.oCreateDrawPackage(oAGB);
 		
 		return oReturn;
+		
+	},
+	
+	
+	
+	
+	oTextureFrame: function (oG, oTexture, nSize) {
+		
+		if (typeof nSize == 'undefined') nSize = 1;
+		
+		var nHS = nSize / 2;
+		
+		var oAttributes = {
+			v2TexCoord: [[0,0],[0,1],[1,0],[1,1]],
+			v3Position: [[-nHS,-nHS],[-nHS,nHS],[nHS,-nHS],[nHS,nHS]],
+		};
+		var aIndices = [0,2,1,3,1,2];
+		var oABG = oG.oCreateABG(oAttributes, aIndices);
+		var oUniforms = {sSampler: oTexture};
+		
+		var oReturn = oG.oCreateDrawPackage();
 		
 	},
 	

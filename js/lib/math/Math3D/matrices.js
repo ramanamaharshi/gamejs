@@ -212,7 +212,7 @@ Math3D.mRotation = function (pAxis, nR, sHandedness) {
 	var nY = pAxis[1];
 	var nZ = pAxis[2];
 	
-	if (sHandedness == 'left') {
+	if (sHandedness != 'right') {
 		nS *= -1;
 	}
 	
