@@ -304,6 +304,8 @@
 		var oTexture = oG.oCreateTexture();
 		
 		oTexture.dImage = dImage;
+		oTexture.iW = dImage.clientWidth;
+		oTexture.iH = dImage.clientHeight;
 		
 		oGL.bindTexture(oGL.TEXTURE_2D, oTexture.gTexture);
 		
@@ -326,6 +328,9 @@
 		var oGL = oG.o3D;
 		
 		var oTexture = oG.oCreateTexture();
+		
+		oTexture.iW = iWidth;
+		oTexture.iH = iHeight;
 		
 		oTexture.gFrameBuffer = oGL.createFramebuffer();
 		oGL.bindTexture(oGL.TEXTURE_2D, oTexture.gTexture);
@@ -613,7 +618,7 @@
 		var oG = this;
 		
 		if (oG.iGetW() != oG.iViewPortW || oG.iGetH() != oG.iViewPortH) {
-			oG.vUpdateViewPort();
+			oG.vSetViewPort();
 		}
 		
 		if (typeof iIntervalMillis != 'undefined') {
@@ -630,12 +635,15 @@
 	
 	
 	
-	Graphics3D.prototype.vUpdateViewPort = function () {
+	Graphics3D.prototype.vSetViewPort = function (iW, iH) {
 		
 		var oG = this;
 		
-		oG.iViewPortW = oG.iGetW();
-		oG.iViewPortH = oG.iGetH();
+		if (!iW) iW = oG.iGetW();
+		if (!iH) iH = oG.iGetH();
+		
+		oG.iViewPortW = iW;
+		oG.iViewPortH = iH;
 		
 		oG.o3D.viewport(0, 0, oG.iViewPortW, oG.iViewPortH);
 		

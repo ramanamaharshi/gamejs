@@ -101,7 +101,7 @@ var vInit = function (fOnReady) {
 			oState.oTextures[sKey] = oG.oCreateImageTexture(oState.oImages[sKey]);
 		}
 		
-		oState.oTextures.oBuffer = oG.oCreateFramebufferTexture(1024,1024);
+		oState.oTextures.oBuffer = oG.oCreateFramebufferTexture(32,32);
 		
 		oState.oFrame = TestPackages.oTextureFrame(oG, oState.oTextures.oB);
 		oState.oFrame = TestPackages.oTextureFrame(oG, oState.oTextures.oBuffer);
@@ -168,12 +168,15 @@ var vDraw = function () {
 	
 	oGL.bindFramebuffer(oGL.FRAMEBUFFER, oState.oTextures.oBuffer.gFrameBuffer);
 	
+	oG.vSetViewPort(oState.oTextures.oBuffer.iW, oState.oTextures.oBuffer.iH);
 	oGL.clearColor(1,1,1,1);
 	oGL.clear(oGL.COLOR_BUFFER_BIT);
 	oUniforms.mView.vSet(oState.oCam.mGetView());
 	oState.oCoords.vDraw();
 	
 	oGL.bindFramebuffer(oGL.FRAMEBUFFER, null);
+	
+	oG.vSetViewPort();
 	
 	oUniforms.mView.vSet(oState.oCam.mGetView());
 	
