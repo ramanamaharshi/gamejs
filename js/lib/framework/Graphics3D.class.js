@@ -540,7 +540,7 @@
 		oG.o3D.compileShader(gShader);
 		
 		if (!oG.o3D.getShaderParameter(gShader, oG.o3D.COMPILE_STATUS)) {
-			alert('error: ' + oG.o3D.getShaderInfoLog(gShader));
+			console.log('shader error: ' + oG.o3D.getShaderInfoLog(gShader));
 			oG.o3D.deleteShader(gShader);
 			oShader = null;
 		}
