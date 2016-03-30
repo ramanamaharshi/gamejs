@@ -104,11 +104,12 @@ var TestPackages = {
 	
 	
 	
-	oTextureFrame: function (oG, oTexture, nSize) {
+	oTextureFrame: function (oG, oParams) {
 		
-		if (typeof nSize == 'undefined') nSize = 1;
+		if (typeof oParams == 'undefined') oParams = {};
+		if (typeof oParams.nSize == 'undefined') oParams.nSize = 1;
 		
-		var nHS = nSize / 2;
+		var nHS = oParams.nSize / 2;
 		
 		var oAttributes = {
 			v2TexCoord: [[0,0],[0,1],[1,0],[1,1]],
@@ -116,7 +117,34 @@ var TestPackages = {
 		};
 		var aIndices = [0,2,1,3,1,2];
 		var oABG = oG.oCreateABG(oAttributes, aIndices);
-		var oUniforms = {sSampler: oTexture};
+		var oUniforms = {sSampler: oParams.oTexture};
+		
+		var oReturn = oG.oCreateDrawPackage(oABG, oUniforms);
+		
+		return oReturn;
+		
+	},
+	
+	
+	
+	
+	oSquare: function (oG, oParams) {
+		
+		if (typeof oParams == 'undefined') oParams = {};
+		if (typeof oParams.nSize == 'undefined') oParams.nSize = 1;
+		if (typeof oParams.aColor == 'undefined') oParams.aColor = [1,1,1];
+		
+		var nHS = oParams.nSize / 2;
+		
+		var aColor = oParams.aColor;
+		
+		var oAttributes = {
+			v3Color: [aColor, aColor, aColor, aColor],
+			v3Position: [[-nHS,-nHS],[-nHS,nHS],[nHS,-nHS],[nHS,nHS]],
+		};
+		var aIndices = [0,2,1,3,1,2];
+		var oABG = oG.oCreateABG(oAttributes, aIndices);
+		var oUniforms = {};
 		
 		var oReturn = oG.oCreateDrawPackage(oABG, oUniforms);
 		
